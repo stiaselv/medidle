@@ -17,6 +17,7 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 
 # Debug logs
 npm-debug.log*
@@ -53,6 +54,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Project specific
+.cursor/
+.env*
+mcp.json
+dev-debug.log
+tasks.json
+tasks/
 
 # Added by Claude Task Master
 dev-debug.log
