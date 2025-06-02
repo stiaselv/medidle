@@ -1,0 +1,213 @@
+{
+  "meta": {
+    "generatedAt": "2025-05-31T12:12:41.215Z",
+    "tasksAnalyzed": 20,
+    "totalTasks": 20,
+    "analysisCount": 25,
+    "thresholdScore": 5,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 21,
+      "taskTitle": "Performance Optimization",
+      "complexityScore": 8,
+      "recommendedSubtasks": 8,
+      "expansionPrompt": "List subtasks for memoization, virtualization, state optimization, code splitting, worker threads, monitoring, benchmarking, and regression testing.",
+      "reasoning": "Performance work spans the entire codebase and requires deep understanding and careful testing."
+    },
+    {
+      "taskId": 22,
+      "taskTitle": "Error Handling System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down into subtasks for error boundaries, logging, user feedback, recovery, retry logic, reporting, and testing.",
+      "reasoning": "Comprehensive error handling involves UI, backend, and user experience considerations."
+    },
+    {
+      "taskId": 23,
+      "taskTitle": "Analytics Implementation",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into subtasks for analytics setup, event tracking, metrics collection, dashboard data, user tracking, and performance metrics.",
+      "reasoning": "Standard analytics features, but requires integration and privacy considerations."
+    },
+    {
+      "taskId": 24,
+      "taskTitle": "Save System Implementation",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "List subtasks for save data structure, auto-save, manual save, backup, verification, import/export, and testing.",
+      "reasoning": "Robust save systems require careful data integrity, backup, and user interaction handling."
+    },
+    {
+      "taskId": 25,
+      "taskTitle": "Tutorial System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for framework, step tracking, progress validation, help system, tooltips, and skip option.",
+      "reasoning": "Feature-focused with several UI and logic components, but not deeply complex."
+    },
+    {
+      "taskId": 1,
+      "taskTitle": "Initial Project Setup and Configuration",
+      "complexityScore": 5,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the project setup into subtasks such as initializing the project, installing dependencies, configuring ESLint and Prettier, setting up the directory structure, verifying TypeScript compilation, and testing the build process.",
+      "reasoning": "While project setup is a standard process, it involves multiple configuration steps (tooling, dependencies, linting, structure) that can introduce complexity and require careful validation for a robust foundation.[1][3][4]"
+    },
+    {
+      "taskId": 2,
+      "taskTitle": "Implement Core Game State Management",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Expand into subtasks for designing the state schema, implementing the Zustand store, adding persistence, handling hydration, integrating offline progress, creating action dispatchers, and writing unit tests.",
+      "reasoning": "State management with persistence and offline logic is moderately complex, requiring careful design, middleware integration, and robust testing to ensure reliability."
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Design and Implement Character System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into subtasks for defining interfaces, implementing level and experience logic, creating stat modification utilities, initializing starting stats, and writing validation tests.",
+      "reasoning": "Character systems involve multiple interdependent calculations and data structures, demanding clear separation of concerns and thorough validation."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Create Equipment System Foundation",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Expand into subtasks for defining equipment interfaces, implementing stat calculations, adding requirement checks, creating change handlers, initializing starting equipment, and testing slot management.",
+      "reasoning": "Equipment systems require careful modeling, logic for stat modifications, and validation of requirements, making them moderately complex."
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "Develop Bank/Inventory System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down into subtasks for interface design, stacking logic, search/filter implementation, category management, layout setup, and comprehensive testing.",
+      "reasoning": "Inventory systems must handle dynamic data, UI layout, and efficient search/filtering, which increases implementation complexity."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Implement Woodcutting Skill System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into subtasks for defining tree types, implementing timers, experience logic, partial rewards, tool checks, and writing tests for each mechanic.",
+      "reasoning": "Skill systems are modular but require integration with timers, progression, and validation logic, making them moderately complex."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Implement Fishing Skill System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into subtasks for defining fishing methods, implementing catch rates, experience rewards, tool progression, partial success logic, and testing.",
+      "reasoning": "Similar to woodcutting, fishing involves multiple mechanics and progression logic, requiring modular implementation and validation."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Implement Mining Skill System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for defining ore types, implementing success rates, gem mechanics, tool tiers, partial success logic, and testing.",
+      "reasoning": "Mining combines resource types, progression, and special mechanics, necessitating clear separation and robust testing."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Design and Implement Core UI Components",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Expand into subtasks for creating base components, implementing dark mode, adding loading states, tooltips, progress bars, accessibility checks, and UI testing.",
+      "reasoning": "Reusable UI components with accessibility and theming require careful design, state handling, and compliance validation."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Implement Location System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into subtasks for defining location interfaces, implementing specific locations, adding switching logic, activity checks, and testing multi-skill integration.",
+      "reasoning": "Location systems involve data modeling, activity management, and integration with other systems, adding moderate complexity."
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Create Accessibility Layer",
+      "complexityScore": 8,
+      "recommendedSubtasks": 8,
+      "expansionPrompt": "Break down into subtasks for ARIA attributes, keyboard navigation, screen reader support, reduced motion, focus management, accessibility audits, and compliance testing.",
+      "reasoning": "Comprehensive accessibility requires deep knowledge of ARIA, keyboard handling, and compliance testing, making it highly complex."
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Implement Equipment Visual System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into subtasks for creating slot components, implementing animations, adding hover effects, preview system, state indicators, and visual testing.",
+      "reasoning": "Visual systems with animation and state feedback require UI expertise and integration with equipment logic."
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Create Action Timer System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide into subtasks for timer hook implementation, progress tracking, interruption handling, partial completion, offline calculation, and timer testing.",
+      "reasoning": "Action timers must handle real-time and offline progress, interruptions, and accurate state updates, increasing complexity."
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Implement Tool Progression System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for defining tool tiers, implementing upgrade logic, effectiveness bonuses, comparison system, and testing upgrade paths.",
+      "reasoning": "Tool progression involves tier logic, upgrade validation, and integration with other systems, requiring modular design."
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Create Reward System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into subtasks for popup component, reward calculation, animation system, queueing, history tracking, and reward testing.",
+      "reasoning": "Reward systems require UI, logic for calculation, and state management for history and queueing."
+    },
+    {
+      "taskId": 16,
+      "taskTitle": "Implement Experience System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide into subtasks for experience calculation, level-up notifications, rate modifiers, milestone rewards, and comprehensive testing.",
+      "reasoning": "Experience systems are core to progression, requiring accurate calculations, notifications, and modifier logic."
+    },
+    {
+      "taskId": 17,
+      "taskTitle": "Create Resource Collection System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for defining resource types, implementing gathering rates, quality system, depletion logic, and resource testing.",
+      "reasoning": "Resource collection involves dynamic data, progression, and depletion mechanics, requiring modular implementation."
+    },
+    {
+      "taskId": 18,
+      "taskTitle": "Implement Performance Optimization",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into subtasks for React.memo usage, performance monitoring, lazy loading, state batching, resource cleanup, and performance testing.",
+      "reasoning": "Performance optimization requires identifying bottlenecks, implementing improvements, and validating impact."
+    },
+    {
+      "taskId": 19,
+      "taskTitle": "Create Error Handling System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide into subtasks for error boundary implementation, error logging, recovery mechanisms, user notifications, state recovery, and error testing.",
+      "reasoning": "Comprehensive error handling involves UI, logging, recovery, and user feedback, demanding robust design."
+    },
+    {
+      "taskId": 20,
+      "taskTitle": "Implement Cross-Browser Compatibility",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for browser detection, fallback systems, compatibility warnings, feature detection, polyfill implementation, and cross-browser testing.",
+      "reasoning": "Ensuring compatibility requires systematic detection, fallbacks, and thorough testing across browsers and devices."
+    }
+  ]
+}

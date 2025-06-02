@@ -1,0 +1,155 @@
+# Medidle - Medieval Browser-Based Idle Game
+
+## Overview
+Medidle is a medieval-themed idle game that combines traditional RPG elements with modern web accessibility standards. Players progress through various skills, collect and manage equipment, and engage in different activities while the game continues to run in the background.
+
+## Core Features
+
+### Character System
+- Persistent character progression
+- Multiple skills (woodcutting confirmed, more to be added)
+- Level-based progression system
+- Equipment loadout with multiple slots
+- Character stats affected by equipped items
+
+### Equipment System
+- Multiple equipment slots:
+  - Head
+  - Cape
+  - Neck
+  - Tool
+  - Weapon
+  - Body
+  - Shield
+  - Legs
+  - Hands
+  - Feet
+  - Ring
+- Equipment affects character stats
+- Level requirements for equipment
+- Visual representation of equipped items
+- Smooth animations for equip/unequip actions
+
+### Bank/Inventory System
+- Categorized item storage
+- Search functionality
+- Item filtering by category
+- Visual grid layout
+- Quantity tracking
+- Equipment state indication
+
+### User Interface
+- Dark mode support
+- Responsive design
+- Accessible UI components
+- Loading states and animations
+- Tooltips with item information
+- Semantic color tokens
+- Grid-based layouts
+
+### Accessibility
+- ARIA labels and roles
+- Keyboard navigation
+- Screen reader support
+- Reduced motion support
+- High contrast ratios
+- Focus management
+- Semantic HTML structure
+
+## Planned Features
+
+### Combat System
+- Multiple combat styles (melee, ranged, magic)
+- Monster bestiary
+- Combat areas/zones
+- Loot drops
+- Combat stats and experience
+- Auto-combat options
+
+### Crafting System
+- Multiple crafting skills
+- Resource gathering
+- Recipe discovery
+- Quality system
+- Crafting stations
+- Market integration
+
+### Market/Economy
+- Player-to-player trading
+- Item value system
+- Supply and demand mechanics
+- Market history
+- Price trends
+- Trade notifications
+
+### Skills Expansion
+- Mining
+- Fishing
+- Farming
+- Cooking
+- Smithing
+- Crafting
+- Magic
+- Combat skills
+
+### Social Features
+- Friends list
+- Clans/Guilds
+- Chat system
+- Trading
+- Cooperative activities
+- Achievements sharing
+
+### Technical Requirements
+- React/TypeScript frontend
+- State management with custom store
+- Responsive design for all screen sizes
+- Offline progress tracking
+- Data persistence
+- Real-time updates
+- Performance optimization
+- Cross-browser compatibility
+
+### Quality Standards
+- Fully accessible (WCAG 2.1 AA compliance)
+- Responsive from mobile to desktop
+- Smooth animations with reduced motion support
+- Clear feedback for all user actions
+- Consistent design language
+- Comprehensive error handling
+- Loading states for all async operations
+
+## Success Metrics
+- Player retention rate
+- Session duration
+- Feature engagement
+- Accessibility score
+- Performance metrics
+- User satisfaction
+- Bug report frequency
+- Community growth
+
+## Timeline
+Phase 1 (Current) - Core Systems
+- Equipment system ✓
+- Basic inventory ✓
+- UI foundation ✓
+- Accessibility base ✓
+
+Phase 2 - Skill Expansion
+- Additional gathering skills
+- Basic crafting
+- More equipment types
+- Enhanced UI
+
+Phase 3 - Combat & Social
+- Combat system
+- Monster zones
+- Basic social features
+- Trading system
+
+Phase 4 - Economy & Polish
+- Market system
+- Advanced crafting
+- Guild system
+- Performance optimization 
