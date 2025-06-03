@@ -225,6 +225,22 @@ export const GeneralStoreLocation = () => {
     return sections;
   };
 
+  const calculateMaxQuantity = () => {
+    if (selectedStoreItem) {
+      // Buying - calculate max based on available coins
+      const item = storeAction.storeItems.find(i => i.id === selectedStoreItem);
+      if (!item) return 1;
+      
+      const playerCoins = character.bank.find(item => item.id === 'coins')?.quantity || 0;
+      return Math.floor(playerCoins / item.buyPrice) || 1;
+    } else if (selectedBankItem) {
+      // Selling - calculate max based on available items
+      const bankItem = character.bank.find(i => i.id === selectedBankItem);
+      return bankItem?.quantity || 1;
+    }
+    return 1;
+  };
+
   return (
     <Box
       minH="100vh"
@@ -394,6 +410,24 @@ export const GeneralStoreLocation = () => {
                     {amount}
                   </Button>
                 ))}
+                <Button
+                  size="md"
+                  variant={!isCustomAmount && quantity === -1 ? "solid" : "outline"}
+                  colorScheme="purple"
+                  onClick={() => {
+                    const maxQuantity = calculateMaxQuantity();
+                    setQuantity(maxQuantity);
+                    setIsCustomAmount(false);
+                  }}
+                  width="full"
+                  gridColumn="span 2"
+                  _hover={{
+                    transform: 'scale(1.05)',
+                    transition: 'transform 0.2s',
+                  }}
+                >
+                  MAX
+                </Button>
               </Grid>
             </Box>
 

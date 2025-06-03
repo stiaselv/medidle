@@ -5,6 +5,7 @@ import { ForestLocation } from './ForestLocation';
 import { QuarryLocation } from './QuarryLocation';
 import CampLocation from './CampLocation';
 import GeneralStoreLocation from './GeneralStoreLocation';
+import { ForgeLocation } from './ForgeLocation';
 
 const MotionBox = motion(Box);
 
@@ -21,6 +22,8 @@ export const GameScreen = () => {
         return <CampLocation />;
       case 'general_store':
         return <GeneralStoreLocation />;
+      case 'forge':
+        return <ForgeLocation />;
       default:
         return <ForestLocation />;
     }

@@ -18,13 +18,15 @@ import {
   VisuallyHidden,
   keyframes,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import type { ItemReward } from '../../types/game';
 import { ITEM_CATEGORIES } from '../../data/items';
 import { getItemById, isEquippable, getEquipmentSlot, meetsLevelRequirement } from '../../data/items';
 import type { KeyboardEvent } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const MotionBox = motion(Box);
 const MotionGrid = motion(Grid);
@@ -43,14 +45,34 @@ interface BankItemProps {
   isEquipped: boolean;
   onClick?: () => void;
   index: number;
+  moveItem: (dragIndex: number, hoverIndex: number) => void;
 }
 
-const BankItem = ({ item, isEquipped, onClick, index }: BankItemProps) => {
+const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps) => {
   const { character } = useGameStore();
   const bgColor = useColorModeValue('gray.100', 'gray.700');
   const hoverBgColor = useColorModeValue('gray.200', 'gray.600');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const shouldReduceMotion = useReducedMotion();
+
+  const [{ isDragging }, drag] = useDrag({
+    type: 'BANK_ITEM',
+    item: { index },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const [, drop] = useDrop<{ index: number }, void, {}>({
+    accept: 'BANK_ITEM',
+    hover(item: { index: number }) {
+      if (item.index === index) {
+        return;
+      }
+      moveItem(item.index, index);
+      item.index = index;
+    },
+  });
 
   // Get full item data
   const itemData = getItemById(item.id);
@@ -71,7 +93,7 @@ const BankItem = ({ item, isEquipped, onClick, index }: BankItemProps) => {
     itemData.level ? `, requires level ${itemData.level}` : ''
   }${isEquipped ? ', currently equipped' : ''}${
     canEquip && !isEquipped && meetsLevel ? ', click to equip' : ''
-  }`;
+  }. Drag to reorder.`;
 
   return (
     <Tooltip
@@ -105,14 +127,15 @@ const BankItem = ({ item, isEquipped, onClick, index }: BankItemProps) => {
       placement="top"
     >
       <MotionBox
+        ref={(node: HTMLDivElement | null) => drag(drop(node))}
         bg={bgColor}
         borderRadius="md"
         border="1px"
         borderColor={borderColor}
         p={2}
-        cursor={canEquip && meetsLevel && !isEquipped ? 'pointer' : 'default'}
+        cursor={isDragging ? 'grabbing' : 'grab'}
         position="relative"
-        opacity={canEquip && !meetsLevel ? 0.6 : 1}
+        opacity={isDragging ? 0.5 : canEquip && !meetsLevel ? 0.6 : 1}
         role={canEquip ? 'button' : 'listitem'}
         tabIndex={canEquip ? 0 : -1}
         aria-label={ariaLabel}
@@ -127,12 +150,12 @@ const BankItem = ({ item, isEquipped, onClick, index }: BankItemProps) => {
         }}
         exit={{ opacity: 0, scale: 0.8 }}
         whileHover={
-          canEquip && meetsLevel && !isEquipped 
+          !isDragging && canEquip && meetsLevel && !isEquipped 
             ? { scale: 1.05, backgroundColor: hoverBgColor }
             : {}
         }
         whileTap={
-          canEquip && meetsLevel && !isEquipped
+          !isDragging && canEquip && meetsLevel && !isEquipped
             ? { scale: 0.95 }
             : {}
         }
@@ -183,11 +206,21 @@ const BankItem = ({ item, isEquipped, onClick, index }: BankItemProps) => {
 };
 
 export const BankPanel = () => {
-  const { character, equipItem, addItemToBank } = useGameStore();
-  const [selectedItem, setSelectedItem] = useState<BankItem | null>(null);
+  const { character, equipItem, addItemToBank, updateBankOrder } = useGameStore();
+  const [selectedItem, setSelectedItem] = useState<ItemReward | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const moveItem = useCallback((dragIndex: number, hoverIndex: number) => {
+    if (!character?.bank) return;
+    
+    const dragItem = character.bank[dragIndex];
+    const newBank = [...character.bank];
+    newBank.splice(dragIndex, 1);
+    newBank.splice(hoverIndex, 0, dragItem);
+    updateBankOrder(newBank);
+  }, [character?.bank, updateBankOrder]);
 
   if (!character) return null;
 
@@ -218,115 +251,118 @@ export const BankPanel = () => {
   });
 
   return (
-    <Flex direction="column" h="100%" gap={4} p={4} role="region" aria-label="Bank inventory">
-      {/* Header */}
-      <Flex justify="space-between" align="center">
-        <Text fontSize="xl" fontWeight="bold" as="h2">
-          Bank
-        </Text>
-        <Text color="gray.500" aria-live="polite">
-          {character.bank.length} items
-        </Text>
+    <DndProvider backend={HTML5Backend}>
+      <Flex direction="column" h="100%" gap={4} p={4} role="region" aria-label="Bank inventory">
+        {/* Header */}
+        <Flex justify="space-between" align="center">
+          <Text fontSize="xl" fontWeight="bold" as="h2">
+            Bank
+          </Text>
+          <Text color="gray.500" aria-live="polite">
+            {character.bank.length} items
+          </Text>
+        </Flex>
+
+        {/* Search bar */}
+        <Input
+          placeholder="Search items..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          bg="whiteAlpha.100"
+          _hover={{ bg: 'whiteAlpha.200' }}
+          _focus={{ bg: 'whiteAlpha.200', borderColor: 'blue.500' }}
+          borderRadius="md"
+          aria-label="Search bank items"
+        />
+
+        {/* Bank content */}
+        <Tabs variant="soft-rounded" colorScheme="blue" flex={1}>
+          <TabList overflowX="auto" overflowY="hidden" py={2} role="tablist" aria-label="Item categories">
+            {TAB_CATEGORIES.map(category => (
+              <Tab
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                _selected={{ bg: 'blue.500', color: 'white' }}
+                whiteSpace="nowrap"
+                minW="auto"
+                role="tab"
+                aria-selected={selectedCategory === category}
+              >
+                {category}
+              </Tab>
+            ))}
+          </TabList>
+
+          <TabPanels flex={1} overflow="auto">
+            <TabPanel p={0} role="tabpanel">
+              <AnimatePresence mode="popLayout">
+                {filteredItems.length === 0 ? (
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    h="100%"
+                    minH="200px"
+                    color="gray.500"
+                    bg="whiteAlpha.50"
+                    borderRadius="md"
+                    p={8}
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <Text fontSize="lg">
+                      {searchTerm
+                        ? 'No items match your search'
+                        : character.bank.length === 0
+                        ? 'Your bank is empty'
+                        : 'No items in this category'}
+                    </Text>
+                    {searchTerm && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSearchTerm('')}
+                        mt={2}
+                        aria-label="Clear search"
+                      >
+                        Clear Search
+                      </Button>
+                    )}
+                  </Flex>
+                ) : (
+                  <MotionGrid
+                    templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
+                    gap={3}
+                    p={2}
+                    role="list"
+                    aria-label="Bank items"
+                    layout
+                  >
+                    {filteredItems.map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <BankItem
+                          item={item}
+                          isEquipped={isItemEquipped(item.id)}
+                          onClick={() => handleItemClick(item)}
+                          index={index}
+                          moveItem={moveItem}
+                        />
+                      </motion.div>
+                    ))}
+                  </MotionGrid>
+                )}
+              </AnimatePresence>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Flex>
-
-      {/* Search bar */}
-      <Input
-        placeholder="Search items..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        bg="whiteAlpha.100"
-        _hover={{ bg: 'whiteAlpha.200' }}
-        _focus={{ bg: 'whiteAlpha.200', borderColor: 'blue.500' }}
-        borderRadius="md"
-        aria-label="Search bank items"
-      />
-
-      {/* Bank content */}
-      <Tabs variant="soft-rounded" colorScheme="blue" flex={1}>
-        <TabList overflowX="auto" overflowY="hidden" py={2} role="tablist" aria-label="Item categories">
-          {TAB_CATEGORIES.map(category => (
-            <Tab
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              _selected={{ bg: 'blue.500', color: 'white' }}
-              whiteSpace="nowrap"
-              minW="auto"
-              role="tab"
-              aria-selected={selectedCategory === category}
-            >
-              {category}
-            </Tab>
-          ))}
-        </TabList>
-
-        <TabPanels flex={1} overflow="auto">
-          <TabPanel p={0} role="tabpanel">
-            <AnimatePresence mode="popLayout">
-              {filteredItems.length === 0 ? (
-                <Flex
-                  direction="column"
-                  align="center"
-                  justify="center"
-                  h="100%"
-                  minH="200px"
-                  color="gray.500"
-                  bg="whiteAlpha.50"
-                  borderRadius="md"
-                  p={8}
-                  role="status"
-                  aria-live="polite"
-                >
-                  <Text fontSize="lg">
-                    {searchTerm
-                      ? 'No items match your search'
-                      : character.bank.length === 0
-                      ? 'Your bank is empty'
-                      : 'No items in this category'}
-                  </Text>
-                  {searchTerm && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setSearchTerm('')}
-                      mt={2}
-                      aria-label="Clear search"
-                    >
-                      Clear Search
-                    </Button>
-                  )}
-                </Flex>
-              ) : (
-                <MotionGrid
-                  templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
-                  gap={3}
-                  p={2}
-                  role="list"
-                  aria-label="Bank items"
-                  layout
-                >
-                  {filteredItems.map((item, index) => (
-                    <motion.div
-                      key={item.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <BankItem
-                        item={item}
-                        isEquipped={isItemEquipped(item.id)}
-                        onClick={() => handleItemClick(item)}
-                        index={index}
-                      />
-                    </motion.div>
-                  ))}
-                </MotionGrid>
-              )}
-            </AnimatePresence>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </Flex>
+    </DndProvider>
   );
 }; 

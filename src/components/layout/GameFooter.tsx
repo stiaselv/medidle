@@ -24,7 +24,7 @@ export const GameFooter = ({ onToggle, isExpanded }: GameFooterProps) => {
         position="absolute"
         top="-24px"
         left="50%"
-        transform="translateX(-50%)"
+        transform="translate(-50%, 0)"
         onClick={onToggle}
         zIndex={2}
         w="48px"
@@ -42,10 +42,12 @@ export const GameFooter = ({ onToggle, isExpanded }: GameFooterProps) => {
           '&:hover': {
             bg: 'var(--chakra-colors-blue-400)',
             boxShadow: '0 0 15px rgba(0, 0, 0, 0.4), 0 0 30px rgba(66, 153, 225, 0.4)',
+            transform: 'translate(-50%, 0) scale(1.1)',
           },
           '&:active': {
             bg: 'var(--chakra-colors-blue-600)',
             boxShadow: '0 0 5px rgba(0, 0, 0, 0.2), 0 0 10px rgba(66, 153, 225, 0.2)',
+            transform: 'translate(-50%, 0) scale(0.95)',
           }
         }}
         transition="all 0.2s"

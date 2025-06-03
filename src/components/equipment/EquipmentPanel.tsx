@@ -53,7 +53,7 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
   const shouldReduceMotion = useReducedMotion();
 
   const itemData = item ? getItemById(item.id) : null;
-  const slotName = EQUIPMENT_SLOTS[slot].toLowerCase().replace('_', ' ');
+  const slotName = EQUIPMENT_SLOTS[slot]?.toLowerCase() || slot.toLowerCase();
   const ariaLabel = itemData 
     ? `${slotName} slot - ${itemData.name} equipped. Press Enter to unequip.`
     : `${slotName} slot - empty`;

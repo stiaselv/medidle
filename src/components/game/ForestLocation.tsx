@@ -1,8 +1,8 @@
 import { keyframes } from '@chakra-ui/react';
-import { Box, Button, Flex, Grid, Heading, Text, VStack, useBreakpointValue, Icon, Tooltip } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Heading, Text, VStack, useBreakpointValue, Icon, Tooltip, Progress, HStack } from '@chakra-ui/react';
 import { GiWoodAxe, GiFishingPole } from 'react-icons/gi';
 import { motion } from 'framer-motion';
-import { useGameStore } from '../../store/gameStore';
+import { useGameStore, calculateLevel, getNextLevelExperience } from '../../store/gameStore';
 import type { SkillAction, Requirement } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
@@ -189,13 +189,34 @@ const ActionButton = ({
             >
               Level {action.levelRequired} {action.skill}
             </Text>
-            <Text 
-              fontSize="xs" 
-              color="gray.300"
-              fontWeight="medium"
-            >
-              +{action.experience}xp • {(action.baseTime / 1000).toFixed(1)}s
-            </Text>
+            <HStack spacing={2} mt={1}>
+              <Text 
+                fontSize="xs" 
+                color="gray.300"
+                fontWeight="medium"
+                px={2}
+                py={1}
+                bg="whiteAlpha.100"
+                borderRadius="md"
+              >
+                +{action.experience}xp
+              </Text>
+              <Text 
+                fontSize="xs" 
+                color="gray.300"
+                fontWeight="medium"
+                px={2}
+                py={1}
+                bg="whiteAlpha.100"
+                borderRadius="md"
+                display="flex"
+                alignItems="center"
+                gap={1}
+              >
+                <Icon as={icon} boxSize={3} />
+                {(action.baseTime / 1000).toFixed(1)}s
+              </Text>
+            </HStack>
             
             {!allRequirementsMet && (
               <Text 
@@ -256,68 +277,87 @@ const ActionSection = ({
   onActionClick: (action: SkillAction) => void;
   canPerformAction: (action: SkillAction) => boolean;
   currentAction: SkillAction | null;
-}) => (
-  <Box
-    bg="blackAlpha.600"
-    p={6}
-    borderRadius="2xl"
-    backdropFilter="blur(12px)"
-    border="1px solid"
-    borderColor="whiteAlpha.200"
-    boxShadow="dark-lg"
-    position="relative"
-    overflow="hidden"
-    height="450px"
-    display="flex"
-    flexDirection="column"
-    _before={{
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: '60%',
-      bgGradient: 'linear(to-b, whiteAlpha.100, transparent)',
-      borderRadius: '2xl',
-      pointerEvents: 'none'
-    }}
-  >
-    <Heading 
-      size="md" 
-      color="white" 
-      mb={4} 
-      textShadow="0 2px 4px rgba(0,0,0,0.4)"
-      position="relative"
-      _after={{
-        content: '""',
-        position: 'absolute',
-        bottom: '-8px',
-        left: 0,
-        width: '40px',
-        height: '2px',
-        bg: 'whiteAlpha.300',
-        borderRadius: 'full'
-      }}
-    >
-      {title}
-    </Heading>
-    <Box
-      overflowY="auto"
-      flex={1}
-      sx={{
-        '&::-webkit-scrollbar': {
-          width: '4px',
-        },
-        '&::-webkit-scrollbar-track': {
-          width: '6px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          background: 'gray.500',
-          borderRadius: '24px',
-        },
-      }}
-    >
-      <VStack spacing={4} align="stretch">
+}) => {
+  const { character } = useGameStore();
+  const skillType = actions[0]?.skill || '';
+  
+  // Calculate experience progress for the skill
+  const currentSkillExp = character?.skills[skillType]?.experience || 0;
+  const currentLevel = calculateLevel(currentSkillExp);
+  const nextLevelExp = getNextLevelExperience(currentLevel);
+  const prevLevelExp = getNextLevelExperience(currentLevel - 1);
+  const expProgress = ((currentSkillExp - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
+
+  return (
+    <VStack spacing={4} align="stretch" width="100%">
+      <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
+        <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
+          <Icon as={getActionIcon(actions[0]?.type || '')} />
+          {title}
+        </Heading>
+        <Box flex={1} maxW="300px">
+          <Tooltip
+            label={
+              <VStack align="start" spacing={1} p={2}>
+                <Text fontWeight="bold" color="white" mb={1}>Experience Progress</Text>
+                <Text>Current XP: {currentSkillExp.toLocaleString()}</Text>
+                <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
+                <Text>Remaining: {(nextLevelExp - currentSkillExp).toLocaleString()}</Text>
+              </VStack>
+            }
+            placement="top"
+            hasArrow
+            bg="gray.800"
+            borderRadius="md"
+          >
+            <Box width="100%" position="relative" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
+              <Progress
+                value={expProgress}
+                size="sm"
+                colorScheme="green"
+                borderRadius="full"
+                background="whiteAlpha.200"
+                hasStripe
+                isAnimated
+                sx={{
+                  '& > div:first-of-type': {
+                    transitionProperty: 'width',
+                    transitionDuration: '0.3s',
+                  }
+                }}
+              />
+              <Text 
+                fontSize="xs" 
+                color="gray.300" 
+                mt={1} 
+                textAlign="center"
+                fontWeight="medium"
+                textShadow="0 1px 2px rgba(0,0,0,0.3)"
+              >
+                Level {currentLevel} • {expProgress.toFixed(1)}% to {currentLevel + 1}
+              </Text>
+            </Box>
+          </Tooltip>
+        </Box>
+      </HStack>
+      <Grid
+        templateColumns="1fr"
+        maxH="600px"
+        overflowY="auto"
+        gap={2}
+        sx={{
+          '&::-webkit-scrollbar': {
+            width: '4px',
+          },
+          '&::-webkit-scrollbar-track': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'gray.500',
+            borderRadius: '24px',
+          },
+        }}
+      >
         {actions.map((action) => (
           <ActionButton
             key={action.id}
@@ -327,10 +367,10 @@ const ActionSection = ({
             isActive={currentAction?.id === action.id}
           />
         ))}
-      </VStack>
-    </Box>
-  </Box>
-);
+      </Grid>
+    </VStack>
+  );
+};
 
 export const ForestLocation = () => {
   const { currentLocation, character, startAction, currentAction, canPerformAction: storeCanPerformAction } = useGameStore();
@@ -503,28 +543,32 @@ export const ForestLocation = () => {
           {/* Actions Grid */}
           <Grid
             templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
-            gap={{ base: 4, md: 6 }}
+            gap={{ base: 6, md: 12 }}
             w="100%"
-            maxW="1400px"
+            maxW="1200px"
             mx="auto"
           >
             {/* Woodcutting Section */}
-            <ActionSection
-              title="Woodcutting"
-              actions={woodcuttingActions}
-              onActionClick={handleActionStart}
-              canPerformAction={storeCanPerformAction}
-              currentAction={currentAction}
-            />
+            <Box maxW="400px" mx="auto" w="100%">
+              <ActionSection
+                title="Woodcutting"
+                actions={woodcuttingActions}
+                onActionClick={handleActionStart}
+                canPerformAction={storeCanPerformAction}
+                currentAction={currentAction}
+              />
+            </Box>
 
             {/* Fishing Section */}
-            <ActionSection
-              title="Fishing"
-              actions={fishingActions}
-              onActionClick={handleActionStart}
-              canPerformAction={storeCanPerformAction}
-              currentAction={currentAction}
-            />
+            <Box maxW="400px" mx="auto" w="100%">
+              <ActionSection
+                title="Fishing"
+                actions={fishingActions}
+                onActionClick={handleActionStart}
+                canPerformAction={storeCanPerformAction}
+                currentAction={currentAction}
+              />
+            </Box>
           </Grid>
         </VStack>
       </Flex>

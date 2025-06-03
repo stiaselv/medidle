@@ -14,18 +14,23 @@ export type ActionType =
   | 'fishing'
   | 'mining'
   | 'smithing'
+  | 'smithing_category'  // For metal categories in smithing
   | 'cooking'
   | 'firemaking'
   | 'combat'
   | 'store'
   | 'none';
 
-export type ItemType = 'tool' | 'resource' | 'consumable';
+export type ItemType = 'tool' | 'resource' | 'consumable' | 'currency';
 
-export interface ItemStats {
+export type ItemStats = {
   attack?: number;
+  defence?: number;
   mining?: number;
-}
+  woodcutting?: number;
+  fishing?: number;
+  // Add other skill stats as needed
+};
 
 export interface Skill {
   name: string;
@@ -43,6 +48,8 @@ export interface Skills {
   firemaking: Skill;
   farming: Skill;
   combat: Skill;
+  attack: Skill;
+  defence: Skill;
   none: Skill;  // For store actions and other non-skill activities
 }
 
@@ -72,6 +79,7 @@ export interface SkillAction {
   baseTime: number;
   itemReward: ItemReward;
   requirements?: Requirement[];
+  subActions?: SkillAction[];  // For nested actions like smithing categories
 }
 
 export interface StoreItem {
@@ -94,7 +102,7 @@ export interface Location {
   description: string;
   actions: (SkillAction | StoreAction)[];
   availableSkills?: SkillName[];
-  type?: 'store' | 'skill';  // To differentiate store locations from skill locations
+  type?: 'store' | 'skill' | 'smithing';  // Added smithing type
 }
 
 export interface Equipment {
@@ -139,14 +147,15 @@ export interface GameState {
 export interface Item {
   id: string;
   name: string;
-  type: string;
+  type: ItemType;
   category: string;
   icon: string;
+  buyPrice: number;
+  sellPrice: number;
   level?: number;
-  stats?: Record<string, number>;
+  stats?: ItemStats;
   slot?: string;
-  buyPrice?: number;
-  sellPrice?: number;
+  healing?: number;  // Amount of health restored when consumed
 }
 
 export const createSkill = (name: string, level = 1): Skill => ({
@@ -154,4 +163,9 @@ export const createSkill = (name: string, level = 1): Skill => ({
   level,
   experience: 0,
   nextLevelExperience: 83 // Level 2 experience
-}); 
+});
+
+// Helper function to ensure level requirements don't exceed 99
+export const capLevelRequirement = (level: number): number => {
+  return Math.min(level, 99);
+}; 

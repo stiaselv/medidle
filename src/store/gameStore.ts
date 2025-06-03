@@ -3,19 +3,24 @@ import { persist } from 'zustand/middleware';
 import type { Character, Item, Location, SkillAction, SkillName, ItemReward, StoreItem, StoreAction } from '../types/game';
 import { mockCharacter, mockLocations } from '../data/mockData';
 import { getItemById } from '../data/items';
+import { ITEM_CATEGORIES } from '../data/items';
+import { capLevelRequirement } from '../types/game';
 
 // Helper functions for experience and level calculations
-const calculateLevel = (experience: number): number => {
+export const calculateLevel = (experience: number): number => {
   // Find the highest level where the experience requirement is met
   let level = 1;
   while (experience >= Math.floor(level * level * 83)) {
     level++;
+    if (level > 99) return 99; // Cap level at 99
   }
   return level;
 };
 
-const getNextLevelExperience = (level: number): number => {
-  return level * level * 83;
+export const getNextLevelExperience = (level: number): number => {
+  // Cap level at 99 for next level experience calculation
+  const cappedLevel = Math.min(level, 99);
+  return cappedLevel * cappedLevel * 83;
 };
 
 export interface GameState {
@@ -64,6 +69,7 @@ export interface GameState {
   // Store actions
   buyItem: (itemId: string, quantity: number) => void;
   sellItem: (itemId: string, quantity: number) => void;
+  updateBankOrder: (newBank: ItemReward[]) => void;
 }
 
 interface OfflineRewards {
@@ -609,13 +615,10 @@ export const useGameStore = create<GameState>()(
         }
 
         if (totalItems > 0) {
-          get().addItemToBank({
-            id: itemReward.id,
-            name: itemReward.name,
-            type: 'resource',
-            category: action.skill,
-            icon: `/assets/items/${itemReward.id}.png`,
-          }, totalItems);
+          const itemDetails = getItemById(itemReward.id);
+          if (itemDetails) {
+            get().addItemToBank(itemDetails, totalItems);
+          }
         }
 
         // Update last action time
@@ -857,13 +860,14 @@ export const useGameStore = create<GameState>()(
                 return false;
               }
               const skill = character.skills[req.skill];
+              const cappedRequiredLevel = req.level ? capLevelRequirement(req.level) : 0;
               console.log(`Level check for ${req.skill}:`, {
-                required: req.level,
+                required: cappedRequiredLevel,
                 current: skill.level,
                 experience: skill.experience,
                 nextLevel: skill.nextLevelExperience
               });
-              const meetsLevel = skill.level >= (req.level || 0);
+              const meetsLevel = skill.level >= cappedRequiredLevel;
               console.log(`Meets level requirement: ${meetsLevel}`);
               return meetsLevel;
             case 'equipment':
@@ -875,25 +879,21 @@ export const useGameStore = create<GameState>()(
               console.log(`Equipment check for ${req.itemId}: ${hasEquipment}`);
               return hasEquipment;
             case 'item':
-              if (!req.itemId || !req.quantity) {
-                console.log('Invalid requirement - missing itemId or quantity');
+              if (!req.itemId) {
+                console.log('Invalid requirement - no itemId specified');
                 return false;
               }
-              const bankItem = character.bank.find(item => item.id === req.itemId);
-              const hasItem = bankItem && bankItem.quantity >= req.quantity;
-              console.log(`Item check for ${req.itemId} (need ${req.quantity}):`, {
-                found: !!bankItem,
-                quantity: bankItem?.quantity || 0,
-                hasEnough: hasItem
-              });
+              const hasItem = character.bank.some(item => 
+                item.id === req.itemId && item.quantity >= (req.quantity || 1)
+              );
+              console.log(`Item check for ${req.itemId}: ${hasItem}`);
               return hasItem;
             default:
-              console.log('Invalid requirement type:', req.type);
+              console.log('Invalid requirement type');
               return false;
           }
         });
 
-        console.log(`All requirements met: ${meetsRequirements}`);
         return meetsRequirements;
       },
 
@@ -992,49 +992,43 @@ export const useGameStore = create<GameState>()(
           return;
         }
 
-        // Get the store item to determine sell price
-        const currentAction = state.currentLocation?.actions[0];
-        if (currentAction?.type !== 'store') return;
-        
-        const storeAction = currentAction as StoreAction;
-        const storeItem = storeAction.storeItems.find((item: StoreItem) => item.id === itemId);
-        let sellPrice = 0;
-        
-        if (storeItem) {
-          sellPrice = storeItem.sellPrice;
-        } else {
-          // If not in store, get from items database
-          const itemDetails = getItemById(itemId);
-          if (itemDetails) {
-            sellPrice = itemDetails.sellPrice || 0;
-          }
+        // Get the item details from the database first
+        const itemDetails = getItemById(itemId);
+        if (!itemDetails) {
+          console.log('Item not found in database');
+          return;
         }
-        
-        // Calculate total price
-        const totalPrice = sellPrice * quantity;
-        console.log('Selling items:', { quantity, sellPrice, totalPrice });
 
-        // Remove items from bank
-        const itemIndex = updatedCharacter.bank.findIndex(item => item.id === itemId);
-        if (itemIndex >= 0) {
-          updatedCharacter.bank[itemIndex].quantity -= quantity;
-          if (updatedCharacter.bank[itemIndex].quantity <= 0) {
-            updatedCharacter.bank.splice(itemIndex, 1);
-          }
+        // Calculate sell price
+        const sellPrice = itemDetails.sellPrice * quantity;
+        console.log('Selling items:', { quantity, sellPrice, totalPrice: sellPrice });
+
+        // Remove the sold items
+        itemInBank.quantity -= quantity;
+        if (itemInBank.quantity <= 0) {
+          updatedCharacter.bank = updatedCharacter.bank.filter(item => item.id !== itemId);
         }
 
         // Add coins to bank
-        const coinsIndex = updatedCharacter.bank.findIndex(item => item.id === 'coins');
-        if (coinsIndex >= 0) {
-          updatedCharacter.bank[coinsIndex].quantity += totalPrice;
+        const coinsInBank = updatedCharacter.bank.find(item => item.id === 'coins');
+        if (coinsInBank) {
+          coinsInBank.quantity += sellPrice;
         } else {
           updatedCharacter.bank.push({
             id: 'coins',
             name: 'Coins',
-            quantity: totalPrice
+            quantity: sellPrice
           });
         }
 
+        set({ character: updatedCharacter });
+      },
+
+      updateBankOrder: (newBank: ItemReward[]) => {
+        const state = get();
+        if (!state.character) return;
+
+        const updatedCharacter = { ...state.character, bank: newBank };
         set({ character: updatedCharacter });
         localStorage.setItem(`character_${updatedCharacter.id}`, JSON.stringify(updatedCharacter));
       },
