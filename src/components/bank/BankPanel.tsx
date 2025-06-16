@@ -17,6 +17,7 @@ import {
   Badge,
   VisuallyHidden,
   keyframes,
+  HStack,
 } from '@chakra-ui/react';
 import { useState, useCallback } from 'react';
 import { useGameStore } from '../../store/gameStore';
@@ -98,33 +99,95 @@ const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps)
   return (
     <Tooltip
       label={
-        <VStack spacing={1} align="start">
-          <Text fontWeight="bold">{item.name}</Text>
-          <Text>Quantity: {item.quantity.toLocaleString()}</Text>
+        <VStack spacing={2} align="start" minW="200px">
+          <Text fontWeight="bold" fontSize="lg">{item.name}</Text>
+          
+          <HStack spacing={2}>
+            <Text fontWeight="semibold">Quantity:</Text>
+            <Text>{item.quantity.toLocaleString()}</Text>
+          </HStack>
+
           {itemData.level && (
-            <Text color={meetsLevel ? 'green.200' : 'red.200'}>
-              Required Level: {itemData.level}
-            </Text>
+            <HStack spacing={2} color={meetsLevel ? 'green.200' : 'red.200'}>
+              <Text fontWeight="semibold">Required Level:</Text>
+              <Text>{itemData.level}</Text>
+            </HStack>
           )}
-          {itemData.stats && (
-            <Text>
-              Stats: {Object.entries(itemData.stats)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join(', ')}
-            </Text>
+
+          {itemData.stats && Object.entries(itemData.stats).length > 0 && (
+            <Box w="100%">
+              <Text fontWeight="semibold" mb={1} color="blue.200">Item Stats</Text>
+              {/* Grouped stats */}
+              {/* Attack Stats */}
+              <HStack w="100%" spacing={2} mb={1} flexWrap="wrap">
+                {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].map(stat =>
+                  stat in itemData.stats ? (
+                    <Box key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" minW="70px" textAlign="center">
+                      <Text fontSize="xs">{
+                        stat.replace('attack','Atk ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')
+                      }</Text>
+                      <Text fontSize="sm" color="green.200">+{itemData.stats[stat]}</Text>
+                    </Box>
+                  ) : null
+                )}
+              </HStack>
+              {/* Defence Stats */}
+              <HStack w="100%" spacing={2} mb={1} flexWrap="wrap">
+                {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].map(stat =>
+                  stat in itemData.stats ? (
+                    <Box key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" minW="70px" textAlign="center">
+                      <Text fontSize="xs">{
+                        stat.replace('defence','Def ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')
+                      }</Text>
+                      <Text fontSize="sm" color="green.200">+{itemData.stats[stat]}</Text>
+                    </Box>
+                  ) : null
+                )}
+              </HStack>
+              {/* Strength & Extra Stats */}
+              <HStack w="100%" spacing={2} flexWrap="wrap">
+                {['strengthMelee','strengthRanged','strengthMagic','prayerBonus','woodcutting','fishing','defence'].map(stat =>
+                  stat in itemData.stats ? (
+                    <Box key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" minW="70px" textAlign="center">
+                      <Text fontSize="xs">{
+                        stat.replace('strength','Str ').replace('Melee','Melee').replace('Ranged','Rng').replace('Magic','Mag').replace('prayerBonus','Prayer').replace('woodcutting','Woodcut').replace('fishing','Fishing').replace('defence','Def')
+                      }</Text>
+                      <Text fontSize="sm" color="green.200">+{itemData.stats[stat]}</Text>
+                    </Box>
+                  ) : null
+                )}
+              </HStack>
+            </Box>
           )}
+
+          {itemData.slot && (
+            <HStack spacing={2} color="purple.200">
+              <Text fontWeight="semibold">Slot:</Text>
+              <Text>{itemData.slot}</Text>
+            </HStack>
+          )}
+
           {canEquip && !isEquipped && (
-            <Text color={meetsLevel ? 'green.200' : 'red.200'}>
+            <Text 
+              color={meetsLevel ? 'green.200' : 'red.200'} 
+              fontSize="sm" 
+              fontStyle="italic"
+            >
               {meetsLevel ? 'Click to equip' : 'Level too low to equip'}
             </Text>
           )}
+          
           {isEquipped && (
-            <Text color="blue.200">Currently equipped</Text>
+            <Text color="blue.200" fontSize="sm" fontStyle="italic">
+              Currently equipped
+            </Text>
           )}
         </VStack>
       }
       hasArrow
       placement="top"
+      bg="gray.800"
+      color="white"
     >
       <MotionBox
         ref={(node: HTMLDivElement | null) => drag(drop(node))}
@@ -251,118 +314,116 @@ export const BankPanel = () => {
   });
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <Flex direction="column" h="100%" gap={4} p={4} role="region" aria-label="Bank inventory">
-        {/* Header */}
-        <Flex justify="space-between" align="center">
-          <Text fontSize="xl" fontWeight="bold" as="h2">
-            Bank
-          </Text>
-          <Text color="gray.500" aria-live="polite">
-            {character.bank.length} items
-          </Text>
-        </Flex>
-
-        {/* Search bar */}
-        <Input
-          placeholder="Search items..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          bg="whiteAlpha.100"
-          _hover={{ bg: 'whiteAlpha.200' }}
-          _focus={{ bg: 'whiteAlpha.200', borderColor: 'blue.500' }}
-          borderRadius="md"
-          aria-label="Search bank items"
-        />
-
-        {/* Bank content */}
-        <Tabs variant="soft-rounded" colorScheme="blue" flex={1}>
-          <TabList overflowX="auto" overflowY="hidden" py={2} role="tablist" aria-label="Item categories">
-            {TAB_CATEGORIES.map(category => (
-              <Tab
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                _selected={{ bg: 'blue.500', color: 'white' }}
-                whiteSpace="nowrap"
-                minW="auto"
-                role="tab"
-                aria-selected={selectedCategory === category}
-              >
-                {category}
-              </Tab>
-            ))}
-          </TabList>
-
-          <TabPanels flex={1} overflow="auto">
-            <TabPanel p={0} role="tabpanel">
-              <AnimatePresence mode="popLayout">
-                {filteredItems.length === 0 ? (
-                  <Flex
-                    direction="column"
-                    align="center"
-                    justify="center"
-                    h="100%"
-                    minH="200px"
-                    color="gray.500"
-                    bg="whiteAlpha.50"
-                    borderRadius="md"
-                    p={8}
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <Text fontSize="lg">
-                      {searchTerm
-                        ? 'No items match your search'
-                        : character.bank.length === 0
-                        ? 'Your bank is empty'
-                        : 'No items in this category'}
-                    </Text>
-                    {searchTerm && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setSearchTerm('')}
-                        mt={2}
-                        aria-label="Clear search"
-                      >
-                        Clear Search
-                      </Button>
-                    )}
-                  </Flex>
-                ) : (
-                  <MotionGrid
-                    templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
-                    gap={3}
-                    p={2}
-                    role="list"
-                    aria-label="Bank items"
-                    layout
-                  >
-                    {filteredItems.map((item, index) => (
-                      <motion.div
-                        key={item.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <BankItem
-                          item={item}
-                          isEquipped={isItemEquipped(item.id)}
-                          onClick={() => handleItemClick(item)}
-                          index={index}
-                          moveItem={moveItem}
-                        />
-                      </motion.div>
-                    ))}
-                  </MotionGrid>
-                )}
-              </AnimatePresence>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+    <Flex direction="column" h="100%" gap={4} p={4} role="region" aria-label="Bank inventory">
+      {/* Header */}
+      <Flex justify="space-between" align="center">
+        <Text fontSize="xl" fontWeight="bold" as="h2">
+          Bank
+        </Text>
+        <Text color="gray.500" aria-live="polite">
+          {character.bank.length} items
+        </Text>
       </Flex>
-    </DndProvider>
+
+      {/* Search bar */}
+      <Input
+        placeholder="Search items..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        bg="whiteAlpha.100"
+        _hover={{ bg: 'whiteAlpha.200' }}
+        _focus={{ bg: 'whiteAlpha.200', borderColor: 'blue.500' }}
+        borderRadius="md"
+        aria-label="Search bank items"
+      />
+
+      {/* Bank content */}
+      <Tabs variant="soft-rounded" colorScheme="blue" flex={1}>
+        <TabList overflowX="auto" overflowY="hidden" py={2} role="tablist" aria-label="Item categories">
+          {TAB_CATEGORIES.map(category => (
+            <Tab
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              _selected={{ bg: 'blue.500', color: 'white' }}
+              whiteSpace="nowrap"
+              minW="auto"
+              role="tab"
+              aria-selected={selectedCategory === category}
+            >
+              {category}
+            </Tab>
+          ))}
+        </TabList>
+
+        <TabPanels flex={1} overflow="auto">
+          <TabPanel p={0} role="tabpanel">
+            <AnimatePresence mode="popLayout">
+              {filteredItems.length === 0 ? (
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  h="100%"
+                  minH="200px"
+                  color="gray.500"
+                  bg="whiteAlpha.50"
+                  borderRadius="md"
+                  p={8}
+                  role="status"
+                  aria-live="polite"
+                >
+                  <Text fontSize="lg">
+                    {searchTerm
+                      ? 'No items match your search'
+                      : character.bank.length === 0
+                      ? 'Your bank is empty'
+                      : 'No items in this category'}
+                  </Text>
+                  {searchTerm && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setSearchTerm('')}
+                      mt={2}
+                      aria-label="Clear search"
+                    >
+                      Clear Search
+                    </Button>
+                  )}
+                </Flex>
+              ) : (
+                <MotionGrid
+                  templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
+                  gap={3}
+                  p={2}
+                  role="list"
+                  aria-label="Bank items"
+                  layout
+                >
+                  {filteredItems.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <BankItem
+                        item={item}
+                        isEquipped={isItemEquipped(item.id)}
+                        onClick={() => handleItemClick(item)}
+                        index={index}
+                        moveItem={moveItem}
+                      />
+                    </motion.div>
+                  ))}
+                </MotionGrid>
+              )}
+            </AnimatePresence>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Flex>
   );
 }; 

@@ -1,6 +1,7 @@
-import type { Location, Character, StoreAction, SkillAction } from '../types/game';
+import type { Location, Character, StoreAction, SkillAction, CombatStats, Monster } from '../types/game';
 import { createSkill } from '../types/game';
 import { SMITHING_BASE_LEVELS } from './items';
+import { EASY_MONSTERS, MEDIUM_MONSTERS, HARD_MONSTERS, NIGHTMARE_MONSTERS } from './monsters';
 
 // Template for smithing items with their experience rewards and base times
 const SMITHING_ACTIONS_TEMPLATE = [
@@ -111,13 +112,62 @@ const generateMetalCategories = (): SkillAction[] => {
   }));
 };
 
+const GOBLIN_STATS: CombatStats = {
+  // Attack bonuses
+  attackStab: 1,
+  attackSlash: 1,
+  attackCrush: 1,
+  attackMagic: 0,
+  attackRanged: 0,
+  // Defence bonuses
+  defenceStab: 1,
+  defenceSlash: 1,
+  defenceCrush: 1,
+  defenceMagic: -5,
+  defenceRanged: 1,
+  // Other bonuses
+  strengthMelee: 5,
+  strengthRanged: 0,
+  strengthMagic: 0,
+  prayerBonus: 0
+};
+
+export const mockMonsters: Monster[] = [
+  {
+    id: 'goblin',
+    name: 'Goblin',
+    level: 2,
+    hitpoints: 5,
+    maxHitpoints: 5,
+    combatStyle: 'melee',
+    stats: GOBLIN_STATS,
+    drops: [
+      {
+        itemId: 'coins',
+        quantity: 5,
+        chance: 100 // Always drops
+      },
+      {
+        itemId: 'bronze_sword',
+        quantity: 1,
+        chance: 10 // 10% chance
+      }
+    ]
+  }
+  // Add more monsters here...
+];
+
 // Define all locations
 export const mockLocations: Location[] = [
   {
     id: 'general_store',
     name: 'General Store',
     description: 'A well-stocked shop where you can buy tools and sell your items.',
-    type: 'store',
+    type: 'city',
+    levelRequired: 1,
+    resources: [],
+    category: 'store',
+    icon: '/assets/locations/store.png',
     actions: [
       {
         id: 'general_store',
@@ -262,6 +312,11 @@ export const mockLocations: Location[] = [
     id: 'forest',
     name: 'Forest',
     description: 'A dense forest filled with various trees and fishing spots.',
+    type: 'resource',
+    levelRequired: 1,
+    resources: ['logs', 'oak_logs', 'willow_logs', 'teak_logs', 'maple_logs', 'mahogany_logs', 'yew_logs', 'magic_logs', 'redwood_logs'],
+    category: 'woodcutting',
+    icon: '/assets/locations/forest.png',
     actions: [
       {
         id: 'cut_tree',
@@ -872,6 +927,11 @@ export const mockLocations: Location[] = [
     id: 'quarry',
     name: 'Quarry',
     description: 'A rocky quarry with various ores and a smithing area.',
+    type: 'resource',
+    levelRequired: 1,
+    resources: ['copper_ore', 'tin_ore', 'iron_ore', 'silver_ore', 'gold_ore', 'mithril_ore', 'adamantite_ore', 'runite_ore'],
+    category: 'mining',
+    icon: '/assets/locations/quarry.png',
     actions: [
       {
         id: 'mine_copper',
@@ -1380,6 +1440,11 @@ export const mockLocations: Location[] = [
     id: 'camp',
     name: 'Camp',
     description: 'A cozy camp where you can cook your food and practice firemaking.',
+    type: 'resource',
+    levelRequired: 1,
+    resources: ['logs', 'oak_logs', 'willow_logs', 'maple_logs', 'yew_logs', 'magic_logs'],
+    category: 'cooking',
+    icon: '/assets/locations/camp.png',
     actions: [
       {
         id: 'cook_meat',
@@ -2062,9 +2127,394 @@ export const mockLocations: Location[] = [
     id: 'forge',
     name: 'Forge',
     description: 'A blazing forge where you can smith metal bars into various items.',
-    type: 'smithing',
+    type: 'resource',
+    levelRequired: 1,
+    resources: [],
+    category: 'smithing',
+    icon: '/assets/locations/forge.png',
     actions: generateMetalCategories(),
     availableSkills: ['smithing']
+  },
+  {
+    id: 'slayer_cave',
+    name: 'Slayer Cave',
+    description: 'A dangerous cave system filled with various monsters. Visit the Slayer Master to get tasks.',
+    type: 'combat',
+    levelRequired: 1,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/slayer_cave.png',
+    group: 'Dungeons',
+    actions: [
+      {
+        id: 'easy_cave',
+        name: 'Easy Cave',
+        type: 'combat_selection',
+        skill: 'attack',
+        levelRequired: 1,
+        experience: 0,
+        baseTime: 0,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        targetLocation: 'easy_cave',
+        difficulty: 'Easy',
+        requirements: []
+      },
+      {
+        id: 'medium_cave',
+        name: 'Medium Cave',
+        type: 'combat_selection',
+        skill: 'attack',
+        levelRequired: 20,
+        experience: 0,
+        baseTime: 0,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        targetLocation: 'medium_cave',
+        difficulty: 'Medium',
+        requirements: []
+      },
+      {
+        id: 'hard_cave',
+        name: 'Hard Cave',
+        type: 'combat_selection',
+        skill: 'attack',
+        levelRequired: 40,
+        experience: 0,
+        baseTime: 0,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        targetLocation: 'hard_cave',
+        difficulty: 'Hard',
+        requirements: []
+      },
+      {
+        id: 'nightmare_cave',
+        name: 'Nightmare Cave',
+        type: 'combat_selection',
+        skill: 'attack',
+        levelRequired: 70,
+        experience: 0,
+        baseTime: 0,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        targetLocation: 'nightmare_cave',
+        difficulty: 'Nightmare',
+        requirements: []
+      }
+    ]
+  },
+  {
+    id: 'easy_cave',
+    name: 'Easy Cave',
+    description: 'A cave filled with low-level monsters.',
+    type: 'combat',
+    levelRequired: 1,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/cave.png',
+    group: 'World',
+    actions: EASY_MONSTERS.map(monster => ({
+      id: `fight_${monster.id}`,
+      name: `Fight ${monster.name}`,
+      type: 'combat',
+      skill: 'attack',
+      levelRequired: monster.level,
+      experience: monster.maxHitpoints * 4,
+      baseTime: 3000,
+      itemReward: { id: 'none', name: 'None', quantity: 0 },
+      monster,
+      requirements: [],
+      location: 'easy_cave'
+    }))
+  },
+  {
+    id: 'medium_cave',
+    name: 'Medium Cave',
+    description: 'A cave filled with medium-level monsters.',
+    type: 'combat',
+    levelRequired: 20,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/cave.png',
+    group: 'World',
+    actions: MEDIUM_MONSTERS.map(monster => ({
+      id: `fight_${monster.id}`,
+      name: `Fight ${monster.name}`,
+      type: 'combat',
+      skill: 'attack',
+      levelRequired: monster.level,
+      experience: monster.maxHitpoints * 4,
+      baseTime: 3000,
+      itemReward: { id: 'none', name: 'None', quantity: 0 },
+      monster,
+      requirements: [],
+      location: 'medium_cave'
+    }))
+  },
+  {
+    id: 'hard_cave',
+    name: 'Hard Cave',
+    description: 'A cave filled with high-level monsters.',
+    type: 'combat',
+    levelRequired: 40,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/cave.png',
+    group: 'Dungeons',
+    actions: HARD_MONSTERS.map(monster => ({
+      id: `fight_${monster.id}`,
+      name: `Fight ${monster.name}`,
+      type: 'combat',
+      skill: 'attack',
+      levelRequired: monster.level,
+      experience: monster.maxHitpoints * 4,
+      baseTime: 3000,
+      itemReward: { id: 'none', name: 'None', quantity: 0 },
+      monster,
+      requirements: [],
+      location: 'hard_cave'
+    }))
+  },
+  {
+    id: 'nightmare_cave',
+    name: 'Nightmare Cave',
+    description: 'A cave filled with extremely dangerous monsters.',
+    type: 'combat',
+    levelRequired: 70,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/cave.png',
+    group: 'Raids',
+    actions: NIGHTMARE_MONSTERS.map(monster => ({
+      id: `fight_${monster.id}`,
+      name: `Fight ${monster.name}`,
+      type: 'combat',
+      skill: 'attack',
+      levelRequired: monster.level,
+      experience: monster.maxHitpoints * 4,
+      baseTime: 3000,
+      itemReward: { id: 'none', name: 'None', quantity: 0 },
+      monster,
+      requirements: [],
+      location: 'nightmare_cave'
+    }))
+  },
+  {
+    id: 'farm',
+    name: 'Farm',
+    description: 'A peaceful farm with livestock and a wary farmer.',
+    type: 'combat',
+    levelRequired: 3,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/placeholder.png',
+    group: 'World',
+    actions: [
+      {
+        id: 'fight_chicken',
+        name: 'Fight Chicken',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 3,
+        experience: 12,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'chicken', name: 'Chicken', level: 3, hitpoints: 5, maxHitpoints: 5, combatStyle: 'melee', stats: { attackStab: 1, attackSlash: 1, attackCrush: 1, attackMagic: 0, attackRanged: 0, defenceStab: 1, defenceSlash: 1, defenceCrush: 1, defenceMagic: 1, defenceRanged: 1, strengthMelee: 1, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_cow',
+        name: 'Fight Cow',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 7,
+        experience: 20,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'cow', name: 'Cow', level: 7, hitpoints: 12, maxHitpoints: 12, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_farmer',
+        name: 'Fight Farmer',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 9,
+        experience: 30,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'farmer', name: 'Farmer', level: 9, hitpoints: 15, maxHitpoints: 15, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      }
+    ]
+  },
+  {
+    id: 'lumbridge_swamp',
+    name: 'Lumbridge Swamp',
+    description: 'A murky swamp crawling with dangerous creatures.',
+    type: 'combat',
+    levelRequired: 5,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/placeholder.png',
+    group: 'World',
+    actions: [
+      {
+        id: 'fight_giant_rat',
+        name: 'Fight Giant Rat',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 5,
+        experience: 15,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'giant_rat', name: 'Giant rat', level: 5, hitpoints: 8, maxHitpoints: 8, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_slug',
+        name: 'Fight Slug',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 9,
+        experience: 22,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'slug', name: 'Slug', level: 9, hitpoints: 10, maxHitpoints: 10, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_cave_slime',
+        name: 'Fight Cave Slime',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 13,
+        experience: 30,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'cave_slime', name: 'Cave slime', level: 13, hitpoints: 16, maxHitpoints: 16, combatStyle: 'melee', stats: { attackStab: 4, attackSlash: 4, attackCrush: 4, attackMagic: 0, attackRanged: 0, defenceStab: 4, defenceSlash: 4, defenceCrush: 4, defenceMagic: 2, defenceRanged: 2, strengthMelee: 4, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_big_frog',
+        name: 'Fight Big Frog',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 23,
+        experience: 45,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'big_frog', name: 'Big frog', level: 23, hitpoints: 30, maxHitpoints: 30, combatStyle: 'melee', stats: { attackStab: 6, attackSlash: 6, attackCrush: 6, attackMagic: 0, attackRanged: 0, defenceStab: 6, defenceSlash: 6, defenceCrush: 6, defenceMagic: 3, defenceRanged: 3, strengthMelee: 6, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      }
+    ]
+  },
+  {
+    id: 'ardougne_marketplace',
+    name: 'Ardougne Marketplace',
+    description: 'A bustling market with vigilant guards and noble defenders.',
+    type: 'combat',
+    levelRequired: 28,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/placeholder.png',
+    group: 'World',
+    actions: [
+      {
+        id: 'fight_guard',
+        name: 'Fight Guard',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 28,
+        experience: 50,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'guard', name: 'Guard', level: 28, hitpoints: 35, maxHitpoints: 35, combatStyle: 'melee', stats: { attackStab: 8, attackSlash: 8, attackCrush: 8, attackMagic: 0, attackRanged: 0, defenceStab: 8, defenceSlash: 8, defenceCrush: 8, defenceMagic: 4, defenceRanged: 4, strengthMelee: 8, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_knight',
+        name: 'Fight Knight',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 38,
+        experience: 70,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'knight', name: 'Knight', level: 38, hitpoints: 50, maxHitpoints: 50, combatStyle: 'melee', stats: { attackStab: 12, attackSlash: 12, attackCrush: 12, attackMagic: 0, attackRanged: 0, defenceStab: 12, defenceSlash: 12, defenceCrush: 12, defenceMagic: 6, defenceRanged: 6, strengthMelee: 12, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_paladin',
+        name: 'Fight Paladin',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 85,
+        experience: 150,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'paladin', name: 'Paladin', level: 85, hitpoints: 120, maxHitpoints: 120, combatStyle: 'melee', stats: { attackStab: 25, attackSlash: 25, attackCrush: 25, attackMagic: 0, attackRanged: 0, defenceStab: 25, defenceSlash: 25, defenceCrush: 25, defenceMagic: 12, defenceRanged: 12, strengthMelee: 25, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      }
+    ]
+  },
+  {
+    id: 'ice_dungeon',
+    name: 'Ice dungeon',
+    description: 'A freezing cavern filled with powerful monsters.',
+    type: 'combat',
+    levelRequired: 43,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/placeholder.png',
+    group: 'Dungeons',
+    actions: [
+      {
+        id: 'fight_ice_warrior',
+        name: 'Fight Ice warrior',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 43,
+        experience: 80,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'ice_warrior', name: 'Ice warrior', level: 43, hitpoints: 60, maxHitpoints: 60, combatStyle: 'melee', stats: { attackStab: 15, attackSlash: 15, attackCrush: 15, attackMagic: 0, attackRanged: 0, defenceStab: 15, defenceSlash: 15, defenceCrush: 15, defenceMagic: 8, defenceRanged: 8, strengthMelee: 15, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_ice_giant',
+        name: 'Fight Ice giant',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 63,
+        experience: 120,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'ice_giant', name: 'Ice giant', level: 63, hitpoints: 90, maxHitpoints: 90, combatStyle: 'melee', stats: { attackStab: 20, attackSlash: 20, attackCrush: 20, attackMagic: 0, attackRanged: 0, defenceStab: 20, defenceSlash: 20, defenceCrush: 20, defenceMagic: 10, defenceRanged: 10, strengthMelee: 20, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      },
+      {
+        id: 'fight_frost_dragon',
+        name: 'Fight Frost dragon',
+        type: 'combat',
+        skill: 'attack',
+        levelRequired: 132,
+        experience: 300,
+        baseTime: 3000,
+        itemReward: { id: 'none', name: 'None', quantity: 0 },
+        monster: { id: 'frost_dragon', name: 'Frost dragon', level: 132, hitpoints: 250, maxHitpoints: 250, combatStyle: 'melee', stats: { attackStab: 40, attackSlash: 40, attackCrush: 40, attackMagic: 0, attackRanged: 0, defenceStab: 40, defenceSlash: 40, defenceCrush: 40, defenceMagic: 20, defenceRanged: 20, strengthMelee: 40, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        requirements: []
+      }
+    ]
+  },
+  {
+    id: 'goblin_village',
+    name: 'Goblin Village',
+    description: 'A future raid location. Will be implemented at a later date.',
+    type: 'combat',
+    levelRequired: 1,
+    resources: [],
+    category: 'combat',
+    icon: '/assets/locations/placeholder.png',
+    group: 'Raids',
+    actions: []
   }
 ];
 
@@ -2077,6 +2527,7 @@ export const mockCharacter: Character = {
     location: 'forest'
   },
   skills: {
+    none: createSkill('None'),
     attack: createSkill('Attack'),
     strength: createSkill('Strength'),
     defence: createSkill('Defence'),
@@ -2099,18 +2550,21 @@ export const mockCharacter: Character = {
     cooking: createSkill('Cooking'),
     firemaking: createSkill('Firemaking'),
     woodcutting: createSkill('Woodcutting'),
-    farming: createSkill('Farming'),
-    combat: createSkill('Combat')
+    farming: createSkill('Farming')
   },
   bank: [],
   equipment: {
-    bronze_axe: { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 },
-    small_net: { id: 'small_net', name: 'Small Fishing Net', quantity: 1 },
-    bronze_pickaxe: { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1 }
+    weapon: { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1, type: 'tool', category: 'Tools', icon: '/assets/items/bronze_axe.png' },
+    shield: { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1, type: 'tool', category: 'Tools', icon: '/assets/items/bronze_pickaxe.png' }
   },
   combatLevel: 3,
   hitpoints: 10,
   maxHitpoints: 10,
   prayer: 1,
-  maxPrayer: 1
+  maxPrayer: 1,
+  specialEnergy: 100,
+  maxSpecialEnergy: 100,
+  activeEffects: [],
+  slayerPoints: 0,
+  currentSlayerTask: null
 }; 

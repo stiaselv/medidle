@@ -1,10 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Character, Item, Location, SkillAction, SkillName, ItemReward, StoreItem, StoreAction } from '../types/game';
-import { mockCharacter, mockLocations } from '../data/mockData';
+import type { Character, Item, Location, SkillAction, SkillName, ItemReward, StoreItem, StoreAction, CombatSelectionAction, CombatAction, SlayerTask, Monster, CombatStats, LocationState, GameState, ItemType } from '../types/game';
+import { getCombatTriangleMultiplier, getCombatStyle } from '../combat/combatTriangle';
+import { mockCharacter, mockLocations, mockMonsters } from '../data/mockData';
 import { getItemById } from '../data/items';
 import { ITEM_CATEGORIES } from '../data/items';
 import { capLevelRequirement } from '../types/game';
+import { EASY_MONSTERS, MEDIUM_MONSTERS, HARD_MONSTERS, NIGHTMARE_MONSTERS } from '../data/monsters';
+import { calculateDamage } from '../combat/combatCalculations';
+import { locationSlice } from './locationActions';
+import { createSkill } from '../types/game';
+import { CombatCalculator } from '../combat/CombatCalculator';
+import { CombatManager } from '../combat/CombatManager';
+import type { CombatRoundResult } from '../combat/CombatManager';
 
 // Helper functions for experience and level calculations
 export const calculateLevel = (experience: number): number => {
@@ -23,1018 +31,762 @@ export const getNextLevelExperience = (level: number): number => {
   return cappedLevel * cappedLevel * 83;
 };
 
-export interface GameState {
-  // State
-  character: Character | null;
-  currentLocation: Location | null;
-  activeAction: SkillAction | null;
-  lastActionTime: number | null;
-  isFooterExpanded: boolean;
-  characterState: string;
-  currentAction: SkillAction | null;
-  actionProgress: number;
-  actionInterval: ReturnType<typeof setInterval> | null;
-  lastActionReward: {
-    xp: number;
-    item: ItemReward | null;
-    levelUp?: {
-      skill: string;
-      level: number;
-    };
-  } | null;
-  
-  // Actions
-  setCharacter: (character: Character | null) => void;
-  createCharacter: (name: string) => void;
-  setLocation: (location: Location) => void;
-  startAction: (action: SkillAction) => void;
-  stopAction: () => void;
-  completeAction: () => void;
-  addItemToBank: (item: Item, quantity: number) => void;
-  gainExperience: (skill: SkillName, amount: number) => { skill: string; level: number } | null;
-  toggleFooter: () => void;
-  processOfflineProgress: () => OfflineRewards | null;
-  setCharacterState: (state: string) => void;
-  saveCharacter: () => void;
-  clearActionReward: () => void;
-  signOut: () => void;
-  
-  // Equipment management
-  equipItem: (item: Item) => void;
-  unequipItem: (slot: string) => void;
-  canEquipItem: (itemId: string, slot: string) => boolean;
-  hasRequiredEquipment: (itemId: string) => boolean;
-  canPerformAction: (action: SkillAction) => boolean;
-  
-  // Store actions
-  buyItem: (itemId: string, quantity: number) => void;
-  sellItem: (itemId: string, quantity: number) => void;
-  updateBankOrder: (newBank: ItemReward[]) => void;
-}
+type SetState = (
+  partial: GameState | Partial<GameState> | ((state: GameState) => GameState | Partial<GameState>),
+  replace?: boolean
+) => void;
 
-interface OfflineRewards {
-  xp: number;
-  item: {
-    id: string;
-    name: string;
-    quantity: number;
+type GetState = () => GameState;
+
+// Helper function to get weapon speed in milliseconds
+const getWeaponSpeed = (weaponId: string | undefined): number => {
+  if (!weaponId) return 2500; // Default/unarmed attack speed (2.5 seconds)
+  
+  // Weapon speeds in milliseconds
+  const weaponSpeeds: Record<string, number> = {
+    dagger: 2000,      // 2.0 seconds
+    sword: 2500,       // 2.5 seconds
+    scimitar: 2400,    // 2.4 seconds
+    mace: 2600,        // 2.6 seconds
+    longsword: 3000,   // 3.0 seconds
+    battleaxe: 3500,   // 3.5 seconds
+    warhammer: 3800,   // 3.8 seconds
+    two_handed_sword: 4200,  // 4.2 seconds
   };
-  skill: string;
-  timePassed: number;
-  actionsCompleted: number;
-}
 
-export const useGameStore = create<GameState>()(
+  // Extract the weapon type from the ID (e.g., 'bronze_dagger' -> 'dagger')
+  const weaponType = weaponId.split('_').slice(1).join('_');
+  return weaponSpeeds[weaponType] || 2500; // Default to sword speed if weapon type not found
+};
+
+// Create the store with all its state and actions
+const createStore = () => create<GameState>()(
   persist(
     (set, get) => ({
-      character: (() => {
-        try {
-          // Start with mock character as base
-          const baseChar = { ...mockCharacter };
-          
-          // Ensure equipment is properly set
-          if (!baseChar.equipment.bronze_axe) {
-            baseChar.equipment.bronze_axe = { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 };
-          }
-          if (!baseChar.equipment.small_net) {
-            baseChar.equipment.small_net = { id: 'small_net', name: 'Small Fishing Net', quantity: 1 };
-          }
-          
-          // Convert dates to proper Date objects
-          baseChar.lastLogin = new Date(baseChar.lastLogin);
-          
-          console.log('Initializing character data:', JSON.stringify(baseChar, null, 2));
-          return baseChar;
-        } catch (error) {
-          console.error('Error initializing character:', error);
-          return null;
-        }
-      })(),
-      currentLocation: mockLocations[0],
-      activeAction: null,
-      lastActionTime: null,
-      isFooterExpanded: false,
-      characterState: 'idle',
+      // Initial state
+      character: null,
+      selectedMonster: null,
+      currentLocation: undefined,
       currentAction: null,
       actionProgress: 0,
+      isActionInProgress: false,
       actionInterval: null,
+      lastActionTime: 0,
+      characterState: 'idle' as const,
       lastActionReward: null,
+      lastCombatRound: null,
 
-      setCharacter: (character: Character | null) => {
-        try {
-          if (!character) {
-            set({ character: null });
-            return;
-          }
-
-          // Ensure dates are proper Date objects
-          const updatedCharacter: Character = {
-            ...character,
-            lastLogin: new Date(character.lastLogin),
-            equipment: character.equipment || {},
-            bank: character.bank || [],
-          };
-
-          set({ character: updatedCharacter });
-          localStorage.setItem(`character_${updatedCharacter.id}`, JSON.stringify(updatedCharacter));
-        } catch (error) {
-          console.error('Error in setCharacter:', error);
-          throw error;
-        }
-      },
-      
+      // Character actions
+      setCharacter: (character: Character | null) => set({ character }),
       createCharacter: (name: string) => {
-        const newCharacter: Character = {
-          id: crypto.randomUUID(),
+        // Generate a unique id for the character
+        const id = `char_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+        // Initialize all skills
+        const skills = {
+          none: createSkill('None'),
+          attack: createSkill('Attack'),
+          strength: createSkill('Strength'),
+          defence: createSkill('Defence'),
+          ranged: createSkill('Ranged'),
+          prayer: createSkill('Prayer'),
+          magic: createSkill('Magic'),
+          runecrafting: createSkill('Runecrafting'),
+          construction: createSkill('Construction'),
+          hitpoints: createSkill('Hitpoints', 10),
+          agility: createSkill('Agility'),
+          herblore: createSkill('Herblore'),
+          thieving: createSkill('Thieving'),
+          crafting: createSkill('Crafting'),
+          fletching: createSkill('Fletching'),
+          slayer: createSkill('Slayer'),
+          hunter: createSkill('Hunter'),
+          mining: createSkill('Mining'),
+          smithing: createSkill('Smithing'),
+          fishing: createSkill('Fishing'),
+          cooking: createSkill('Cooking'),
+          firemaking: createSkill('Firemaking'),
+          woodcutting: createSkill('Woodcutting'),
+          farming: createSkill('Farming')
+        };
+        // No default equipment
+        const equipment = {};
+        // Start bank: bronze axe, bronze pickaxe, small fishing net
+        const bank = [
+          { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 },
+          { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1 },
+          { id: 'small_net', name: 'Small Fishing Net', quantity: 1 }
+        ];
+        // Create the character object
+        const character = {
+          id,
           name,
           lastLogin: new Date(),
-          lastAction: {
-            type: 'none',
-            location: 'forest'
-          },
-          skills: {
-            woodcutting: { name: 'Woodcutting', level: 1, experience: 0, nextLevelExperience: 83 },
-            fishing: { name: 'Fishing', level: 1, experience: 0, nextLevelExperience: 83 },
-            mining: { name: 'Mining', level: 1, experience: 0, nextLevelExperience: 83 },
-            smithing: { name: 'Smithing', level: 1, experience: 0, nextLevelExperience: 83 },
-            cooking: { name: 'Cooking', level: 1, experience: 0, nextLevelExperience: 83 },
-            firemaking: { name: 'Firemaking', level: 1, experience: 0, nextLevelExperience: 83 },
-            farming: { name: 'Farming', level: 1, experience: 0, nextLevelExperience: 83 },
-            combat: { name: 'Combat', level: 1, experience: 0, nextLevelExperience: 83 },
-            none: { name: 'None', level: 1, experience: 0, nextLevelExperience: 83 },
-          },
+          lastAction: { type: 'none' as const, location: 'forest' },
+          skills,
+          bank,
+          equipment,
           combatLevel: 3,
           hitpoints: 10,
           maxHitpoints: 10,
           prayer: 1,
           maxPrayer: 1,
-          equipment: {
-            bronze_axe: { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 },
-            small_net: { id: 'small_net', name: 'Small Fishing Net', quantity: 1 },
-            bronze_pickaxe: { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1 }
-          },
-          bank: [],
+          specialEnergy: 100,
+          maxSpecialEnergy: 100,
+          activeEffects: [],
+          slayerPoints: 0,
+          currentSlayerTask: null
         };
-
-        // Save to localStorage first
-        localStorage.setItem(`character_${newCharacter.id}`, JSON.stringify(newCharacter));
-
-        // Update state
-        set((state) => ({
-          ...state,
-          character: newCharacter,
-          characterState: 'idle',
-          currentLocation: mockLocations[0], // Set initial location to Forest
-          currentAction: null,
-          actionProgress: 0,
-          lastActionTime: Date.now(),
-        }));
+        // Save to localStorage for persistence
+        try {
+          localStorage.setItem(`character_${id}`, JSON.stringify({ ...character, lastLogin: new Date().toISOString() }));
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+        // Set in store
+        set({ character });
+        return character;
       },
-
-      setLocation: (location) => set({ currentLocation: location }),
-      
-      startAction: (action: SkillAction) => {
-        const state = get();
-        if (!state.character) return;
-
-        console.log('Starting action:', action.name);
-        
-        // Check requirements
-        if (!get().canPerformAction(action)) {
-          console.log('Cannot perform action - requirements not met');
+      startAction: (action) => {
+        // Handle combat_selection actions by navigating to the target cave
+        if (action.type === 'combat_selection') {
+          const targetLocation = mockLocations.find(loc => loc.id === action.targetLocation);
+          if (targetLocation) {
+            get().setLocation(targetLocation);
+            // Optionally clear currentAction and progress
+            set({ currentAction: null, isActionInProgress: false, actionProgress: 0 });
+          }
           return;
         }
-
         // Clear any existing interval
-        if (state.actionInterval) {
-          clearInterval(state.actionInterval);
+        const state = get();
+        if (state.actionInterval !== null) {
+          clearInterval(state.actionInterval as unknown as number);
         }
-
-        console.log('Setting initial state for action');
-        set({
-          currentAction: action,
-          actionProgress: 0,
-          characterState: 'busy',
-          lastActionReward: null // Clear any existing rewards
-        });
-
-        // Start progress interval
+        // Set up new action
+        set({ currentAction: action, isActionInProgress: true, actionProgress: 0 });
+        let startTime = Date.now();
+        const duration = action.baseTime;
         const interval = setInterval(() => {
           const state = get();
-          if (!state.currentAction) {
+          if (!state.isActionInProgress || !state.currentAction || state.currentAction.id !== action.id) {
             clearInterval(interval);
+            set({ actionInterval: null, actionProgress: 0 });
+            return;
+          }
+          // Check requirements before completing action
+          if (!get().canPerformAction(action)) {
+            clearInterval(interval);
+            set({ isActionInProgress: false, currentAction: null, actionProgress: 0, actionInterval: null });
+            return;
+          }
+          const elapsed = Date.now() - startTime;
+          let progress = Math.min((elapsed / duration) * 100, 100);
+          set({ actionProgress: progress });
+          if (progress >= 100) {
+            get().completeAction();
+            // Reset for next loop
+            startTime = Date.now();
+            set({ actionProgress: 0 });
+          }
+        }, 100);
+        set({ actionInterval: interval });
+      },
+      stopAction: () => {
+        const state = get();
+        if (state.actionInterval !== null) {
+          clearInterval(state.actionInterval as unknown as number);
+        }
+        set({ isActionInProgress: false, currentAction: null, actionProgress: 0, actionInterval: null });
+      },
+      completeAction: () => {
+        const state = get();
+        if (!state.currentAction || !state.currentLocation) return;
+
+        // --- Combat system integration ---
+        if (state.currentAction.type === 'combat') {
+          // Type guard for CombatAction
+          const currentAction = state.currentAction as CombatAction;
+          const { character } = state;
+          if (!character) return;
+          const monster = currentAction.monster;
+          // Use helper to get main combat style
+          const playerStyle = getCombatStyleFromAction(character, currentAction);
+          // For now, monster always uses melee (can be extended later)
+          const monsterStyle: 'melee' | 'ranged' | 'magic' = 'melee';
+
+          // Run a full combat round
+          const roundResult: CombatRoundResult = CombatManager.runCombatRound(
+            character,
+            monster,
+            playerStyle,
+            monsterStyle
+          );
+
+          // Update hitpoints
+          const newMonsterHp = Math.max(0, monster.hitpoints - roundResult.playerDamage);
+          const newPlayerHp = Math.max(0, character.hitpoints - roundResult.monsterDamage);
+
+          // Award XP for every hit
+          const xpGained = roundResult.playerDamage * 4;
+          const hitpointsXpGained = Math.round(roundResult.playerDamage * 1.33);
+          let skill: SkillName = 'attack';
+          // Determine skill based on attackStyle for melee
+          const attackStyle = (currentAction as any).attackStyle || 'accurate';
+          if (playerStyle === 'melee') {
+            if (attackStyle === 'aggressive') skill = 'strength';
+            else if (attackStyle === 'defensive') skill = 'defence';
+            else skill = 'attack';
+          } else if (playerStyle === 'ranged') skill = 'ranged';
+          else if (playerStyle === 'magic') skill = 'magic';
+          if (xpGained > 0) state.gainExperience(skill, xpGained);
+          if (hitpointsXpGained > 0) state.gainExperience('hitpoints', hitpointsXpGained);
+
+          // Handle victory/defeat and rewards
+          if (roundResult.monsterDefeated) {
+            // Grant loot (if any)
+            let rewardItem: ItemReward | null = null;
+            if (roundResult.loot && roundResult.loot.length > 0) {
+              roundResult.loot.forEach(itemId => {
+                const item = getItemById(itemId);
+                if (item) {
+                  // Find the drop quantity from the monster's drops array
+                  const drop = monster.drops?.find(d => d.itemId === itemId);
+                  const quantity = drop?.quantity || 1;
+                  state.addItemToBank(item, quantity);
+                  rewardItem = { id: item.id, name: item.name, quantity };
+                }
+              });
+            } else {
+              // No loot, but still show monster killed
+              rewardItem = { id: monster.id, name: `Defeated ${monster.name}`, quantity: 1 };
+            }
+            // End combat: reset currentAction, optionally show victory UI
+            set({
+              character: { ...character, hitpoints: newPlayerHp },
+              currentAction: null,
+              isActionInProgress: false,
+              lastCombatRound: {
+                playerDamage: roundResult.playerDamage,
+                monsterDamage: roundResult.monsterDamage,
+                result: 'victory',
+                loot: roundResult.loot || []
+              },
+              lastActionReward: {
+                xp: xpGained,
+                item: rewardItem,
+                skill,
+                hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined
+              }
+            });
+            return;
+          } else if (roundResult.playerDefeated) {
+            // Player loses: end combat, optionally show defeat UI
+            set({
+              character: { ...character, hitpoints: 0 },
+              currentAction: null,
+              isActionInProgress: false,
+              lastCombatRound: {
+                playerDamage: roundResult.playerDamage,
+                monsterDamage: roundResult.monsterDamage,
+                result: 'defeat',
+                loot: []
+              }
+            });
             return;
           }
 
-          set((state) => {
-            if (!state.currentAction) return state;
+          // Continue combat: update state
+          set({
+            character: { ...character, hitpoints: newPlayerHp },
+            currentAction: {
+              ...currentAction,
+              monster: { ...monster, hitpoints: newMonsterHp }
+            },
+            lastCombatRound: {
+              playerDamage: roundResult.playerDamage,
+              monsterDamage: roundResult.monsterDamage,
+              result: 'continue',
+              loot: []
+            }
+          });
+          return;
+        }
 
-            const newProgress = state.actionProgress + (100 * 100 / state.currentAction.baseTime); // 100ms updates
-            
-            if (newProgress >= 100) {
-              console.log('Action completed at 100%:', state.currentAction.name);
-              
-              // Complete action
-              const updatedCharacter = { ...state.character! };
-              const currentAction = state.currentAction;
-
-              // Remove required items from bank for any action that has item requirements
-              if (currentAction.requirements) {
-                const itemRequirements = currentAction.requirements.filter(req => req.type === 'item');
-                
-                // Remove required items from bank
-                itemRequirements.forEach(req => {
-                  if (!req.itemId || !req.quantity) return;
-                  
-                  const bankItemIndex = updatedCharacter.bank.findIndex(item => item.id === req.itemId);
-                  if (bankItemIndex === -1) {
-                    console.log(`Required item ${req.itemId} not found in bank`);
-                    return;
-                  }
-                  
-                  const bankItem = updatedCharacter.bank[bankItemIndex];
-                  bankItem.quantity -= req.quantity;
-                  
-                  // Remove item from bank if quantity is 0
-                  if (bankItem.quantity <= 0) {
-                    updatedCharacter.bank.splice(bankItemIndex, 1);
-                  }
-                });
+        // Non-combat actions
+        if (state.currentAction.type === 'woodcutting' || state.currentAction.type === 'mining' || state.currentAction.type === 'fishing' || state.currentAction.type === 'smithing' || state.currentAction.type === 'cooking' || state.currentAction.type === 'firemaking') {
+          // Consume required items (not tools)
+          if ('requirements' in state.currentAction && state.currentAction.requirements) {
+            for (const req of state.currentAction.requirements) {
+              if (req.type === 'item' && req.itemId && req.quantity) {
+                const reqItem = getItemById(req.itemId);
+                if (!reqItem || reqItem.type === 'tool') continue; // Do not consume tools
+                get().removeItemFromBank(req.itemId, req.quantity);
               }
-              
-              // Gain experience and check for level up
-              const levelUp = get().gainExperience(currentAction.skill, currentAction.experience);
-              console.log('Level up result:', levelUp);
+            }
+          }
+          state.batchUpdateProgress([{
+            locationId: state.currentLocation.id,
+            type: 'resource',
+            itemId: state.currentAction.itemReward.id,
+            count: 1
+          }]);
+        }
 
-              // Add reward item to bank
-              if (currentAction.itemReward) {
-                console.log('Adding reward item to bank:', currentAction.itemReward);
-                const existingItemIndex = updatedCharacter.bank.findIndex(
-                  item => item.id === currentAction.itemReward.id
+        // Mark action as completed
+        state.completeLocationAction(state.currentLocation.id, state.currentAction.id);
+
+        // Handle rewards
+        if ('itemReward' in state.currentAction && state.currentAction.itemReward) {
+          // Get the full item data
+          const item = getItemById(state.currentAction.itemReward.id);
+          if (item) {
+            // Add item to bank
+            state.addItemToBank(item, state.currentAction.itemReward.quantity || 1);
+          }
+        }
+
+        let levelUp: { skill: string; level: number } | undefined;
+        let xpGained = 0;
+        let hitpointsXpGained = 0;
+        let skillAwarded: SkillName | undefined = undefined;
+
+        if ('experience' in state.currentAction && state.currentAction.experience) {
+          // Non-combat actions: keep existing logic
+          const result = state.gainExperience(state.currentAction.skill, state.currentAction.experience);
+          if (result) {
+            levelUp = result;
+          }
+          xpGained = state.currentAction.experience;
+          skillAwarded = state.currentAction.skill;
+        }
+
+        // Set last action reward (only for non-combat actions)
+        const hasXp = xpGained > 0;
+        const hasItem = !!(state.currentAction.itemReward && state.currentAction.itemReward.quantity);
+        const hasLevelUp = !!levelUp;
+        if (hasXp || hasItem || hasLevelUp) {
+                  set({
+            lastActionReward: {
+              xp: xpGained,
+              item: state.currentAction.itemReward,
+              levelUp,
+              skill: skillAwarded,
+              hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined
+            }
+          });
+        }
+      },
+      addItemToBank: (item: Item, quantity: number) => {
+        set((state) => {
+          if (!state.character) return {};
+          const bank = [...state.character.bank];
+          const existing = bank.find(i => i.id === item.id);
+          if (existing) {
+            existing.quantity += quantity;
+          } else {
+            bank.push({ id: item.id, name: item.name, quantity });
+          }
+          return {
+            character: { ...state.character, bank }
+          };
+        });
+      },
+      removeItemFromBank: (itemId: string, quantity: number) => {
+        set((state) => {
+          if (!state.character) return {};
+          const bank = [...state.character.bank];
+          const itemIndex = bank.findIndex(i => i.id === itemId);
+          if (itemIndex === -1) return {}; // Item not found
+          const item = bank[itemIndex];
+          if (item.quantity < quantity) return {}; // Not enough items
+          if (item.quantity === quantity) {
+            bank.splice(itemIndex, 1);
+          } else {
+            bank[itemIndex].quantity -= quantity;
+          }
+          return {
+            character: { ...state.character, bank }
+          };
+        });
+      },
+      sellItem: (itemId: string, quantity: number) => {
+        set((state) => {
+          if (!state.character) return {};
+          const item = getItemById(itemId);
+          if (!item || !item.sellPrice) return {}; // Item not sellable
+          const bank = [...state.character.bank];
+          const itemIndex = bank.findIndex(i => i.id === itemId);
+          if (itemIndex === -1) return {}; // Item not found
+          const bankItem = bank[itemIndex];
+          if (bankItem.quantity < quantity) return {}; // Not enough items
+          // Remove the items
+          if (bankItem.quantity === quantity) {
+            bank.splice(itemIndex, 1);
+          } else {
+            bank[itemIndex].quantity -= quantity;
+          }
+          // Add coins
+          const coinsIndex = bank.findIndex(i => i.id === 'coins');
+          const coinsToAdd = item.sellPrice * quantity;
+          if (coinsIndex !== -1) {
+            bank[coinsIndex].quantity += coinsToAdd;
+          } else {
+            bank.push({ id: 'coins', name: 'Coins', quantity: coinsToAdd });
+          }
+          return {
+            character: { ...state.character, bank }
+          };
+        });
+      },
+      updateBankOrder: (newBank: ItemReward[]) => {
+        // Implementation needed
+      },
+      canPerformAction: (action: SkillAction | CombatAction | CombatSelectionAction) => {
+        const state = get();
+        if (!state.character) return false;
+
+        // Check requirements array if it exists
+        if ('requirements' in action && action.requirements) {
+          for (const requirement of action.requirements) {
+            if (requirement.type === 'level' && requirement.skill && requirement.level) {
+              const characterSkill = state.character.skills[requirement.skill as SkillName];
+              if (!characterSkill || calculateLevel(characterSkill.experience) < requirement.level) {
+                return false;
+              }
+            } else if (requirement.type === 'equipment') {
+              if (requirement.itemId) {
+                // Check if the required equipment is equipped (by itemId)
+                const equipped = Object.values(state.character.equipment).find(
+                  (item) => item && item.id === requirement.itemId
                 );
-
-                if (existingItemIndex !== -1) {
-                  // Update existing item quantity
-                  updatedCharacter.bank[existingItemIndex].quantity += currentAction.itemReward.quantity;
-                } else {
-                  // Add new item
-                  updatedCharacter.bank.push({ ...currentAction.itemReward });
+                if (!equipped) {
+                  return false;
+                }
+              } else if (requirement.category) {
+                // Check if any equipped item matches the required category (e.g., any axe)
+                const equipped = Object.values(state.character.equipment).find(
+                  (item) => item && (
+                    item.category === requirement.category ||
+                    (requirement.category === 'axe' && item.id.endsWith('_axe'))
+                  )
+                );
+              if (!equipped) {
+                  return false;
                 }
               }
-
-              const reward = {
-                xp: currentAction.experience,
-                item: currentAction.itemReward,
-                levelUp: levelUp ? {
-                  skill: levelUp.skill,
-                  level: levelUp.level,
-                } : undefined,
-              };
-              
-              console.log('Setting reward in interval:', reward);
-              
-              // First update character and clear any existing reward
-              set({ 
-                character: updatedCharacter,
-                lastActionReward: null 
-              });
-              
-              // Then set the reward in a separate update to ensure state change is detected
-              setTimeout(() => {
-                console.log('Setting delayed reward:', reward);
-                set({ lastActionReward: reward });
-              }, 50);
-              
-              // Finally reset progress
-              set({ actionProgress: 0 });
-
-              // Check if we can still perform the action
-              if (get().canPerformAction(currentAction)) {
-                console.log('Restarting action:', currentAction.name);
-                // Action can continue, just reset progress
-                return {
-                  ...state,
-                  actionProgress: 0,
-                };
-              } else {
-                console.log('Cannot continue action - requirements no longer met');
-                // Stop the action
-                clearInterval(interval);
-                return {
-                  ...state,
-                  currentAction: null,
-                  actionProgress: 0,
-                  characterState: 'idle',
-                  actionInterval: null,
-                };
+            } else if (requirement.type === 'item') {
+              // Check if the required item is in the bank with enough quantity
+              if (!requirement.itemId || !requirement.quantity) return false;
+              const bankItem = state.character.bank.find(i => i.id === requirement.itemId);
+              if (!bankItem || bankItem.quantity < requirement.quantity) {
+                return false;
               }
             }
-            
-            return {
-              ...state,
-              actionProgress: newProgress,
-            };
-          });
-        }, 100);
-
-        set({ actionInterval: interval });
-      },
-      
-      stopAction: () => {
-        console.log('Stopping action');
-        const { actionInterval } = get();
-        if (actionInterval) {
-          clearInterval(actionInterval);
-        }
-        
-        // Save the current progress for potential rewards
-        const state = get();
-        if (state.currentAction && state.actionProgress > 0) {
-          console.log('Calculating partial rewards for stopped action');
-          const progressPercent = state.actionProgress / 100;
-          
-          // Only give rewards if progress was at least 50%
-          if (progressPercent >= 0.5) {
-            const updatedCharacter = { ...state.character! };
-            const currentAction = state.currentAction;
-            
-            // Calculate partial rewards
-            const partialXP = Math.floor(currentAction.experience * progressPercent);
-            const partialQuantity = Math.floor(currentAction.itemReward.quantity * progressPercent);
-            
-            // Update character stats
-            const skill = updatedCharacter.skills[currentAction.skill];
-            skill.experience += partialXP;
-            
-            // Level up check
-            while (skill.experience >= getNextLevelExperience(skill.level)) {
-              skill.level += 1;
-              console.log('Level up!', skill.level);
-            }
-            
-            // Add partial items if any
-            if (partialQuantity > 0) {
-              const existingItemIndex = updatedCharacter.bank.findIndex(
-                item => item.id === currentAction.itemReward.id
-              );
-              
-              if (existingItemIndex !== -1) {
-                updatedCharacter.bank[existingItemIndex].quantity += partialQuantity;
-              } else {
-                updatedCharacter.bank.push({
-                  ...currentAction.itemReward,
-                  quantity: partialQuantity
-                });
-              }
-            }
-            
-            // Apply rewards silently without showing popup
-            set({
-              character: updatedCharacter,
-              currentAction: null,
-              actionProgress: 0,
-              lastActionTime: Date.now(),
-              actionInterval: null,
-              lastActionReward: null, // Don't show popup for partial rewards
-            });
-          } else {
-            // If progress was less than 50%, just reset everything without rewards
-            set({
-              currentAction: null,
-              actionProgress: 0,
-              lastActionTime: Date.now(),
-              actionInterval: null,
-              lastActionReward: null,
-            });
           }
-        } else {
-          // If no action or no progress, just reset everything
-          set({
-            currentAction: null,
-            actionProgress: 0,
-            lastActionTime: Date.now(),
-            actionInterval: null,
-            lastActionReward: null,
-          });
-        }
-      },
-      
-      completeAction: () => {
-        const state = get();
-        if (!state.currentAction || !state.character) return;
-
-        // Complete action
-        const updatedCharacter = { ...state.character };
-        const currentAction = state.currentAction;
-
-        // Remove required items from bank for any action that has item requirements
-        if (currentAction.requirements) {
-          const itemRequirements = currentAction.requirements.filter(req => req.type === 'item');
-          
-          // Remove required items from bank
-          itemRequirements.forEach(req => {
-            if (!req.itemId || !req.quantity) return;
-            
-            const bankItemIndex = updatedCharacter.bank.findIndex(item => item.id === req.itemId);
-            if (bankItemIndex === -1) {
-              console.log(`Required item ${req.itemId} not found in bank`);
-              return;
-            }
-            
-            const bankItem = updatedCharacter.bank[bankItemIndex];
-            bankItem.quantity -= req.quantity;
-            
-            // Remove item from bank if quantity is 0
-            if (bankItem.quantity <= 0) {
-              updatedCharacter.bank.splice(bankItemIndex, 1);
-            }
-          });
-        }
-        
-        // Gain experience and check for level up
-        const levelUp = get().gainExperience(currentAction.skill, currentAction.experience);
-
-        // Add or update item in bank
-        const existingItemIndex = updatedCharacter.bank.findIndex(
-          item => item.id === currentAction.itemReward.id
-        );
-
-        if (existingItemIndex !== -1) {
-          updatedCharacter.bank[existingItemIndex].quantity += currentAction.itemReward.quantity;
-        } else {
-          updatedCharacter.bank.push({ ...currentAction.itemReward });
         }
 
-        const reward = {
-          xp: currentAction.experience,
-          item: currentAction.itemReward,
-          levelUp: levelUp ? {
-            skill: levelUp.skill,
-            level: levelUp.level,
-          } : undefined,
-        };
-        
-        // Update character and show reward
-        set({
-          character: updatedCharacter,
-          actionProgress: 0,
-          lastActionReward: reward,
-        });
+        return true;
       },
-      
-      addItemToBank: (item: Item, quantity: number) => {
-        const { character } = get();
-        if (!character) return;
-
-        const itemReward: ItemReward = {
-          id: item.id,
-          name: item.name,
-          quantity,
-        };
-
-        set((state) => {
-          const updatedCharacter = { ...state.character! };
-          const existingItemIndex = updatedCharacter.bank.findIndex(
-            bankItem => bankItem.id === item.id
-          );
-
-          if (existingItemIndex !== -1) {
-            // Update existing item quantity
-            updatedCharacter.bank[existingItemIndex].quantity += quantity;
-          } else {
-            // Add new item
-            updatedCharacter.bank.push(itemReward);
-          }
-
-          return { character: updatedCharacter };
-        });
-      },
-      
       gainExperience: (skill: SkillName, amount: number) => {
-        const { character } = get();
-        if (!character) return null;
-
-        const updatedCharacter = { ...character };
-        const skillData = updatedCharacter.skills[skill];
-        
-        // Add experience
-        skillData.experience += amount;
-        
-        // Calculate new level
-        const newLevel = calculateLevel(skillData.experience);
-        const leveledUp = newLevel > skillData.level;
-        
-        if (leveledUp) {
-          skillData.level = newLevel;
-          skillData.nextLevelExperience = getNextLevelExperience(newLevel);
-          
-          // Update character in store
-          set({ character: updatedCharacter });
-          
-          // Return level up info
+        const state = get();
+        if (!state.character) return null;
+        const oldSkill = state.character.skills[skill];
+        if (!oldSkill) return null;
+        const oldLevel = calculateLevel(oldSkill.experience);
+        const newExp = oldSkill.experience + amount;
+        const newLevel = calculateLevel(newExp);
+        const skills = {
+          ...state.character.skills,
+          [skill]: {
+            ...oldSkill,
+            experience: newExp,
+            level: newLevel,
+            nextLevelExperience: getNextLevelExperience(newLevel)
+          }
+        };
+        set({
+          character: { ...state.character, skills }
+        });
+        if (newLevel > oldLevel) {
           return { skill, level: newLevel };
         }
-        
-        // Update character in store
-        set({ character: updatedCharacter });
-        
-        // Return null if no level up occurred
         return null;
       },
-      
-      toggleFooter: () => set((state) => ({
-        isFooterExpanded: !state.isFooterExpanded,
-      })),
-      
+
+      // Slayer actions
+      getNewSlayerTask: (difficulty) => {
+        // Implementation needed
+      },
+      completeSlayerTask: () => {
+        // Implementation needed
+      },
+
+      // Offline progress
       processOfflineProgress: () => {
-        const { character, lastActionTime, currentLocation } = get();
-        if (!character || !lastActionTime) return null;
-
-        const now = Date.now();
-        const timeDiff = now - lastActionTime;
-        
-        // Only process if more than 1 minute has passed
-        if (timeDiff < 60000) {
-          console.log('Less than 1 minute passed, skipping offline progress');
-          set({ lastActionTime: now });
-          return null;
-        }
-
-        console.log('Processing offline progress:', timeDiff / 1000, 'seconds');
-
-        // Find the last action the player was doing
-        const lastActionType = character.lastAction;
-        if (!lastActionType || !currentLocation) {
-          console.log('No last action or location found');
-          set({ lastActionTime: now });
-          return null;
-        }
-
-        // Find the specific action in the location
-        const action = currentLocation.actions.find(a => a.id === lastActionType.target);
-        if (!action) {
-          console.log('Last action not found in current location');
-          set({ lastActionTime: now });
-          return null;
-        }
-
-        // Calculate number of actions completed
-        const actionTime = action.baseTime * 1000; // Convert to milliseconds
-        const actionsCompleted = Math.floor(timeDiff / actionTime);
-
-        if (actionsCompleted === 0) {
-          console.log('No actions completed while offline');
-          set({ lastActionTime: now });
-          return null;
-        }
-
-        // Calculate rewards
-        const xpPerAction = action.experience;
-        const totalXp = xpPerAction * actionsCompleted;
-
-        // Get item rewards
-        const itemReward = action.itemReward;
-        const totalItems = actionsCompleted * itemReward.quantity;
-
-        // Create rewards object
-        const rewards = {
-          xp: totalXp,
-          skill: action.skill,
-          item: {
-            id: itemReward.id,
-            name: itemReward.name,
-            quantity: totalItems,
-          },
-          timePassed: timeDiff,
-          actionsCompleted,
-        };
-
-        // Apply rewards
-        if (totalXp > 0) {
-          get().gainExperience(action.skill, totalXp);
-        }
-
-        if (totalItems > 0) {
-          const itemDetails = getItemById(itemReward.id);
-          if (itemDetails) {
-            get().addItemToBank(itemDetails, totalItems);
-          }
-        }
-
-        // Update last action time
-        set({ lastActionTime: now });
-
-        return rewards;
+        // Implementation needed
+        return null;
       },
+      clearActionReward: () => set({ lastActionReward: null }),
 
-      setCharacterState: (state: string) => set({ characterState: state }),
+      // Auth
+      signOut: () => set({ character: null }),
+      updateCharacter: (character: Character) => set({ character }),
 
-      saveCharacter: () => {
-        const { character } = get();
-        if (!character) return;
-        localStorage.setItem(`character_${character.id}`, JSON.stringify(character));
-      },
-
-      clearActionReward: () => {
-        console.log('Clearing action reward');
-        set({ lastActionReward: null });
-      },
-
-      equipItem: (item: Item) => {
-        const { character } = get();
-        if (!character || !item.slot) return;
-
-        // Create a copy of the character
-        const updatedCharacter = { ...character };
-
-        // Find the item in the bank
-        const bankItemIndex = character.bank.findIndex(i => i.id === item.id);
-
-        // If there's already an item in the slot, move it to the bank
-        const currentEquipped = updatedCharacter.equipment[item.slot];
-        if (currentEquipped) {
-          const existingItemIndex = updatedCharacter.bank.findIndex(
-            i => i.id === currentEquipped.id
-          );
-
-          if (existingItemIndex !== -1) {
-            // Item already exists in bank, increase quantity
-            updatedCharacter.bank[existingItemIndex].quantity += 1;
-          } else {
-            // Add item to bank
-            updatedCharacter.bank.push({
-              id: currentEquipped.id,
-              name: currentEquipped.name,
-              quantity: 1,
-            });
-          }
-        }
-
-        // If the item is in the bank, remove it from there
-        if (bankItemIndex !== -1) {
-          const itemToEquip = updatedCharacter.bank[bankItemIndex];
-          // Remove the item from the bank
-          if (itemToEquip.quantity > 1) {
-            updatedCharacter.bank[bankItemIndex].quantity -= 1;
-          } else {
-            updatedCharacter.bank.splice(bankItemIndex, 1);
-          }
-        }
-
-        // Equip the item
-        updatedCharacter.equipment[item.slot] = {
-          id: item.id,
-          name: item.name,
-          quantity: 1,
-        };
-
-        // Update state
-        set({ character: updatedCharacter });
-
-        // Save to localStorage
-        localStorage.setItem(`character_${updatedCharacter.id}`, JSON.stringify(updatedCharacter));
-      },
-
-      unequipItem: (slot: string) => {
-        const { character } = get();
-        if (!character) return;
-
-        // Create a copy of the character
-        const updatedCharacter = { ...character };
-
-        // Find the item in the equipment slot
-        const equippedItem = Object.entries(updatedCharacter.equipment).find(([_, item]) => {
-          const itemData = getItemById(item.id);
-          return itemData?.slot === slot;
-        });
-
-        if (!equippedItem) return;
-
-        // Remove the item from equipment
-        delete updatedCharacter.equipment[equippedItem[0]];
-
-        // Add the item to bank
-        const existingItemIndex = updatedCharacter.bank.findIndex(
-          item => item.id === equippedItem[1].id
-        );
-
-        if (existingItemIndex !== -1) {
-          // Item already exists in bank, increase quantity
-          updatedCharacter.bank[existingItemIndex].quantity += 1;
-        } else {
-          // Add item to bank
-          updatedCharacter.bank.push({
-            id: equippedItem[1].id,
-            name: equippedItem[1].name,
-            quantity: 1,
-          });
-        }
-
-        // Update state
-        set({ character: updatedCharacter });
-
-        // Save to localStorage
-        localStorage.setItem(`character_${updatedCharacter.id}`, JSON.stringify(updatedCharacter));
-      },
-
-      canEquipItem: (itemId: string, slot: string) => {
-        const { character } = get();
-        if (!character) return false;
-
-        // For now, just check if the item exists in the bank
-        // Later we can add level requirements, item type checks, etc.
-        return character.bank.some(item => item.id === itemId);
-      },
-
-      // Helper function to check if player has required equipment
-      hasRequiredEquipment: (itemId: string): boolean => {
-        const { character } = get();
-        if (!character) {
-          console.log('Cannot check equipment - no character');
-          return false;
-        }
-
-        console.log('Checking equipment for:', itemId);
-        console.log('Character equipment:', JSON.stringify(character.equipment, null, 2));
-
-        // Check if the item is equipped
-        const hasExactItem = Object.values(character.equipment).some(item => item?.id === itemId);
-        if (hasExactItem) {
-          console.log(`Found exact equipment match: ${itemId}`);
-          return true;
-        }
-
-        // Tool tiers (higher number = better tier)
-        const toolTiers: { [key: string]: number } = {
-          // Axes
-          'bronze_axe': 1,
-          'iron_axe': 2,
-          'steel_axe': 3,
-          'mithril_axe': 4,
-          'adamant_axe': 5,
-          'rune_axe': 6,
-          'dragon_axe': 7,
-
-          // Fishing equipment
-          'small_net': 1,
-          'fly_fishing_rod': 2,
-          'fishing_rod': 3,
-          'harpoon': 4,
-          'dragon_harpoon': 5,
-
-          // Mining equipment
-          'bronze_pickaxe': 1,
-          'iron_pickaxe': 2,
-          'steel_pickaxe': 3,
-          'mithril_pickaxe': 4,
-          'adamant_pickaxe': 5,
-          'rune_pickaxe': 6,
-          'dragon_pickaxe': 7,
-        };
-
-        // Get the required tool's tier
-        const requiredTier = toolTiers[itemId] || 0;
-        console.log(`Required tool tier for ${itemId}: ${requiredTier}`);
-
-        // Get the tool type (axe, fishing, or mining)
-        const isAxe = itemId.includes('axe') && !itemId.includes('pickaxe');
-        const isFishing = itemId.includes('net') || itemId.includes('fishing') || itemId.includes('harpoon');
-        const isMining = itemId.includes('pickaxe');
-
-        // Check if player has any equipment of equal or higher tier
-        const hasHigherTier = Object.values(character.equipment).some(equippedItem => {
-          if (!equippedItem) return false;
-
-          // Check if it's the same tool type
-          const isEquippedAxe = equippedItem.id.includes('axe') && !equippedItem.id.includes('pickaxe');
-          const isEquippedFishing = equippedItem.id.includes('net') || equippedItem.id.includes('fishing') || equippedItem.id.includes('harpoon');
-          const isEquippedMining = equippedItem.id.includes('pickaxe');
-          
-          const isSameType = 
-            (isAxe && isEquippedAxe) || 
-            (isFishing && isEquippedFishing) ||
-            (isMining && isEquippedMining);
-
-          if (!isSameType) return false;
-
-          const equippedTier = toolTiers[equippedItem.id] || 0;
-          console.log(`Checking equipped item ${equippedItem.id}:`, {
-            tier: equippedTier,
-            sameType: isSameType,
-            meetsRequirement: equippedTier >= requiredTier
-          });
-
-          return equippedTier >= requiredTier;
-        });
-
-        console.log(`Has required tier equipment: ${hasHigherTier}`);
-        return hasHigherTier;
-      },
-
-      canPerformAction: (action: SkillAction): boolean => {
-        const { character } = get();
-        if (!character) {
-          console.log('Cannot perform action - no character');
-          return false;
-        }
-
-        console.log('Checking requirements for action:', action.name);
-        console.log('Action requirements:', action.requirements);
-        console.log('Character skills:', JSON.stringify(character.skills, null, 2));
-
-        // If there are no requirements, the action can be performed
-        if (!action.requirements || action.requirements.length === 0) {
-          return true;
-        }
-
-        const meetsRequirements = action.requirements.every(req => {
-          switch (req.type) {
-            case 'level':
-              if (!req.skill) {
-                console.log('Invalid requirement - no skill specified');
-                return false;
-              }
-              const hasSkill = req.skill in character.skills;
-              if (!hasSkill) {
-                console.log(`Missing skill ${req.skill} in character skills`);
-                return false;
-              }
-              const skill = character.skills[req.skill];
-              const cappedRequiredLevel = req.level ? capLevelRequirement(req.level) : 0;
-              console.log(`Level check for ${req.skill}:`, {
-                required: cappedRequiredLevel,
-                current: skill.level,
-                experience: skill.experience,
-                nextLevel: skill.nextLevelExperience
-              });
-              const meetsLevel = skill.level >= cappedRequiredLevel;
-              console.log(`Meets level requirement: ${meetsLevel}`);
-              return meetsLevel;
-            case 'equipment':
-              if (!req.itemId) {
-                console.log('Invalid requirement - no itemId specified');
-                return false;
-              }
-              const hasEquipment = get().hasRequiredEquipment(req.itemId);
-              console.log(`Equipment check for ${req.itemId}: ${hasEquipment}`);
-              return hasEquipment;
-            case 'item':
-              if (!req.itemId) {
-                console.log('Invalid requirement - no itemId specified');
-                return false;
-              }
-              const hasItem = character.bank.some(item => 
-                item.id === req.itemId && item.quantity >= (req.quantity || 1)
-              );
-              console.log(`Item check for ${req.itemId}: ${hasItem}`);
-              return hasItem;
-            default:
-              console.log('Invalid requirement type');
-              return false;
-          }
-        });
-
-        return meetsRequirements;
-      },
-
-      signOut: () => {
-        // Stop any ongoing action
-        const state = get();
-        if (state.actionInterval) {
-          clearInterval(state.actionInterval);
-        }
-        
-        // Save character data before signing out
-        if (state.character) {
-          localStorage.setItem(`character_${state.character.id}`, JSON.stringify({
-            ...state.character,
-            lastLogin: new Date().toISOString(),
-            lastAction: {
-              type: state.currentAction?.type || 'none',
-              location: state.currentLocation?.name || 'none'
-            }
-          }));
-        }
-        
-        // Clear the store state
-        set({
-          character: null,
-          currentLocation: null,
-          activeAction: null,
-          lastActionTime: null,
-          currentAction: null,
-          actionProgress: 0,
-          actionInterval: null,
-          lastActionReward: null
-        });
-      },
+      // Add location slice (includes state and actions)
+      ...locationSlice(set, get),
 
       buyItem: (itemId: string, quantity: number) => {
-        const state = get();
-        if (!state.character) return;
-
-        const updatedCharacter = { ...state.character };
-        const coinsInBank = updatedCharacter.bank.find(item => item.id === 'coins')?.quantity || 0;
-
-        // Get the store item to determine price
-        const currentAction = state.currentLocation?.actions[0];
-        if (currentAction?.type !== 'store') return;
-        
-        const storeAction = currentAction as StoreAction;
-        const storeItem = storeAction.storeItems.find((item: StoreItem) => item.id === itemId);
-        if (!storeItem) return;
-        
-        const totalCost = storeItem.buyPrice * quantity;
-
-        // Check if player has enough coins
-        if (coinsInBank < totalCost) {
-          console.log('Not enough coins');
-          return;
-        }
-
-        // Remove coins
-        const coinsIndex = updatedCharacter.bank.findIndex(item => item.id === 'coins');
-        if (coinsIndex >= 0) {
-          updatedCharacter.bank[coinsIndex].quantity -= totalCost;
-          if (updatedCharacter.bank[coinsIndex].quantity <= 0) {
-            updatedCharacter.bank.splice(coinsIndex, 1);
+        set((state) => {
+          if (!state.character) return {};
+          const item = getItemById(itemId);
+          if (!item || !item.buyPrice) return {}; // Item not buyable
+          const totalCost = item.buyPrice * quantity;
+          const bank = [...state.character.bank];
+          const coinsIndex = bank.findIndex(i => i.id === 'coins');
+          if (coinsIndex === -1 || bank[coinsIndex].quantity < totalCost) return {}; // Not enough coins
+          // Subtract coins
+          bank[coinsIndex].quantity -= totalCost;
+          if (bank[coinsIndex].quantity === 0) {
+            bank.splice(coinsIndex, 1);
           }
-        }
-
-        // Add items to bank
-        const existingItem = updatedCharacter.bank.find(item => item.id === itemId);
-        if (existingItem) {
-          existingItem.quantity += quantity;
-        } else {
-          const itemData = getItemById(itemId);
-          if (!itemData) return;
-          updatedCharacter.bank.push({
-            id: itemId,
-            name: itemData.name,
-            quantity: quantity
-          });
-        }
-
-        set({ character: updatedCharacter });
-        localStorage.setItem(`character_${updatedCharacter.id}`, JSON.stringify(updatedCharacter));
+          // Add item
+          const itemIndex = bank.findIndex(i => i.id === itemId);
+          if (itemIndex !== -1) {
+            bank[itemIndex].quantity += quantity;
+          } else {
+            bank.push({ id: item.id, name: item.name, quantity });
+          }
+          return {
+            character: { ...state.character, bank }
+          };
+        });
       },
-
-      sellItem: (itemId: string, quantity: number) => {
-        const state = get();
-        if (!state.character) return;
-
-        const updatedCharacter = { ...state.character };
-        const itemInBank = updatedCharacter.bank.find(item => item.id === itemId);
-
-        // Check if player has the item
-        if (!itemInBank || itemInBank.quantity < quantity) {
-          console.log('Not enough items in bank');
-          return;
-        }
-
-        // Get the item details from the database first
-        const itemDetails = getItemById(itemId);
-        if (!itemDetails) {
-          console.log('Item not found in database');
-          return;
-        }
-
-        // Calculate sell price
-        const sellPrice = itemDetails.sellPrice * quantity;
-        console.log('Selling items:', { quantity, sellPrice, totalPrice: sellPrice });
-
-        // Remove the sold items
-        itemInBank.quantity -= quantity;
-        if (itemInBank.quantity <= 0) {
-          updatedCharacter.bank = updatedCharacter.bank.filter(item => item.id !== itemId);
-        }
-
-        // Add coins to bank
-        const coinsInBank = updatedCharacter.bank.find(item => item.id === 'coins');
-        if (coinsInBank) {
-          coinsInBank.quantity += sellPrice;
-        } else {
-          updatedCharacter.bank.push({
-            id: 'coins',
-            name: 'Coins',
-            quantity: sellPrice
-          });
-        }
-
-        set({ character: updatedCharacter });
+      equipItem: (item: Item) => {
+        set((state) => {
+          if (!state.character) return {};
+          const itemData = getItemById(item.id);
+          if (!itemData || !itemData.slot) return {};
+          // Use the item's defined slot (no special-casing for pickaxes)
+          const slot = itemData.slot.toLowerCase();
+          const equipment = { ...state.character.equipment };
+          const bank = [...state.character.bank];
+          // Remove one from bank
+          const bankIndex = bank.findIndex(i => i.id === item.id);
+          if (bankIndex === -1 || bank[bankIndex].quantity < 1) return {};
+          bank[bankIndex].quantity -= 1;
+          if (bank[bankIndex].quantity === 0) bank.splice(bankIndex, 1);
+          // If slot is occupied, move equipped item to bank
+          if (equipment[slot]) {
+            const equipped = equipment[slot]!;
+            const bankEquippedIndex = bank.findIndex(i => i.id === equipped.id);
+            if (bankEquippedIndex !== -1) {
+              bank[bankEquippedIndex].quantity += 1;
+            } else {
+              bank.push({ id: equipped.id, name: equipped.name, quantity: 1 });
+            }
+          }
+          // Equip the new item
+          equipment[slot] = { ...itemData, quantity: 1 };
+          return {
+            character: { ...state.character, equipment, bank }
+          };
+        });
       },
-
-      updateBankOrder: (newBank: ItemReward[]) => {
-        const state = get();
-        if (!state.character) return;
-
-        const updatedCharacter = { ...state.character, bank: newBank };
-        set({ character: updatedCharacter });
-        localStorage.setItem(`character_${updatedCharacter.id}`, JSON.stringify(updatedCharacter));
+      unequipItem: (slot: string) => {
+        set((state) => {
+          if (!state.character) return {};
+          const equipment = { ...state.character.equipment };
+          const bank = [...state.character.bank];
+          const equipped = equipment[slot];
+          if (!equipped) return {};
+          // Add back to bank
+          const bankIndex = bank.findIndex(i => i.id === equipped.id);
+          if (bankIndex !== -1) {
+            bank[bankIndex].quantity += 1;
+          } else {
+            bank.push({ id: equipped.id, name: equipped.name, quantity: 1 });
+          }
+          equipment[slot] = undefined;
+          return {
+            character: { ...state.character, equipment, bank }
+          };
+        });
       },
+      useConsumable: (itemId: string, quantity: number = 1) => {
+        set((state) => {
+          if (!state.character) return {};
+          const item = getItemById(itemId);
+          if (!item || item.type !== 'consumable') return {};
+          const bankIndex = state.character.bank.findIndex(i => i.id === itemId);
+          if (bankIndex === -1 || state.character.bank[bankIndex].quantity < quantity) return {};
+          let healed = false;
+          let boosted = false;
+          let newHitpoints = state.character.hitpoints;
+          let newActiveEffects = [...state.character.activeEffects];
+          // Heal if healing property exists
+          if (item.healing && state.character.hitpoints < state.character.maxHitpoints) {
+            newHitpoints = Math.min(state.character.hitpoints + item.healing * quantity, state.character.maxHitpoints);
+            healed = true;
+          }
+          // Boost if boost property exists (future: implement boost logic)
+          if (item.boost) {
+            // Example: boost = { stat: 'strength', amount: 2, duration: 5 }
+            newActiveEffects.push({
+              type: 'boost',
+              remainingDuration: item.boost.duration || 5,
+              value: item.boost.amount || 1,
+              affectedStats: [item.boost.stat]
+            });
+            boosted = true;
+          }
+          // Remove from bank
+          const newBank = [...state.character.bank];
+          newBank[bankIndex].quantity -= quantity;
+          if (newBank[bankIndex].quantity <= 0) newBank.splice(bankIndex, 1);
+          // Only update if something happened
+          if (!healed && !boosted) return {};
+          return {
+            character: {
+              ...state.character,
+              hitpoints: newHitpoints,
+              activeEffects: newActiveEffects,
+              bank: newBank
+            }
+          };
+        });
+      },
+      resetLastCombatRound: () => set({ lastCombatRound: null }),
     }),
     {
       name: 'game-storage',
+      partialize: (state) => ({
+        character: state.character,
+        locations: state.locations,
+        recentLocations: state.recentLocations,
+        favoriteLocations: state.favoriteLocations,
+        discoveredLocations: state.discoveredLocations,
+      }),
     }
   )
 );
+
+// Export the store creator for testing
+export const createGameStore = () => createStore();
+
+// Export the store instance for components to use
+export const useGameStore = createStore();
+
+const calculateMaxHit = (
+  attackerStats: CombatStats,
+  strengthLevel: number,
+  combatTriangleModifier: number
+) => {
+  const effectiveStrengthLevel = Math.floor(strengthLevel * combatTriangleModifier);
+  const strengthBonus = attackerStats.strengthMelee;
+  
+  return Math.floor(0.5 + (effectiveStrengthLevel * (strengthBonus + 64)) / 640);
+};
+
+// Helper function to get total attack stats from equipped items
+const getCharacterAttackStats = (character: Character): CombatStats => {
+  const baseStats: CombatStats = {
+    attackStab: 0,
+    attackSlash: 0,
+    attackCrush: 0,
+    attackMagic: 0,
+    attackRanged: 0,
+    defenceStab: 0,
+    defenceSlash: 0,
+    defenceCrush: 0,
+    defenceMagic: 0,
+    defenceRanged: 0,
+    strengthMelee: 0,
+    strengthRanged: 0,
+    strengthMagic: 0,
+    prayerBonus: 0
+  };
+
+  // Combine stats from all equipped items
+  Object.entries(character.equipment).forEach(([slot, equippedItem]) => {
+    if (equippedItem) {
+      const item = getItemById(equippedItem.id);
+      if (item?.stats) {
+        Object.entries(item.stats).forEach(([key, value]) => {
+          baseStats[key as keyof CombatStats] += value as number;
+        });
+      }
+    }
+  });
+
+  return baseStats;
+};
+
+// Helper function to get total defence stats from equipped items
+const getCharacterDefenceStats = (character: Character): CombatStats => {
+  const baseStats: CombatStats = {
+    attackStab: 0,
+    attackSlash: 0,
+    attackCrush: 0,
+    attackMagic: 0,
+    attackRanged: 0,
+    defenceStab: 0,
+    defenceSlash: 0,
+    defenceCrush: 0,
+    defenceMagic: 0,
+    defenceRanged: 0,
+    strengthMelee: 0,
+    strengthRanged: 0,
+    strengthMagic: 0,
+    prayerBonus: 0
+  };
+
+  // Combine stats from all equipped items
+  Object.entries(character.equipment).forEach(([slot, equippedItem]) => {
+    if (equippedItem) {
+      const item = getItemById(equippedItem.id);
+      if (item?.stats) {
+        Object.entries(item.stats).forEach(([key, value]) => {
+          baseStats[key as keyof CombatStats] += value as number;
+        });
+      }
+    }
+  });
+
+  return baseStats;
+};
+
+const DEFAULT_UNARMED_STATS: CombatStats = {
+  attackStab: 0,
+  attackSlash: 0,
+  attackCrush: 1, // Small bonus for punching
+  attackMagic: 0,
+  attackRanged: 0,
+  defenceStab: 0,
+  defenceSlash: 0,
+  defenceCrush: 0,
+  defenceMagic: 0,
+  defenceRanged: 0,
+  strengthMelee: 1, // Small bonus for punching
+  strengthRanged: 0,
+  strengthMagic: 0,
+  prayerBonus: 0
+};
+
+// Export other helper functions and types
+export { calculateMaxHit };
+
+// Helper to map UI attackStyle to main combat style
+function getCombatStyleFromAction(character: Character, action: CombatAction): 'melee' | 'ranged' | 'magic' {
+  // If the action has a combatStyle property, use it
+  if ('combatStyle' in action && action.combatStyle) return action.combatStyle as 'melee' | 'ranged' | 'magic';
+  // Otherwise, infer from weapon
+  const weapon = character.equipment.weapon;
+  if (weapon) {
+    if (weapon.id.includes('bow') || weapon.id.includes('crossbow') || weapon.id.includes('dart') || weapon.id.includes('knife')) {
+      return 'ranged';
+    } else if (weapon.id.includes('staff') || weapon.id.includes('wand')) {
+      return 'magic';
+    }
+  }
+  return 'melee';
+}

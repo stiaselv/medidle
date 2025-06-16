@@ -1,10 +1,13 @@
 import { Box, Button, Flex, Grid, Image, Progress, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, VStack } from '@chakra-ui/react';
 import type { TooltipProps } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
+import { useUIStore } from '../../store/uiStore';
 import { mockLocations } from '../../data/mockData';
 import type { Location, SkillName } from '../../types/game';
 import { BankPanel } from '../bank/BankPanel';
 import { EquipmentPanel } from '../equipment/EquipmentPanel';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SkillTooltip = ({ children, ...props }: TooltipProps) => (
   <Tooltip hasArrow placement="top" {...props}>
@@ -49,10 +52,22 @@ const LocationCard = ({ location, isActive, onClick }: { location: Location; isA
   </Button>
 );
 
-export const Footer = () => {
-  const { character, currentLocation, isFooterExpanded, setLocation } = useGameStore();
+export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
+  const { character, currentLocation, setLocation } = useGameStore();
+  const { isFooterExpanded } = useUIStore();
+  const [tabIndex, setTabIndex] = useState(0);
 
   if (!character) return null;
+
+  // List of custom combat locations
+  const combatAreas = [
+    'farm',
+    'lumbridge_swamp',
+    'ardougne_marketplace',
+    'ice_dungeon',
+    'goblin_village'
+  ];
+  const combatLocations = mockLocations.filter(l => combatAreas.includes(l.id));
 
   return (
     <Flex 
@@ -126,7 +141,14 @@ export const Footer = () => {
       {/* Expanded content */}
       {isFooterExpanded && (
         <Box mt="70px" w="100%" h="calc(100% - 70px)" maxH="530px" overflow="hidden">
-          <Tabs variant="enclosed" h="100%" display="flex" flexDirection="column">
+          <Tabs
+            variant="enclosed"
+            h="100%"
+            display="flex"
+            flexDirection="column"
+            index={tabIndex}
+            onChange={setTabIndex}
+          >
             <TabList display="flex" justifyContent="center" borderBottom="1px" borderColor="gray.600" role="tablist">
               <Tab _selected={{ color: 'white', bg: 'blue.500' }} role="tab" aria-label="Locations tab">Locations</Tab>
               <Tab _selected={{ color: 'white', bg: 'blue.500' }} role="tab" aria-label="Equipment tab">Equipment</Tab>
@@ -138,14 +160,42 @@ export const Footer = () => {
               {/* Locations Panel */}
               <TabPanel display="flex" flexDirection="column" alignItems="center" role="tabpanel" aria-label="Locations">
                 <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4} w="100%" maxW="1200px">
-                  {mockLocations.map((location) => (
-                    <LocationCard
-                      key={location.id}
-                      location={location}
-                      isActive={currentLocation?.id === location.id}
-                      onClick={() => setLocation(location)}
-                    />
-                  ))}
+                  {mockLocations
+                    .filter((location: Location) =>
+                      // Exclude custom combat locations from the grid
+                      !combatAreas.includes(location.id) &&
+                      (!location.id.includes('_cave') || location.id === 'slayer_cave')
+                    )
+                    .map((location: Location) => (
+                      <LocationCard
+                        key={location.id}
+                        location={location}
+                        isActive={currentLocation?.id === location.id}
+                        onClick={() => setLocation(location)}
+                      />
+                    ))}
+                  {/* Add Combat LocationCard */}
+                  <Button
+                    variant="outline"
+                    colorScheme="red"
+                    height="auto"
+                    p={4}
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    gap={2}
+                    onClick={() => {
+                      console.log('Combat location button clicked');
+                      setTabIndex(0); // Ensure Locations tab is selected
+                      onCombatClick && onCombatClick();
+                    }}
+                    _hover={{ transform: 'scale(1.02)' }}
+                    transition="all 0.2s"
+                    w="100%"
+                  >
+                    <Text fontWeight="bold">Combat</Text>
+                    <Text fontSize="sm" color="gray.400" textAlign="center" w="100%">Fight monsters, explore dungeons, and challenge raids!</Text>
+                  </Button>
                 </Grid>
               </TabPanel>
 

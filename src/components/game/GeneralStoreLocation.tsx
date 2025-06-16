@@ -204,13 +204,14 @@ export const GeneralStoreLocation = () => {
 
     const sections = [
       // Item Name
-      `${itemDetails.name}`,
+      itemDetails.name,
 
       // Stats if they exist
-      itemDetails.stats ? 
-        Object.entries(itemDetails.stats)
-          .map(([stat, value]) => `${stat.charAt(0).toUpperCase() + stat.slice(1)}: +${value}`)
-          .join('\n') : 
+      itemDetails.stats && Object.entries(itemDetails.stats).length > 0 ? 
+        ['Stats:'].concat(
+          Object.entries(itemDetails.stats)
+            .map(([stat, value]) => `  ${stat.charAt(0).toUpperCase() + stat.slice(1)}: +${value}`)
+        ).join('\n') : 
         null,
 
       // Requirements

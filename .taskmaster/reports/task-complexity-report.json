@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "generatedAt": "2025-06-06T10:54:50.179Z",
+    "tasksAnalyzed": 1,
+    "totalTasks": 20,
+    "analysisCount": 20,
+    "thresholdScore": 5,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 1,
+      "taskTitle": "Design Combat Location Grid Layout",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the grid layout design into components, responsive design, state management, and performance optimization subtasks",
+      "reasoning": "Involves multiple frontend technologies and performance considerations"
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Develop Location Search and Filter Functionality",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Split the task into UI components, search logic, filter implementation, state management, and performance optimization subtasks",
+      "reasoning": "Involves complex UI interactions and potential performance challenges"
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Implement Location State Management",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into state design, action/reducer implementation, persistence logic, API development, and synchronization subtasks",
+      "reasoning": "Requires both client and server-side implementation with complex state management"
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "Design and Implement Farm Location",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide into layout design, monster component creation, behavior implementation, loot system, and integration subtasks",
+      "reasoning": "Involves detailed design work and complex game mechanics"
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Design and Implement Wizard Tower Location",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Split into multi-level design, transition animations, wizard components, difficulty scaling, progression management, and integration subtasks",
+      "reasoning": "Requires complex layout and game mechanics with multiple interacting systems"
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Design and Implement Goblin Village Location",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into village layout, area transitions, goblin AI, pathfinding, crafting system, and integration subtasks",
+      "reasoning": "Involves advanced AI behavior and complex game systems"
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Develop Dungeon System Framework",
+      "complexityScore": 9,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide into procedural generation, room connectivity, difficulty scaling, rendering system, 3D visualization, testing, and integration subtasks",
+      "reasoning": "Requires advanced algorithms and potentially 3D graphics implementation"
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Implement Boss Arena System",
+      "complexityScore": 9,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Split into boss class design, unique mechanics implementation, state management, reward system, multiplayer support, testing, and integration subtasks",
+      "reasoning": "Involves complex game mechanics and potential multiplayer considerations"
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Design Future Raid System Framework",
+      "complexityScore": 10,
+      "recommendedSubtasks": 8,
+      "expansionPrompt": "Break down into raid structure design, scaling system, mechanics framework, real-time communication, instance management, testing, documentation, and future planning subtasks",
+      "reasoning": "Highly complex system with multiple interacting components and future scalability requirements"
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Implement Special Attack System",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Split into attack class design, cooldown system, resource management, event system, effect implementation, and integration subtasks",
+      "reasoning": "Involves complex game mechanics and event-driven architecture"
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Develop Area-Specific Combat Modifiers",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down into modifier system design, environmental effects, strategy pattern implementation, rules engine integration, and testing subtasks",
+      "reasoning": "Requires flexible design to accommodate various location-based effects"
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Implement Status Effects and Buffs/Debuffs System",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into effect class design, buff manager implementation, observer pattern integration, duration management, stacking logic, and testing subtasks",
+      "reasoning": "Involves complex interactions between multiple game systems"
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Design and Implement Combat UI",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Split into UI design, component implementation, animation system, performance optimization, accessibility features, and usability testing subtasks",
+      "reasoning": "Requires both aesthetic design and complex frontend implementation"
+    },
+    {
+      "taskId": 16,
+      "taskTitle": "Develop Progress Tracking and Reward System",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into tracking service design, reward distribution system, queueing implementation, analytics integration, testing, and performance optimization subtasks",
+      "reasoning": "Involves multiple interconnected systems and potential scaling challenges"
+    },
+    {
+      "taskId": 17,
+      "taskTitle": "Implement Save/Load Functionality",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide into data serialization, storage implementation, compression system, encryption, synchronization, and testing subtasks",
+      "reasoning": "Requires careful handling of data integrity and security considerations"
+    },
+    {
+      "taskId": 18,
+      "taskTitle": "Develop Drop Table Management System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Split into drop table design, selection algorithm, caching mechanism, dynamic adjustments, rules engine integration, and statistical testing subtasks",
+      "reasoning": "Involves complex probability calculations and performance considerations"
+    },
+    {
+      "taskId": 19,
+      "taskTitle": "Implement Player Progression System",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into leveling system, content unlock mechanism, progression path modeling, milestone/achievement system, quest system integration, and testing subtasks",
+      "reasoning": "Requires careful balance and integration with multiple game systems"
+    },
+    {
+      "taskId": 20,
+      "taskTitle": "Develop Analytics and Reporting System",
+      "complexityScore": 9,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide into event tracking implementation, database setup, dashboard creation, anomaly detection, machine learning integration, testing, and performance optimization subtasks",
+      "reasoning": "Involves advanced data processing and potential machine learning components"
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Enhance Combat Triangle System",
+      "complexityScore": 8,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the enhancement of the combat triangle system into subtasks, including refactoring the calculation system, implementing the rock-paper-scissors style interactions, integrating TypeScript, incorporating a math library, and developing a comprehensive testing strategy.",
+      "reasoning": "This task involves complex game mechanics, mathematical calculations, and extensive testing. It requires refactoring existing systems, implementing new logic, and ensuring balance, which adds to its complexity. The use of TypeScript and a math library, along with the need for comprehensive testing, further increases the task's intricacy."
+    },
+    {
+      "taskId": 2,
+      "taskTitle": "Implement Location Card Component",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the Location Card Component implementation into subtasks for component structure, styling, prop types, state management, and testing",
+      "reasoning": "The task involves creating a complex React component with multiple features, TypeScript integration, styling considerations, and comprehensive testing requirements. It requires a good understanding of React best practices and advanced concepts."
+    }
+  ]
+}

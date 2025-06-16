@@ -1,26 +1,29 @@
-import type { Item, ItemType, ItemStats } from '../types/game';
+import type { Item, ItemType, ItemStats, CombatStats } from '../types/game';
 import { capLevelRequirement } from '../types/game';
+import { getCombinedStats, BRONZE_TOOL_STATS, IRON_TOOL_STATS, STEEL_TOOL_STATS, MITHRIL_TOOL_STATS, ADAMANT_TOOL_STATS, RUNE_TOOL_STATS, DRAGON_TOOL_STATS } from './combatStats';
 
-// Import images
-import normalLogImg from '../assets/ItemThumbnail/Woodcutting/Normal_Log.png';
-import oakLogImg from '../assets/ItemThumbnail/Woodcutting/Oak_Log.png';
-import willowLogImg from '../assets/ItemThumbnail/Woodcutting/Willow_Log.png';
-import mapleLogImg from '../assets/ItemThumbnail/Woodcutting/Maple_Log.png';
-import yewLogImg from '../assets/ItemThumbnail/Woodcutting/Yew_Log.png';
-import magicLogImg from '../assets/ItemThumbnail/Woodcutting/Magic_Log.png';
-import redwoodLogImg from '../assets/ItemThumbnail/Woodcutting/RedWood_Log.png';
-import coinsImg from '../assets/ItemThumbnail/Div/Coins.png';
+// Use a default image path for testing
+const defaultImg = '/assets/items/default.png';
 
-// Mining images
-import copperOreImg from '../assets/ItemThumbnail/Mining/Copper_Ore.png';
-import tinOreImg from '../assets/ItemThumbnail/Mining/Tin_Ore.png';
-import ironOreImg from '../assets/ItemThumbnail/Mining/Iron_Ore.png';
-import silverOreImg from '../assets/ItemThumbnail/Mining/Silver_Ore.png';
-import goldOreImg from '../assets/ItemThumbnail/Mining/Gold_Ore.png';
-import mithrilOreImg from '../assets/ItemThumbnail/Mining/Mithril_Ore.png';
-import adamantOreImg from '../assets/ItemThumbnail/Mining/Adamant_Ore.png';
-import runeOreImg from '../assets/ItemThumbnail/Mining/Rune_Ore.png';
-import coalOreImg from '../assets/ItemThumbnail/Mining/Coal_Ore.png';
+// Define image paths
+const normalLogImg = defaultImg;
+const oakLogImg = defaultImg;
+const willowLogImg = defaultImg;
+const mapleLogImg = defaultImg;
+const yewLogImg = defaultImg;
+const magicLogImg = defaultImg;
+const redwoodLogImg = defaultImg;
+const coinsImg = defaultImg;
+
+const copperOreImg = defaultImg;
+const tinOreImg = defaultImg;
+const ironOreImg = defaultImg;
+const silverOreImg = defaultImg;
+const goldOreImg = defaultImg;
+const mithrilOreImg = defaultImg;
+const adamantOreImg = defaultImg;
+const runeOreImg = defaultImg;
+const coalOreImg = defaultImg;
 
 // Item Categories
 export const ITEM_CATEGORIES = {
@@ -29,7 +32,9 @@ export const ITEM_CATEGORIES = {
   ARMOR: 'Armor',
   RESOURCES: 'Resources',
   CONSUMABLES: 'Consumables',
-  CURRENCY: 'Currency'
+  CURRENCY: 'Currency',
+  MISC: 'Misc',
+  SMITHING: 'Smithing'
 } as const;
 
 // Equipment slots
@@ -50,29 +55,92 @@ export const EQUIPMENT_SLOTS = {
 // Tool tiers for progression
 export const TOOL_TIERS = {
   // Woodcutting
-  bronze_axe: 1,
-  iron_axe: 2,
-  steel_axe: 3,
-  mithril_axe: 4,
-  adamant_axe: 5,
-  rune_axe: 6,
-  dragon_axe: 7,
+  bronze_axe: {
+    name: 'Bronze Axe',
+    level: 1,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: BRONZE_TOOL_STATS
+  },
+  iron_axe: {
+    name: 'Iron Axe',
+    level: 10,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: IRON_TOOL_STATS
+  },
+  steel_axe: {
+    name: 'Steel Axe',
+    level: 20,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: STEEL_TOOL_STATS
+  },
+  mithril_axe: {
+    name: 'Mithril Axe',
+    level: 30,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: MITHRIL_TOOL_STATS
+  },
+  adamant_axe: {
+    name: 'Adamant Axe',
+    level: 40,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: ADAMANT_TOOL_STATS
+  },
+  rune_axe: {
+    name: 'Rune Axe',
+    level: 50,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: RUNE_TOOL_STATS
+  },
 
-  // Fishing
-  small_net: 1,
-  big_net: 2,
-  fly_fishing_rod: 3,
-  harpoon: 4,
-  dragon_harpoon: 5,
-
-  // Mining (for future use)
-  bronze_pickaxe: 1,
-  iron_pickaxe: 2,
-  steel_pickaxe: 3,
-  mithril_pickaxe: 4,
-  adamant_pickaxe: 5,
-  rune_pickaxe: 6,
-  dragon_pickaxe: 7,
+  // Mining
+  bronze_pickaxe: {
+    name: 'Bronze Pickaxe',
+    level: 1,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: BRONZE_TOOL_STATS
+  },
+  iron_pickaxe: {
+    name: 'Iron Pickaxe',
+    level: 10,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: IRON_TOOL_STATS
+  },
+  steel_pickaxe: {
+    name: 'Steel Pickaxe',
+    level: 20,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: STEEL_TOOL_STATS
+  },
+  mithril_pickaxe: {
+    name: 'Mithril Pickaxe',
+    level: 30,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: MITHRIL_TOOL_STATS
+  },
+  adamant_pickaxe: {
+    name: 'Adamant Pickaxe',
+    level: 40,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: ADAMANT_TOOL_STATS
+  },
+  rune_pickaxe: {
+    name: 'Rune Pickaxe',
+    level: 50,
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: RUNE_TOOL_STATS
+  }
 } as const;
 
 // Base smithing levels for each metal type
@@ -115,81 +183,121 @@ export const calculateSmithingItemPrice = (
   };
 };
 
-// Smithing item template for generating items of different metal types
-const SMITHING_ITEMS_TEMPLATE = [
-  { id: 'dagger', name: 'Dagger', levelOver: 0, bars: 1, type: 'weapon' },
-  { id: 'axe', name: 'Axe', levelOver: 0, bars: 1, type: 'weapon' },
-  { id: 'mace', name: 'Mace', levelOver: 1, bars: 1, type: 'weapon' },
-  { id: 'medium_helm', name: 'Medium Helm', levelOver: 2, bars: 1, type: 'armor' },
+interface SmithingTemplate {
+  id: string;
+  name: string;
+  levelOver: number;
+  bars: number;
+  type: 'weapon' | 'armor' | 'ammo' | 'resource';
+  weaponType?: string;
+  armorType?: string;
+  speed?: number;
+}
+
+// Helper functions
+const getMetalTier = (metalType: string): number => {
+  switch (metalType) {
+    case 'bronze': return 1;
+    case 'iron': return 2;
+    case 'steel': return 3;
+    case 'mithril': return 4;
+    case 'adamant': return 5;
+    case 'rune': return 6;
+    default: return 1;
+  }
+};
+
+const capitalize = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
+
+const SMITHING_TEMPLATES: SmithingTemplate[] = [
+  // Weapons
+  { id: 'dagger', name: 'Dagger', levelOver: 0, bars: 1, type: 'weapon', weaponType: 'dagger', speed: 2.4 },
+  { id: 'axe', name: 'Axe', levelOver: 1, bars: 1, type: 'weapon', weaponType: 'axe', speed: 3.0 },
+  { id: 'mace', name: 'Mace', levelOver: 1, bars: 1, type: 'weapon', weaponType: 'mace', speed: 2.4 },
+  { id: 'medium_helm', name: 'Medium Helm', levelOver: 2, bars: 1, type: 'armor', armorType: 'medium_helm' },
   { id: 'bolts_unf', name: 'Unfinished Bolts', levelOver: 2, bars: 1, type: 'ammo' },
-  { id: 'sword', name: 'Sword', levelOver: 3, bars: 1, type: 'weapon' },
+  { id: 'sword', name: 'Sword', levelOver: 3, bars: 1, type: 'weapon', weaponType: 'sword', speed: 2.4 },
   { id: 'dart_tips', name: 'Dart Tips', levelOver: 3, bars: 1, type: 'ammo' },
   { id: 'nails', name: 'Nails', levelOver: 3, bars: 1, type: 'resource' },
-  { id: 'scimitar', name: 'Scimitar', levelOver: 4, bars: 2, type: 'weapon' },
+  { id: 'scimitar', name: 'Scimitar', levelOver: 4, bars: 2, type: 'weapon', weaponType: 'scimitar', speed: 2.4 },
   { id: 'spear', name: 'Spear', levelOver: 4, bars: 1, type: 'weapon' },
   { id: 'arrowtips', name: 'Arrowtips', levelOver: 4, bars: 1, type: 'ammo' },
   { id: 'crossbow_limbs', name: 'Crossbow Limbs', levelOver: 5, bars: 1, type: 'resource' },
-  { id: 'longsword', name: 'Longsword', levelOver: 5, bars: 2, type: 'weapon' },
+  { id: 'longsword', name: 'Longsword', levelOver: 5, bars: 2, type: 'weapon', weaponType: 'longsword', speed: 2.4 },
   { id: 'javelin_heads', name: 'Javelin Heads', levelOver: 5, bars: 1, type: 'ammo' },
-  { id: 'full_helm', name: 'Full Helm', levelOver: 6, bars: 2, type: 'armor' },
+  { id: 'full_helm', name: 'Full Helm', levelOver: 6, bars: 2, type: 'armor', armorType: 'full_helm' },
   { id: 'throwing_knives', name: 'Throwing Knives', levelOver: 6, bars: 1, type: 'ammo' },
-  { id: 'square_shield', name: 'Square Shield', levelOver: 7, bars: 2, type: 'armor' },
-  { id: 'warhammer', name: 'Warhammer', levelOver: 8, bars: 3, type: 'weapon' },
-  { id: 'battleaxe', name: 'Battleaxe', levelOver: 9, bars: 3, type: 'weapon' },
-  { id: 'chainbody', name: 'Chainbody', levelOver: 10, bars: 3, type: 'armor' },
-  { id: 'kiteshield', name: 'Kiteshield', levelOver: 11, bars: 3, type: 'armor' },
+  { id: 'square_shield', name: 'Square Shield', levelOver: 7, bars: 2, type: 'armor', armorType: 'square_shield' },
+  { id: 'warhammer', name: 'Warhammer', levelOver: 8, bars: 3, type: 'weapon', weaponType: 'warhammer', speed: 3.6 },
+  { id: 'battleaxe', name: 'Battleaxe', levelOver: 9, bars: 3, type: 'weapon', weaponType: 'battleaxe', speed: 3.0 },
+  { id: 'chainbody', name: 'Chainbody', levelOver: 10, bars: 3, type: 'armor', armorType: 'chainbody' },
+  { id: 'kiteshield', name: 'Kiteshield', levelOver: 11, bars: 3, type: 'armor', armorType: 'kiteshield' },
   { id: 'claws', name: 'Claws', levelOver: 12, bars: 2, type: 'weapon' },
-  { id: 'two_handed_sword', name: 'Two-handed Sword', levelOver: 13, bars: 3, type: 'weapon' },
-  { id: 'platelegs', name: 'Platelegs', levelOver: 13, bars: 3, type: 'armor' },
-  { id: 'plateskirt', name: 'Plateskirt', levelOver: 13, bars: 3, type: 'armor' },
-  { id: 'platebody', name: 'Platebody', levelOver: 14, bars: 5, type: 'armor' }
-] as const;
+  { id: 'two_handed_sword', name: 'Two-handed Sword', levelOver: 13, bars: 3, type: 'weapon', weaponType: 'two_handed_sword', speed: 3.6 },
+  { id: 'platelegs', name: 'Platelegs', levelOver: 13, bars: 3, type: 'armor', armorType: 'platelegs' },
+  { id: 'plateskirt', name: 'Plateskirt', levelOver: 13, bars: 3, type: 'armor', armorType: 'platelegs' },
+  { id: 'platebody', name: 'Platebody', levelOver: 14, bars: 5, type: 'armor', armorType: 'platebody' }
+];
 
-// Function to generate all smithing items for a metal type
-const generateSmithingItems = (metalType: keyof typeof SMITHING_BASE_LEVELS): Record<string, Item> => {
+// Helper function to create default combat stats
+const createDefaultCombatStats = (attack = 0, mining = 0): CombatStats => ({
+  attackStab: attack,
+  attackSlash: attack,
+  attackCrush: attack,
+  attackMagic: 0,
+  attackRanged: 0,
+  defenceStab: 0,
+  defenceSlash: 0,
+  defenceCrush: 0,
+  defenceMagic: 0,
+  defenceRanged: 0,
+  strengthMelee: 0,
+  strengthRanged: 0,
+  strengthMagic: 0,
+  prayerBonus: 0,
+  attack,
+  mining
+});
+
+// Helper function to get equipment slot based on item type
+export const getEquipmentSlot = (template: SmithingTemplate): keyof typeof EQUIPMENT_SLOTS => {
+  if (template.type === 'weapon') return 'WEAPON';
+  if (template.type === 'armor') {
+    switch (template.armorType) {
+      case 'platebody': return 'BODY';
+      case 'platelegs':
+      case 'plateskirt': return 'LEGS';
+      case 'full_helm':
+      case 'medium_helm': return 'HEAD';
+      default: return 'SHIELD';
+    }
+  }
+  return 'TOOL';
+};
+
+// Update generateSmithingItems to use the helper function
+const generateSmithingItems = (metalType: string) => {
   const items: Record<string, Item> = {};
   
-  SMITHING_ITEMS_TEMPLATE.forEach(template => {
+  SMITHING_TEMPLATES.forEach(template => {
     const itemId = `${metalType}_${template.id}`;
-    const level = getSmithingLevel(metalType, template.levelOver);
-    const { buyPrice, sellPrice } = calculateSmithingItemPrice(metalType, template.bars);
+    const combatStats = template.type === 'weapon' 
+      ? createDefaultCombatStats(getMetalTier(metalType))
+      : createDefaultCombatStats(0);
     
-    // Calculate stats based on metal type and item type
-    const baseStats = METAL_PRICE_MULTIPLIERS[metalType];
-    const stats: ItemStats = template.type === 'weapon' 
-      ? { attack: baseStats } 
-      : template.type === 'armor' 
-        ? { defence: baseStats }
-        : {};
-
     items[itemId] = {
       id: itemId,
-      name: `${metalType.charAt(0).toUpperCase() + metalType.slice(1)} ${template.name}`,
-      type: template.type === 'ammo' || template.type === 'resource' ? 'resource' : 'tool',
-      level,
-      stats,
-      category: template.type === 'weapon' 
-        ? ITEM_CATEGORIES.WEAPONS 
-        : template.type === 'armor' 
-          ? ITEM_CATEGORIES.ARMOR 
-          : ITEM_CATEGORIES.RESOURCES,
-      slot: template.type === 'armor' 
-        ? template.id === 'platebody' 
-          ? EQUIPMENT_SLOTS.BODY
-          : template.id === 'platelegs' || template.id === 'plateskirt'
-            ? EQUIPMENT_SLOTS.LEGS
-            : template.id === 'full_helm' || template.id === 'medium_helm'
-              ? EQUIPMENT_SLOTS.HEAD
-              : EQUIPMENT_SLOTS.SHIELD
-        : template.type === 'weapon'
-          ? EQUIPMENT_SLOTS.WEAPON
-          : undefined,
-      icon: '/assets/items/placeholder.png',
-      buyPrice,
-      sellPrice,
+      name: `${capitalize(metalType)} ${template.name}`,
+      type: 'tool',
+      category: ITEM_CATEGORIES.TOOLS,
+      icon: defaultImg,
+      level: getMetalTier(metalType) + template.levelOver,
+      stats: combatStats,
+      slot: EQUIPMENT_SLOTS[getEquipmentSlot(template)],
+      speed: template.speed
     };
   });
-
+  
   return items;
 };
 
@@ -205,15 +313,14 @@ const SMITHING_ITEMS = {
 
 // Item Definitions
 export const ITEMS: Record<string, Item> = {
-  // Currency
   coins: {
     id: 'coins',
     name: 'Coins',
-    type: 'currency',
-    category: ITEM_CATEGORIES.CURRENCY,
+    type: 'resource',
+    category: ITEM_CATEGORIES.MISC,
     icon: coinsImg,
     buyPrice: 1,
-    sellPrice: 1,
+    sellPrice: 1
   },
 
   // Tools - Woodcutting
@@ -221,73 +328,61 @@ export const ITEMS: Record<string, Item> = {
     id: 'bronze_axe',
     name: 'Bronze Axe',
     type: 'tool',
-    level: 1,
-    stats: { attack: 1 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 1,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/bronze_axe.png',
-    buyPrice: 100,
-    sellPrice: 40,
+    stats: createDefaultCombatStats(1)
   },
   iron_axe: {
     id: 'iron_axe',
     name: 'Iron Axe',
     type: 'tool',
-    level: 5,
-    stats: { attack: 2 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 10,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/iron_axe.png',
-    buyPrice: 250,
-    sellPrice: 100,
+    stats: createDefaultCombatStats(2)
   },
   steel_axe: {
     id: 'steel_axe',
     name: 'Steel Axe',
     type: 'tool',
-    level: 20,
-    stats: { attack: 3 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 20,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/steel_axe.png',
-    buyPrice: 500,
-    sellPrice: 200,
+    stats: createDefaultCombatStats(3)
   },
   mithril_axe: {
     id: 'mithril_axe',
     name: 'Mithril Axe',
     type: 'tool',
-    level: 30,
-    stats: { attack: 4 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 30,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/mithril_axe.png',
-    buyPrice: 1000,
-    sellPrice: 400,
+    stats: createDefaultCombatStats(4)
   },
   adamant_axe: {
     id: 'adamant_axe',
     name: 'Adamant Axe',
     type: 'tool',
-    level: 40,
-    stats: { attack: 5 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 40,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/adamant_axe.png',
-    buyPrice: 2000,
-    sellPrice: 800,
+    stats: createDefaultCombatStats(5)
   },
   rune_axe: {
     id: 'rune_axe',
     name: 'Rune Axe',
     type: 'tool',
-    level: 50,
-    stats: { attack: 6 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 50,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/rune_axe.png',
-    buyPrice: 4000,
-    sellPrice: 1600,
+    stats: createDefaultCombatStats(6)
   },
 
   // Tools - Fishing
@@ -723,73 +818,61 @@ export const ITEMS: Record<string, Item> = {
     id: 'bronze_pickaxe',
     name: 'Bronze Pickaxe',
     type: 'tool',
-    level: 1,
-    stats: { mining: 1 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 1,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/bronze_pickaxe.png',
-    buyPrice: 100,
-    sellPrice: 40,
+    stats: createDefaultCombatStats(0, 1)
   },
   iron_pickaxe: {
     id: 'iron_pickaxe',
     name: 'Iron Pickaxe',
     type: 'tool',
-    level: 5,
-    stats: { mining: 2 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 10,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/iron_pickaxe.png',
-    buyPrice: 250,
-    sellPrice: 100,
+    stats: createDefaultCombatStats(0, 2)
   },
   steel_pickaxe: {
     id: 'steel_pickaxe',
     name: 'Steel Pickaxe',
     type: 'tool',
-    level: 20,
-    stats: { mining: 3 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 20,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/steel_pickaxe.png',
-    buyPrice: 500,
-    sellPrice: 200,
+    stats: createDefaultCombatStats(0, 3)
   },
   mithril_pickaxe: {
     id: 'mithril_pickaxe',
     name: 'Mithril Pickaxe',
     type: 'tool',
-    level: 30,
-    stats: { mining: 4 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 30,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/mithril_pickaxe.png',
-    buyPrice: 1000,
-    sellPrice: 400,
+    stats: createDefaultCombatStats(0, 4)
   },
   adamant_pickaxe: {
     id: 'adamant_pickaxe',
     name: 'Adamant Pickaxe',
     type: 'tool',
-    level: 40,
-    stats: { mining: 5 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 40,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/adamant_pickaxe.png',
-    buyPrice: 2000,
-    sellPrice: 800,
+    stats: createDefaultCombatStats(0, 5)
   },
   rune_pickaxe: {
     id: 'rune_pickaxe',
     name: 'Rune Pickaxe',
     type: 'tool',
-    level: 50,
-    stats: { mining: 6 },
     category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 50,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    icon: '/assets/items/rune_pickaxe.png',
-    buyPrice: 4000,
-    sellPrice: 1600,
+    stats: createDefaultCombatStats(0, 6)
   },
 
   // Resources - Mining
@@ -973,7 +1056,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Bronze Full Helm',
     type: 'tool',
     level: 1,
-    stats: { attack: 1 },
+    stats: createDefaultCombatStats(1),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -985,7 +1068,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Bronze Platebody',
     type: 'tool',
     level: 2,
-    stats: { attack: 3 },
+    stats: createDefaultCombatStats(3),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -997,7 +1080,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Bronze Platelegs',
     type: 'tool',
     level: 3,
-    stats: { attack: 2 },
+    stats: createDefaultCombatStats(2),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1011,7 +1094,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Iron Full Helm',
     type: 'tool',
     level: 15,
-    stats: { attack: 2 },
+    stats: createDefaultCombatStats(2),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1023,7 +1106,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Iron Platebody',
     type: 'tool',
     level: 18,
-    stats: { attack: 6 },
+    stats: createDefaultCombatStats(6),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1035,7 +1118,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Iron Platelegs',
     type: 'tool',
     level: 16,
-    stats: { attack: 4 },
+    stats: createDefaultCombatStats(4),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1049,7 +1132,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Full Helm',
     type: 'tool',
     level: 30,
-    stats: { attack: 3 },
+    stats: createDefaultCombatStats(3),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1061,7 +1144,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Platebody',
     type: 'tool',
     level: 33,
-    stats: { attack: 9 },
+    stats: createDefaultCombatStats(9),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1073,7 +1156,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Platelegs',
     type: 'tool',
     level: 31,
-    stats: { attack: 6 },
+    stats: createDefaultCombatStats(6),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1087,7 +1170,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Full Helm',
     type: 'tool',
     level: 50,
-    stats: { attack: 4 },
+    stats: createDefaultCombatStats(4),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1099,7 +1182,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Platebody',
     type: 'tool',
     level: 53,
-    stats: { attack: 12 },
+    stats: createDefaultCombatStats(12),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1111,7 +1194,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Platelegs',
     type: 'tool',
     level: 51,
-    stats: { attack: 8 },
+    stats: createDefaultCombatStats(8),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1125,7 +1208,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamant Full Helm',
     type: 'tool',
     level: 70,
-    stats: { attack: 5 },
+    stats: createDefaultCombatStats(5),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1137,7 +1220,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamant Platebody',
     type: 'tool',
     level: 73,
-    stats: { attack: 15 },
+    stats: createDefaultCombatStats(15),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1149,7 +1232,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamant Platelegs',
     type: 'tool',
     level: 71,
-    stats: { attack: 10 },
+    stats: createDefaultCombatStats(10),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1163,7 +1246,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Rune Full Helm',
     type: 'tool',
     level: 85,
-    stats: { attack: 6 },
+    stats: createDefaultCombatStats(6),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1175,7 +1258,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Rune Platebody',
     type: 'tool',
     level: 88,
-    stats: { attack: 18 },
+    stats: createDefaultCombatStats(18),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1187,7 +1270,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Rune Platelegs',
     type: 'tool',
     level: 86,
-    stats: { attack: 12 },
+    stats: createDefaultCombatStats(12),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1195,6 +1278,126 @@ export const ITEMS: Record<string, Item> = {
     sellPrice: 3840,
   },
   ...SMITHING_ITEMS,
+  bronze_dagger: {
+    id: 'bronze_dagger',
+    name: 'Bronze Dagger',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(1)
+  },
+  iron_dagger: {
+    id: 'iron_dagger',
+    name: 'Iron Dagger',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 10,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(2)
+  },
+  steel_dagger: {
+    id: 'steel_dagger',
+    name: 'Steel Dagger',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(3)
+  },
+  mithril_dagger: {
+    id: 'mithril_dagger',
+    name: 'Mithril Dagger',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 30,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(4)
+  },
+  adamant_dagger: {
+    id: 'adamant_dagger',
+    name: 'Adamant Dagger',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(5)
+  },
+  rune_dagger: {
+    id: 'rune_dagger',
+    name: 'Rune Dagger',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 50,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(6)
+  },
+  bronze_sword: {
+    id: 'bronze_sword',
+    name: 'Bronze Sword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(1)
+  },
+  iron_sword: {
+    id: 'iron_sword',
+    name: 'Iron Sword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 10,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(2)
+  },
+  steel_sword: {
+    id: 'steel_sword',
+    name: 'Steel Sword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(3)
+  },
+  mithril_sword: {
+    id: 'mithril_sword',
+    name: 'Mithril Sword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 30,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(4)
+  },
+  adamant_sword: {
+    id: 'adamant_sword',
+    name: 'Adamant Sword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(5)
+  },
+  rune_sword: {
+    id: 'rune_sword',
+    name: 'Rune Sword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: defaultImg,
+    level: 50,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: createDefaultCombatStats(6)
+  },
 };
 
 // Helper functions
@@ -1205,16 +1408,12 @@ export const getItemsByCategory = (category: string): Item[] => {
 };
 
 export const getToolTier = (itemId: string): number => {
-  return TOOL_TIERS[itemId as keyof typeof TOOL_TIERS] || 0;
+  const toolTier = TOOL_TIERS[itemId as keyof typeof TOOL_TIERS];
+  return toolTier?.level || 0;
 };
 
 export const isEquippable = (item: Item): boolean => {
   return item.type === 'tool';
-};
-
-export const getEquipmentSlot = (item: Item): string | undefined => {
-  if (!isEquippable(item)) return undefined;
-  return item.slot;
 };
 
 export const meetsLevelRequirement = (item: Item, playerLevel: number): boolean => {

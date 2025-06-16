@@ -20,12 +20,11 @@ const glowKeyframes = keyframes`
 `;
 
 interface ProgressBarProps {
-  duration: number;
+  progress: number; // 0-100
   isActive: boolean;
-  onComplete?: () => void;
 }
 
-export const ProgressBar = ({ duration, isActive, onComplete }: ProgressBarProps) => {
+export const ProgressBar = ({ progress, isActive }: ProgressBarProps) => {
   return (
     <Box
       position="absolute"
@@ -47,46 +46,35 @@ export const ProgressBar = ({ duration, isActive, onComplete }: ProgressBarProps
         animation: isActive ? `${pulseKeyframes} 2s infinite` : 'none',
       }}
     >
-      <AnimatePresence>
-        {isActive && (
-          <>
-            <motion.div
-              initial={{ width: '0%' }}
-              animate={{ width: '100%' }}
-              transition={{ 
-                duration: duration / 1000,
-                ease: "linear",
-                repeat: Infinity,
-                repeatType: "loop"
-              }}
-              onAnimationComplete={onComplete}
-              style={{
-                height: '100%',
-                background: 'linear-gradient(90deg, #4299E1 0%, #63B3ED 100%)',
-                position: 'relative',
-                animation: `${glowKeyframes} 2s infinite`,
-              }}
-            >
-              <Box
-                position="absolute"
-                right="-2px"
-                top="0"
-                bottom="0"
-                width="4px"
-                bg="white"
-                opacity={0.6}
-                borderRadius="full"
-                animation={`${pulseKeyframes} 1s infinite`}
-              />
-            </motion.div>
-            <ParticleEffect 
-              isActive={isActive} 
-              color="blue.300"
-              particleCount={6}
-            />
-          </>
-        )}
-      </AnimatePresence>
+      {isActive && (
+        <Box
+          height="100%"
+          width={`${progress}%`}
+          background="linear-gradient(90deg, #4299E1 0%, #63B3ED 100%)"
+          position="relative"
+          animation={`${glowKeyframes} 2s infinite`}
+          transition="width 0.1s linear"
+        >
+          <Box
+            position="absolute"
+            right="-2px"
+            top="0"
+            bottom="0"
+            width="4px"
+            bg="white"
+            opacity={0.6}
+            borderRadius="full"
+            animation={`${pulseKeyframes} 1s infinite`}
+          />
+        </Box>
+      )}
+      {isActive && (
+        <ParticleEffect 
+          isActive={isActive} 
+          color="blue.300"
+          particleCount={6}
+        />
+      )}
     </Box>
   );
 }; 

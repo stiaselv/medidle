@@ -40,7 +40,7 @@ const ActionButton = ({
   isActive?: boolean;
 }) => {
   const icon = getActionIcon(action.type);
-  const { character, completeAction, stopAction, canPerformAction } = useGameStore();
+  const { character, completeAction, stopAction, canPerformAction, currentAction: storeCurrentAction, isActionInProgress } = useGameStore();
   
   const allRequirementsMet = canPerformAction(action);
   
@@ -49,10 +49,6 @@ const ActionButton = ({
     isMet: allRequirementsMet
   }));
   
-  const handleActionComplete = () => {
-    completeAction();
-  };
-
   const handleClick = () => {
     console.log('Action button clicked:', {
       isActive,
@@ -252,9 +248,8 @@ const ActionButton = ({
             {/* Progress Bar */}
             {isActive && (
               <ProgressBar
-                duration={action.baseTime}
+                progress={storeCurrentAction && storeCurrentAction.id === action.id ? (useGameStore.getState().actionProgress) : 0}
                 isActive={isActive}
-                onComplete={handleActionComplete}
                 aria-label={`Action progress for ${action.name}`}
               />
             )}
@@ -378,18 +373,28 @@ export const ForestLocation = () => {
 
   if (!currentLocation || !character) return null;
 
+  const woodcuttingActions = currentLocation.actions
+    ? (currentLocation.actions.filter(action => action.type === 'woodcutting') as SkillAction[])
+    : [];
+
+  const fishingActions = currentLocation.actions
+    ? (currentLocation.actions.filter(action => action.type === 'fishing') as SkillAction[])
+    : [];
+
   const handleActionStart = (action: SkillAction) => {
     console.log('Starting action in ForestLocation:', action.name);
     startAction(action);
   };
 
-  const woodcuttingActions = currentLocation.actions.filter(
-    action => action.type === 'woodcutting'
-  );
+  // (Declarations moved below with guards)
 
-  const fishingActions = currentLocation.actions.filter(
-    action => action.type === 'fishing'
-  );
+  // Helper to safely cast currentAction to SkillAction | null
+  const getSkillCurrentAction = (type: string): SkillAction | null => {
+    if (currentAction && (currentAction.type === type)) {
+      return currentAction as SkillAction;
+    }
+    return null;
+  };
 
   return (
     <Box
@@ -549,26 +554,30 @@ export const ForestLocation = () => {
             mx="auto"
           >
             {/* Woodcutting Section */}
-            <Box maxW="400px" mx="auto" w="100%">
-              <ActionSection
-                title="Woodcutting"
-                actions={woodcuttingActions}
-                onActionClick={handleActionStart}
-                canPerformAction={storeCanPerformAction}
-                currentAction={currentAction}
-              />
-            </Box>
+            {woodcuttingActions.length > 0 && (
+              <Box maxW="400px" mx="auto" w="100%">
+                <ActionSection
+                  title="Woodcutting"
+                  actions={woodcuttingActions}
+                  onActionClick={handleActionStart}
+                  canPerformAction={storeCanPerformAction}
+                  currentAction={getSkillCurrentAction('woodcutting')}
+                />
+              </Box>
+            )}
 
             {/* Fishing Section */}
-            <Box maxW="400px" mx="auto" w="100%">
-              <ActionSection
-                title="Fishing"
-                actions={fishingActions}
-                onActionClick={handleActionStart}
-                canPerformAction={storeCanPerformAction}
-                currentAction={currentAction}
-              />
-            </Box>
+            {fishingActions.length > 0 && (
+              <Box maxW="400px" mx="auto" w="100%">
+                <ActionSection
+                  title="Fishing"
+                  actions={fishingActions}
+                  onActionClick={handleActionStart}
+                  canPerformAction={storeCanPerformAction}
+                  currentAction={getSkillCurrentAction('fishing')}
+                />
+              </Box>
+            )}
           </Grid>
         </VStack>
       </Flex>
