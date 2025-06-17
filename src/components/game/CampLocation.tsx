@@ -6,6 +6,7 @@ import { useGameStore, calculateLevel, getNextLevelExperience } from '../../stor
 import type { SkillAction } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
+import campBg from '../../assets/BG/camp.webp';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -47,6 +48,7 @@ const ActionButton = ({
 }) => {
   const icon = getActionIcon(action.type);
   const { completeAction, stopAction, canPerformAction } = useGameStore();
+  const currentAction = useGameStore(state => state.currentAction);
   
   const allRequirementsMet = canPerformAction(action);
   
@@ -246,9 +248,9 @@ const ActionButton = ({
             {/* Progress Bar */}
             {isActive && (
               <ProgressBar
-                duration={action.baseTime}
+                progress={currentAction && currentAction.id === action.id ? (useGameStore.getState().actionProgress) : 0}
                 isActive={isActive}
-                onComplete={handleActionComplete}
+                aria-label={`Action progress for ${action.name}`}
               />
             )}
           </Button>
@@ -281,87 +283,111 @@ const ActionSection = ({
   const prevLevelExp = getNextLevelExperience(currentLevel - 1);
   const expProgress = ((currentSkillExp - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
 
+  // Choose accent color and gradient based on skill type
+  const accent = skillType === 'firemaking' ? 'orange' : skillType === 'cooking' ? 'yellow' : 'gray';
+  const cardGradient =
+    accent === 'orange'
+      ? 'linear(to-br, orange.900 0%, gray.900 100%)'
+      : accent === 'yellow'
+      ? 'linear(to-br, yellow.700 0%, gray.900 100%)'
+      : 'linear(to-br, gray.800 0%, gray.900 100%)';
+  const borderColor = accent === 'orange' ? 'orange.700' : accent === 'yellow' ? 'yellow.600' : 'gray.600';
+
   return (
-    <VStack spacing={4} align="stretch" width="100%">
-      <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
-        <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
-          <Icon as={getActionIcon(actions[0]?.type || '')} />
-          {title}
-        </Heading>
-        <Box flex={1} maxW="300px">
-          <Tooltip
-            label={
-              <VStack align="start" spacing={1} p={2}>
-                <Text fontWeight="bold" color="white" mb={1}>Experience Progress</Text>
-                <Text>Current XP: {currentSkillExp.toLocaleString()}</Text>
-                <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
-                <Text>Remaining: {(nextLevelExp - currentSkillExp).toLocaleString()}</Text>
-              </VStack>
-            }
-            placement="top"
-            hasArrow
-            bg="gray.800"
-            borderRadius="md"
-          >
-            <Box width="100%" position="relative" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
-              <Progress
-                value={expProgress}
-                size="sm"
-                colorScheme="green"
-                borderRadius="full"
-                background="whiteAlpha.200"
-                hasStripe
-                isAnimated
-                sx={{
-                  '& > div:first-of-type': {
-                    transitionProperty: 'width',
-                    transitionDuration: '0.3s',
-                  }
-                }}
-              />
-              <Text 
-                fontSize="xs" 
-                color="gray.300" 
-                mt={1} 
-                textAlign="center"
-                fontWeight="medium"
-                textShadow="0 1px 2px rgba(0,0,0,0.3)"
-              >
-                Level {currentLevel} • {expProgress.toFixed(1)}% to {currentLevel + 1}
-              </Text>
-            </Box>
-          </Tooltip>
-        </Box>
-      </HStack>
-      <Grid
-        templateColumns="1fr"
-        maxH="600px"
-        overflowY="auto"
-        gap={2}
-        sx={{
-          '&::-webkit-scrollbar': {
-            width: '4px',
-          },
-          '&::-webkit-scrollbar-track': {
-            width: '6px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: 'gray.500',
-            borderRadius: '24px',
-          },
-        }}
-      >
-        {actions.map((action) => (
-          <ActionButton
-            key={action.id}
-            action={action}
-            onClick={() => onActionClick(action)}
-            isDisabled={!canPerformAction(action)}
-            isActive={currentAction?.id === action.id}
-          />
-        ))}
-      </Grid>
-    </VStack>
+    <Box
+      bgGradient={cardGradient}
+      borderRadius="2xl"
+      borderWidth={2}
+      borderColor={borderColor}
+      boxShadow="xl"
+      p={{ base: 3, md: 4 }}
+      transition="box-shadow 0.2s, background 0.2s"
+      backdropFilter="blur(6px)"
+      maxW="420px"
+      mx="auto"
+      w="100%"
+    >
+      <VStack spacing={4} align="stretch" width="100%">
+        <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
+          <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
+            <Icon as={getActionIcon(actions[0]?.type || '')} />
+            {title}
+          </Heading>
+          <Box flex={1} maxW="300px">
+            <Tooltip
+              label={
+                <VStack align="start" spacing={1} p={2}>
+                  <Text fontWeight="bold" color="white" mb={1}>Experience Progress</Text>
+                  <Text>Current XP: {currentSkillExp.toLocaleString()}</Text>
+                  <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
+                  <Text>Remaining: {(nextLevelExp - currentSkillExp).toLocaleString()}</Text>
+                </VStack>
+              }
+              placement="top"
+              hasArrow
+              bg="gray.800"
+              borderRadius="md"
+            >
+              <Box width="100%" position="relative" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
+                <Progress
+                  value={expProgress}
+                  size="sm"
+                  colorScheme={accent === 'orange' ? 'orange' : accent === 'yellow' ? 'yellow' : 'gray'}
+                  borderRadius="full"
+                  background="whiteAlpha.200"
+                  hasStripe
+                  isAnimated
+                  sx={{
+                    '& > div:first-of-type': {
+                      transitionProperty: 'width',
+                      transitionDuration: '0.3s',
+                    }
+                  }}
+                />
+                <Text 
+                  fontSize="xs" 
+                  color="gray.300" 
+                  mt={1} 
+                  textAlign="center"
+                  fontWeight="medium"
+                  textShadow="0 1px 2px rgba(0,0,0,0.3)"
+                >
+                  Level {currentLevel} • {expProgress.toFixed(1)}% to {currentLevel + 1}
+                </Text>
+              </Box>
+            </Tooltip>
+          </Box>
+        </HStack>
+        <Grid
+          templateColumns="1fr"
+          maxH="600px"
+          overflowY="auto"
+          gap={2}
+          sx={{
+            '&::-webkit-scrollbar': {
+              width: '4px',
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: accent === 'orange' ? 'orange.600' : accent === 'yellow' ? 'yellow.600' : 'gray.500',
+              borderRadius: '24px',
+            },
+          }}
+        >
+          {actions.map((action) => (
+            <ActionButton
+              key={action.id}
+              action={action}
+              onClick={() => onActionClick(action)}
+              isDisabled={!canPerformAction(action)}
+              isActive={currentAction?.id === action.id}
+            />
+          ))}
+        </Grid>
+      </VStack>
+    </Box>
   );
 };
 
@@ -375,13 +401,22 @@ const CampLocation = () => {
     startAction(action);
   };
 
+  // Filter and type actions as SkillAction[]
   const cookingActions = currentLocation.actions.filter(
-    action => action.type === 'cooking'
+    (action): action is SkillAction => action.type === 'cooking'
   );
 
   const firemakingActions = currentLocation.actions.filter(
-    action => action.type === 'firemaking'
+    (action): action is SkillAction => action.type === 'firemaking'
   );
+
+  // Helper to safely cast currentAction to SkillAction | null
+  const getSkillCurrentAction = (type: string): SkillAction | null => {
+    if (currentAction && (currentAction.type === type)) {
+      return currentAction as SkillAction;
+    }
+    return null;
+  };
 
   return (
     <Box
@@ -402,21 +437,35 @@ const CampLocation = () => {
         },
       }}
     >
-      {/* Background with camp theme */}
+      {/* Camp background image */}
       <Box
         position="absolute"
         top={0}
         left={0}
         right={0}
         bottom={0}
-        bg="linear-gradient(135deg, #2c1810 0%, #4a1f0e 100%)"
-        zIndex={-1}
+        bgImage={`url(${campBg})`}
+        bgSize="cover"
+        bgPosition="center"
+        bgRepeat="no-repeat"
+        zIndex={0}
+        _after={{
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          bg: 'rgba(0,0,0,0.45)',
+          zIndex: 1
+        }}
       />
-
       <Flex
         direction="column"
         minH="100vh"
         p={{ base: 4, md: 8 }}
+        position="relative"
+        zIndex={2}
       >
         <VStack 
           spacing={8} 
@@ -456,7 +505,6 @@ const CampLocation = () => {
               {currentLocation.description}
             </Text>
           </Box>
-
           {/* Actions Grid */}
           <Grid
             templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
@@ -472,10 +520,9 @@ const CampLocation = () => {
                 actions={cookingActions}
                 onActionClick={handleActionStart}
                 canPerformAction={storeCanPerformAction}
-                currentAction={currentAction}
+                currentAction={getSkillCurrentAction('cooking')}
               />
             </Box>
-
             {/* Firemaking Section */}
             <Box maxW="400px" mx="auto" w="100%">
               <ActionSection
@@ -483,20 +530,10 @@ const CampLocation = () => {
                 actions={firemakingActions}
                 onActionClick={handleActionStart}
                 canPerformAction={storeCanPerformAction}
-                currentAction={currentAction}
+                currentAction={getSkillCurrentAction('firemaking')}
               />
             </Box>
           </Grid>
-
-          {/* Animated Campfire */}
-          <Box
-            position="fixed"
-            bottom="70%"
-            left="50%"
-            animation={`${campfireAnimation} 2s ease-in-out infinite`}
-          >
-            <Icon as={GiCampfire} boxSize={12} color="orange.400" />
-          </Box>
         </VStack>
       </Flex>
     </Box>

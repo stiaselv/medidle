@@ -18,8 +18,8 @@ import {
   useToken,
 } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
-import type { ItemReward } from '../../types/game';
-import { EQUIPMENT_SLOTS, getItemById } from '../../data/items';
+import type { ItemReward, GameState, Character } from '../../types/game';
+import { EQUIPMENT_SLOTS, getItemById, getEquipmentLevelRequirement } from '../../data/items';
 import type { KeyboardEvent } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { LoadingState } from '../common/LoadingState';
@@ -47,6 +47,7 @@ interface EquipmentSlotProps {
 }
 
 const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlotProps) => {
+  const { character } = useGameStore();
   const bgColor = useColorModeValue('gray.100', 'gray.700');
   const hoverBgColor = useColorModeValue('gray.200', 'gray.600');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -57,6 +58,8 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
   const ariaLabel = itemData 
     ? `${slotName} slot - ${itemData.name} equipped. Press Enter to unequip.`
     : `${slotName} slot - empty`;
+
+  const woodcuttingLevel = character?.skills?.['woodcutting']?.level ?? 0;
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -93,11 +96,110 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
   }
 
   return (
-    <VStack spacing={1} align="center">
-      <Tooltip label={itemData?.name || slotName}>
+    <VStack spacing={0.5} align="center">
+      <Tooltip 
+        label={
+          <VStack spacing={2} align="start" minW="200px">
+            <Text fontWeight="bold" fontSize="lg">{itemData?.name || slotName}</Text>
+            
+            {itemData && (
+              (() => {
+                const req = getEquipmentLevelRequirement(itemData);
+                if (!req) return null;
+                const charLevel = character?.skills?.[req.skill]?.level ?? 0;
+                const met = charLevel >= req.level;
+                return (
+                  <HStack spacing={2} color={met ? 'green.200' : 'red.200'}>
+                    <Text fontWeight="semibold">Required:</Text>
+                    <Text>{req.skill.charAt(0).toUpperCase() + req.skill.slice(1)} lvl {req.level}</Text>
+                    <Text>({met ? 'Met' : 'Not met'})</Text>
+                  </HStack>
+                );
+              })()
+            )}
+
+            {itemData?.level && (
+              <HStack spacing={2} color={woodcuttingLevel >= itemData.level ? 'green.200' : 'red.200'}>
+                <Text fontWeight="semibold">Required Level:</Text>
+                <Text>{itemData.level}</Text>
+              </HStack>
+            )}
+
+            {itemData?.stats && Object.entries(itemData.stats).length > 0 && (
+              <Box w="100%">
+                <Text fontWeight="semibold" mb={1} color="blue.200">Item Stats</Text>
+                {/* Grouped stats */}
+                {/* Attack Stats */}
+                {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].some(stat => stat in itemData.stats!) && (
+                  <Box mb={1}>
+                    <Text fontSize="xs" color="blue.100" fontWeight="bold">Attack</Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                      {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].map(stat =>
+                        stat in itemData.stats! ? (
+                          <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                            <Text fontSize="sm">{stat.replace('attack','Atk ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
+                            <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
+                          </HStack>
+                        ) : null
+                      )}
+                    </Grid>
+                  </Box>
+                )}
+                {/* Defence Stats */}
+                {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].some(stat => stat in itemData.stats!) && (
+                  <Box mb={1}>
+                    <Text fontSize="xs" color="blue.100" fontWeight="bold">Defence</Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                      {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].map(stat =>
+                        stat in itemData.stats! ? (
+                          <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                            <Text fontSize="sm">{stat.replace('defence','Def ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
+                            <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
+                          </HStack>
+                        ) : null
+                      )}
+                    </Grid>
+                  </Box>
+                )}
+                {/* Other Stats */}
+                {Object.keys(itemData.stats).some(stat => !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat)) && (
+                  <Box>
+                    <Text fontSize="xs" color="blue.100" fontWeight="bold">Other</Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                      {Object.entries(itemData.stats).map(([stat, value]) =>
+                        !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat) ? (
+                          <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                            <Text fontSize="sm">{stat.charAt(0).toUpperCase() + stat.slice(1)}</Text>
+                            <Text fontSize="sm" color="green.200">+{value}</Text>
+                          </HStack>
+                        ) : null
+                      )}
+                    </Grid>
+                  </Box>
+                )}
+              </Box>
+            )}
+
+            {itemData?.slot && (
+              <HStack spacing={2} color="purple.200">
+                <Text fontWeight="semibold">Slot:</Text>
+                <Text>{itemData.slot}</Text>
+              </HStack>
+            )}
+
+            {item && onUnequip && (
+              <Text color="blue.200" fontSize="sm" fontStyle="italic">Click to unequip</Text>
+            )}
+          </VStack>
+        }
+        hasArrow
+        placement="top"
+        bg="gray.800"
+        color="white"
+      >
         <MotionBox
-          w="50px"
-          h="50px"
+          w="40px"
+          h="40px"
           bg={bgColor}
           border="1px"
           borderColor={borderColor}
@@ -112,7 +214,6 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
             }
           }}
           onKeyDown={handleKeyDown}
-          role="button"
           tabIndex={0}
           aria-label={ariaLabel}
           data-slot={slot}
@@ -121,12 +222,13 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
           transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 25 }}
           whileHover={item ? { scale: 1.05 } : {}}
           whileTap={item ? { scale: 0.95 } : {}}
+          role="button"
         >
           {itemData ? (
             <Image
               src={itemData.icon}
               alt={`${itemData.name} icon`}
-              boxSize="40px"
+              boxSize="32px"
               objectFit="contain"
               fallbackSrc="/assets/items/placeholder.png"
               aria-hidden="true"
@@ -157,20 +259,29 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
   );
 };
 
+interface GameStoreState extends GameState {
+  unequipItem: (slot: string) => Promise<void>;
+}
+
 export const EquipmentPanel = () => {
-  const { character, unequipItem } = useGameStore();
+  const { character, unequipItem } = useGameStore() as unknown as GameStoreState;
   const [loadingSlot, setLoadingSlot] = useState<string | null>(null);
 
-  const getEquippedItemForSlot = (slot: keyof typeof EQUIPMENT_SLOTS) => {
+  const getEquippedItemForSlot = (slot: keyof typeof EQUIPMENT_SLOTS): ItemReward | null => {
     if (!character) return null;
     
     // Find the item in the equipment object that belongs to this slot
     const equippedItem = Object.entries(character.equipment).find(([_, item]) => {
+      if (!item) return false;
       const itemData = getItemById(item.id);
       return itemData?.slot === EQUIPMENT_SLOTS[slot];
     });
 
-    return equippedItem ? equippedItem[1] : null;
+    return equippedItem && equippedItem[1] ? {
+      id: equippedItem[1].id,
+      name: equippedItem[1].name,
+      quantity: 1
+    } : null;
   };
 
   const handleUnequip = async (slot: string) => {
@@ -191,12 +302,12 @@ export const EquipmentPanel = () => {
   }
 
   return (
-    <Box role="region" aria-label="Equipment slots" display="flex" justifyContent="center" w="100%" pl={28}>
+    <Box role="region" aria-label="Equipment slots" display="flex" justifyContent="center" w="100%">
       <Grid
         templateColumns="repeat(4, 1fr)"
-        gap={2}
-        py={2}
-        px={4}
+        gap={1}
+        py={1}
+        px={2}
         justifyItems="center"
         alignItems="center"
         role="grid"

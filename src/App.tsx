@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import type { OfflineRewards as GlobalOfflineRewards } from './types/game';
 import { GameLayout } from './components/layout/GameLayout';
 import { CharacterCreation } from './components/character/CharacterCreation';
 import { CharacterSelection } from './components/character/CharacterSelection';
@@ -11,28 +12,17 @@ import { ActionFeedback } from './components/game/ActionFeedback';
 import { OfflineProgressPopup } from './components/popups/OfflineProgressPopup';
 import { TestPlan } from './components/testing/TestPlan';
 import { GameScreen } from './components/game/GameScreen';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-interface OfflineRewards {
-  xp: number;
-  item: {
-    id: string;
-    name: string;
-    quantity: number;
-  };
-  skill: string;
-  timePassed: number;
-  actionsCompleted: number;
-}
+import type { OfflineRewards } from './types/game';
 
 function App() {
   const { character, setLocation, processOfflineProgress } = useGameStore();
   const [showOfflineProgress, setShowOfflineProgress] = useState(false);
-  const [offlineRewards, setOfflineRewards] = useState<OfflineRewards | null>(null);
+  const [offlineRewards, setOfflineRewards] = useState<GlobalOfflineRewards | null>(null);
 
   useEffect(() => {
-    // Set initial location
-    setLocation(mockLocations[0]);
-
     // Process offline progress
     if (character) {
       const rewards = processOfflineProgress();
@@ -41,9 +31,10 @@ function App() {
         setShowOfflineProgress(true);
       }
     }
-  }, [character, setLocation, processOfflineProgress]);
+  }, [character, processOfflineProgress]);
 
   return (
+    <DndProvider backend={HTML5Backend}>
     <ChakraProvider theme={theme}>
       <Router>
         <Routes>
@@ -74,6 +65,7 @@ function App() {
         />
       </Router>
     </ChakraProvider>
+    </DndProvider>
   );
 }
 

@@ -17,12 +17,13 @@ import {
   Badge,
   VisuallyHidden,
   keyframes,
+  HStack,
 } from '@chakra-ui/react';
 import { useState, useCallback } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import type { ItemReward } from '../../types/game';
+import type { ItemReward, CombatStats, SkillName } from '../../types/game';
 import { ITEM_CATEGORIES } from '../../data/items';
-import { getItemById, isEquippable, getEquipmentSlot, meetsLevelRequirement } from '../../data/items';
+import { getItemById, isEquippable, getEquipmentSlot, meetsLevelRequirement, getEquipmentLevelRequirement } from '../../data/items';
 import type { KeyboardEvent } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
@@ -79,8 +80,16 @@ const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps)
   if (!itemData) return null;
 
   // Check if item can be equipped
-  const canEquip = isEquippable(itemData) && character?.skills?.['woodcutting']?.level;
-  const meetsLevel = canEquip && character ? meetsLevelRequirement(itemData, character.skills['woodcutting'].level) : false;
+  const canEquip = isEquippable(itemData);
+  let meetsLevel = true;
+  let equipReq: { skill: SkillName, level: number } | null = null;
+  if (canEquip && character) {
+    equipReq = getEquipmentLevelRequirement(itemData);
+    if (equipReq) {
+      const charLevel = character.skills?.[equipReq.skill as SkillName]?.level ?? 0;
+      meetsLevel = charLevel >= equipReq.level;
+    }
+  }
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if ((e.key === 'Enter' || e.key === ' ') && !isEquipped && canEquip && meetsLevel) {
@@ -98,33 +107,105 @@ const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps)
   return (
     <Tooltip
       label={
-        <VStack spacing={1} align="start">
-          <Text fontWeight="bold">{item.name}</Text>
-          <Text>Quantity: {item.quantity.toLocaleString()}</Text>
-          {itemData.level && (
-            <Text color={meetsLevel ? 'green.200' : 'red.200'}>
-              Required Level: {itemData.level}
-            </Text>
+        <VStack spacing={2} align="start" minW="200px">
+          <Text fontWeight="bold" fontSize="lg">{item.name}</Text>
+          
+          <HStack spacing={2}>
+            <Text fontWeight="semibold">Quantity:</Text>
+            <Text>{item.quantity.toLocaleString()}</Text>
+          </HStack>
+
+          {equipReq && (
+            <HStack spacing={2} color={meetsLevel ? 'green.200' : 'red.200'}>
+              <Text fontWeight="semibold">Required:</Text>
+              <Text>{equipReq.skill.charAt(0).toUpperCase() + equipReq.skill.slice(1)} lvl {equipReq.level}</Text>
+              <Text>({meetsLevel ? 'Met' : 'Not met'})</Text>
+            </HStack>
           )}
-          {itemData.stats && (
-            <Text>
-              Stats: {Object.entries(itemData.stats)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join(', ')}
-            </Text>
+
+          {itemData?.stats && Object.entries(itemData.stats).length > 0 && (
+            <Box w="100%">
+              <Text fontWeight="semibold" mb={1} color="blue.200">Item Stats</Text>
+              {/* Grouped stats */}
+              {/* Attack Stats */}
+              {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].some(stat => stat in itemData.stats!) && (
+                <Box mb={1}>
+                  <Text fontSize="xs" color="blue.100" fontWeight="bold">Attack</Text>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                    {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].map(stat =>
+                      stat in itemData.stats! ? (
+                        <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                          <Text fontSize="sm">{stat.replace('attack','Atk ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
+                          <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
+                        </HStack>
+                      ) : null
+                    )}
+                  </Grid>
+                </Box>
+              )}
+              {/* Defence Stats */}
+              {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].some(stat => stat in itemData.stats!) && (
+                <Box mb={1}>
+                  <Text fontSize="xs" color="blue.100" fontWeight="bold">Defence</Text>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                    {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].map(stat =>
+                      stat in itemData.stats! ? (
+                        <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                          <Text fontSize="sm">{stat.replace('defence','Def ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
+                          <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
+                        </HStack>
+                      ) : null
+                    )}
+                  </Grid>
+                </Box>
+              )}
+              {/* Other Stats */}
+              {Object.keys(itemData.stats).some(stat => !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat)) && (
+                <Box>
+                  <Text fontSize="xs" color="blue.100" fontWeight="bold">Other</Text>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                    {Object.entries(itemData.stats).map(([stat, value]) =>
+                      !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat) ? (
+                        <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                          <Text fontSize="sm">{stat.charAt(0).toUpperCase() + stat.slice(1)}</Text>
+                          <Text fontSize="sm" color="green.200">+{value}</Text>
+                        </HStack>
+                      ) : null
+                    )}
+                  </Grid>
+                </Box>
+              )}
+            </Box>
           )}
+
+          {itemData.slot && (
+            <HStack spacing={2} color="purple.200">
+              <Text fontWeight="semibold">Slot:</Text>
+              <Text>{itemData.slot}</Text>
+            </HStack>
+          )}
+
           {canEquip && !isEquipped && (
-            <Text color={meetsLevel ? 'green.200' : 'red.200'}>
+            <Text 
+              color={meetsLevel ? 'green.200' : 'red.200'} 
+              fontSize="sm" 
+              fontStyle="italic"
+            >
               {meetsLevel ? 'Click to equip' : 'Level too low to equip'}
             </Text>
           )}
+          
           {isEquipped && (
-            <Text color="blue.200">Currently equipped</Text>
+            <Text color="blue.200" fontSize="sm" fontStyle="italic">
+              Currently equipped
+            </Text>
           )}
         </VStack>
       }
       hasArrow
       placement="top"
+      bg="gray.800"
+      color="white"
     >
       <MotionBox
         ref={(node: HTMLDivElement | null) => drag(drop(node))}
@@ -206,7 +287,7 @@ const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps)
 };
 
 export const BankPanel = () => {
-  const { character, equipItem, addItemToBank, updateBankOrder } = useGameStore();
+  const { character, equipItem, addItemToBank, updateBankOrder } = useGameStore() as any;
   const [selectedItem, setSelectedItem] = useState<ItemReward | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -214,9 +295,8 @@ export const BankPanel = () => {
 
   const moveItem = useCallback((dragIndex: number, hoverIndex: number) => {
     if (!character?.bank) return;
-    
-    const dragItem = character.bank[dragIndex];
-    const newBank = [...character.bank];
+    const dragItem: ItemReward = character.bank[dragIndex];
+    const newBank: ItemReward[] = [...character.bank];
     newBank.splice(dragIndex, 1);
     newBank.splice(hoverIndex, 0, dragItem);
     updateBankOrder(newBank);
@@ -225,11 +305,20 @@ export const BankPanel = () => {
   if (!character) return null;
 
   const handleItemClick = (item: ItemReward) => {
+    if (!item || typeof item !== 'object' || !('id' in item)) return;
     const itemData = getItemById(item.id);
     if (!itemData) return;
 
-    const canEquip = isEquippable(itemData) && character.skills?.['woodcutting']?.level;
-    const meetsLevel = canEquip && meetsLevelRequirement(itemData, character.skills['woodcutting'].level);
+    const canEquip = isEquippable(itemData);
+    let meetsLevel = true;
+    let equipReq: { skill: SkillName, level: number } | null = null;
+    if (canEquip && character) {
+      equipReq = getEquipmentLevelRequirement(itemData);
+      if (equipReq) {
+        const charLevel = character.skills?.[equipReq.skill as SkillName]?.level ?? 0;
+        meetsLevel = charLevel >= equipReq.level;
+      }
+    }
 
     if (canEquip && meetsLevel) {
       equipItem(itemData);
@@ -251,7 +340,6 @@ export const BankPanel = () => {
   });
 
   return (
-    <DndProvider backend={HTML5Backend}>
       <Flex direction="column" h="100%" gap={4} p={4} role="region" aria-label="Bank inventory">
         {/* Header */}
         <Flex justify="space-between" align="center">
@@ -363,6 +451,5 @@ export const BankPanel = () => {
           </TabPanels>
         </Tabs>
       </Flex>
-    </DndProvider>
   );
 }; 

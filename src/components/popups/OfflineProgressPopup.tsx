@@ -27,7 +27,7 @@ interface OfflineRewards {
     id: string;
     name: string;
     quantity: number;
-  };
+  } | null;
   skill: string;
   timePassed: number;
   actionsCompleted: number;
@@ -59,7 +59,7 @@ export const OfflineProgressPopup = ({ isOpen, onClose, rewards }: OfflineProgre
     }
   };
 
-  const itemData = getItemById(rewards.item.id);
+  const itemData = rewards.item ? getItemById(rewards.item.id) : null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
@@ -100,18 +100,22 @@ export const OfflineProgressPopup = ({ isOpen, onClose, rewards }: OfflineProgre
                   <Stat textAlign="center">
                     <StatLabel>Items Gained</StatLabel>
                     <StatNumber>
-                      <HStack justify="center" spacing={2}>
-                        <Image
-                          src={itemData?.icon}
-                          alt={rewards.item.name}
-                          boxSize="32px"
-                          objectFit="contain"
-                          fallbackSrc="/assets/items/placeholder.png"
-                        />
-                        <Text>{rewards.item.quantity.toLocaleString()}</Text>
-                      </HStack>
+                      {rewards.item ? (
+                        <HStack justify="center" spacing={2}>
+                          <Image
+                            src={itemData?.icon}
+                            alt={rewards.item.name}
+                            boxSize="32px"
+                            objectFit="contain"
+                            fallbackSrc="/assets/items/placeholder.png"
+                          />
+                          <Text>{rewards.item.quantity.toLocaleString()}</Text>
+                        </HStack>
+                      ) : (
+                        <Text>No items gained</Text>
+                      )}
                     </StatNumber>
-                    <StatHelpText>{rewards.item.name}</StatHelpText>
+                    <StatHelpText>{rewards.item ? rewards.item.name : ''}</StatHelpText>
                   </Stat>
                 </HStack>
               </VStack>

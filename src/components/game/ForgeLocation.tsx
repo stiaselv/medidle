@@ -24,6 +24,7 @@ import { useGameStore, calculateLevel, getNextLevelExperience } from '../../stor
 import type { SkillAction } from '../../types/game';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ProgressBar } from './ProgressBar';
+import forgeBg from '../../assets/BG/forge.webp';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -48,6 +49,7 @@ const ActionButton = ({
 }) => {
   const { canPerformAction, stopAction } = useGameStore();
   const shouldReduceMotion = useReducedMotion();
+  const currentAction = useGameStore(state => state.currentAction);
   
   const allRequirementsMet = canPerformAction(action);
   
@@ -59,10 +61,6 @@ const ActionButton = ({
     }
   };
 
-  const handleActionComplete = () => {
-    // This will be handled by the game store
-  };
-
   const buttonDisabled = !allRequirementsMet && !isActive;
 
   return (
@@ -72,18 +70,23 @@ const ActionButton = ({
       py={6}
       onClick={handleClick}
       isDisabled={buttonDisabled}
-      bg={isActive ? "whiteAlpha.300" : "whiteAlpha.100"}
-      _hover={{
-        bg: isActive ? "whiteAlpha.400" : "whiteAlpha.200",
-      }}
-      _active={{
-        bg: "whiteAlpha.400",
-      }}
-      borderWidth={1}
-      borderColor={isActive ? "whiteAlpha.400" : "transparent"}
-      transition="all 0.2s"
+      bg={isActive ? 'rgba(255,255,255,0.18)' : 'rgba(40,40,40,0.92)'}
+      boxShadow={isActive ? '0 0 0 3px #fbbf24, 0 4px 24px 0 rgba(0,0,0,0.25)' : '0 2px 12px 0 rgba(0,0,0,0.18)'}
+      borderWidth={2}
+      borderColor={isActive ? '#fbbf24' : 'rgba(255,255,255,0.12)'}
+      transition="box-shadow 0.2s, background 0.2s, border-color 0.2s"
       position="relative"
       overflow="hidden"
+      _hover={{
+        bg: isActive ? 'rgba(255,255,255,0.22)' : 'rgba(60,60,60,0.98)',
+        boxShadow: isActive
+          ? '0 0 0 4px #fbbf24, 0 8px 32px 0 rgba(0,0,0,0.28)'
+          : '0 4px 24px 0 rgba(0,0,0,0.28)',
+        borderColor: isActive ? '#fbbf24' : 'rgba(255,255,255,0.22)'
+      }}
+      _active={{
+        bg: 'rgba(255,255,255,0.24)',
+      }}
       _before={{
         content: '""',
         position: 'absolute',
@@ -191,9 +194,8 @@ const ActionButton = ({
         {/* Progress Bar */}
         {isActive && (
           <ProgressBar
-            duration={action.baseTime}
+            progress={currentAction && currentAction.id === action.id ? (useGameStore.getState().actionProgress) : 0}
             isActive={isActive}
-            onComplete={handleActionComplete}
             aria-label={`Action progress for ${action.name}`}
           />
         )}
@@ -201,6 +203,12 @@ const ActionButton = ({
     </Button>
   );
 };
+
+// Add a type for smithing category actions with subActions
+interface SmithingCategoryAction extends SkillAction {
+  type: 'smithing_category';
+  subActions: SkillAction[];
+}
 
 const ActionSection = ({ 
   title, 
@@ -236,148 +244,166 @@ const ActionSection = ({
     return acc;
   }, {} as Record<string, SkillAction[]>);
 
+  // Accent and card style
+  const accent = 'gray';
+  const cardGradient = 'linear(to-br, rgba(24,24,24,0.85) 0%, rgba(40,40,40,0.82) 100%)';
+  const borderColor = 'rgba(120,120,120,0.32)';
+
   return (
-    <VStack spacing={4} align="stretch" width="100%">
-      <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
-        <Flex width="100%" justify="center" align="center" gap={4}>
-          <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
-            <Icon as={GiAnvil} />
-            {title}
-          </Heading>
-          <Box maxW="600px" minW="500px">
-            <Tooltip
-              label={
-                <VStack align="start" spacing={1} p={2}>
-                  <Text fontWeight="bold" color="white" mb={1}>Experience Progress</Text>
-                  <Text>Current XP: {currentSkillExp.toLocaleString()}</Text>
-                  <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
-                  <Text>Remaining: {(nextLevelExp - currentSkillExp).toLocaleString()}</Text>
-                </VStack>
-              }
-              placement="top"
-              hasArrow
-              bg="gray.800"
-              borderRadius="md"
-            >
-              <Box width="100%" position="relative" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
-                <Progress
-                  value={expProgress}
-                  size="sm"
-                  colorScheme="green"
-                  borderRadius="full"
-                  background="whiteAlpha.200"
-                  hasStripe
-                  isAnimated
-                  sx={{
-                    '& > div:first-of-type': {
-                      transitionProperty: 'width',
-                      transitionDuration: '0.3s',
-                    }
-                  }}
-                />
-                <Text 
-                  fontSize="xs" 
-                  color="gray.300" 
-                  mt={1} 
-                  textAlign="center"
-                  fontWeight="medium"
-                  textShadow="0 1px 2px rgba(0,0,0,0.3)"
-                >
-                  Level {currentLevel} • {expProgress.toFixed(1)}% to {currentLevel + 1}
-                </Text>
-              </Box>
-            </Tooltip>
-          </Box>
-        </Flex>
-      </HStack>
-
-      <Tabs variant="soft-rounded" colorScheme="blue" width="100%">
-        <TabList 
-          overflowX="auto" 
-          overflowY="hidden" 
-          py={2}
-          display="flex"
-          justifyContent="center"
-          sx={{
-            '&::-webkit-scrollbar': {
-              height: '8px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: 'whiteAlpha.100',
-              borderRadius: 'full',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'blue.500',
-              borderRadius: 'full',
-            },
-          }}
-        >
-          {Object.keys(actionsByMetal).map((metal) => (
-            <Tab
-              key={metal}
-              _selected={{ 
-                bg: 'blue.500', 
-                color: 'white',
-                boxShadow: '0 0 10px rgba(66, 153, 225, 0.5)'
-              }}
-              _hover={{
-                bg: 'whiteAlpha.200'
-              }}
-              whiteSpace="nowrap"
-              minW="auto"
-              px={6}
-              py={2}
-              fontWeight="semibold"
-              textTransform="capitalize"
-            >
-              {metal}
-            </Tab>
-          ))}
-        </TabList>
-
-        <TabPanels>
-          {Object.entries(actionsByMetal).map(([metal, metalActions]) => (
-            <TabPanel key={metal} p={4}>
-              <Grid
-                templateColumns={{
-                  base: 'repeat(1, 1fr)',
-                  sm: 'repeat(2, 1fr)',
-                  md: 'repeat(3, 1fr)',
-                  lg: 'repeat(4, 1fr)',
-                  xl: 'repeat(5, 1fr)'
-                }}
-                gap={4}
-                maxH="calc(100vh - 500px)"
-                overflowY="auto"
-                sx={{
-                  '&::-webkit-scrollbar': {
-                    width: '8px',
-                  },
-                  '&::-webkit-scrollbar-track': {
-                    background: 'whiteAlpha.100',
-                    borderRadius: 'full',
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    background: 'blue.500',
-                    borderRadius: 'full',
-                  },
-                }}
+    <Box
+      bgGradient={cardGradient}
+      borderRadius="2xl"
+      borderWidth={2}
+      borderColor={borderColor}
+      boxShadow="xl"
+      p={{ base: 3, md: 4 }}
+      transition="box-shadow 0.2s, background 0.2s"
+      backdropFilter="blur(8px)"
+      maxW="900px"
+      mx="auto"
+      w="100%"
+      opacity={0.92}
+    >
+      <VStack spacing={4} align="stretch" width="100%">
+        <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
+          <Flex width="100%" justify="center" align="center" gap={4}>
+            <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
+              <Icon as={GiAnvil} />
+              {title}
+            </Heading>
+            <Box maxW="600px" minW="500px">
+              <Tooltip
+                label={
+                  <VStack align="start" spacing={1} p={2}>
+                    <Text fontWeight="bold" color="white" mb={1}>Experience Progress</Text>
+                    <Text>Current XP: {currentSkillExp.toLocaleString()}</Text>
+                    <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
+                    <Text>Remaining: {(nextLevelExp - currentSkillExp).toLocaleString()}</Text>
+                  </VStack>
+                }
+                placement="top"
+                hasArrow
+                bg="gray.800"
+                borderRadius="md"
               >
-                {metalActions.map((action) => (
-                  <ActionButton
-                    key={action.id}
-                    action={action}
-                    onClick={() => onActionClick(action)}
-                    isDisabled={!canPerformAction(action)}
-                    isActive={currentAction?.id === action.id}
+                <Box width="100%" position="relative" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
+                  <Progress
+                    value={expProgress}
+                    size="sm"
+                    colorScheme={accent}
+                    borderRadius="full"
+                    background="whiteAlpha.200"
+                    hasStripe
+                    isAnimated
+                    sx={{
+                      '& > div:first-of-type': {
+                        transitionProperty: 'width',
+                        transitionDuration: '0.3s',
+                      }
+                    }}
                   />
-                ))}
-              </Grid>
-            </TabPanel>
-          ))}
-        </TabPanels>
-      </Tabs>
-    </VStack>
+                  <Text 
+                    fontSize="xs" 
+                    color="gray.300" 
+                    mt={1} 
+                    textAlign="center"
+                    fontWeight="medium"
+                    textShadow="0 1px 2px rgba(0,0,0,0.3)"
+                  >
+                    Level {currentLevel} • {expProgress.toFixed(1)}% to {currentLevel + 1}
+                  </Text>
+                </Box>
+              </Tooltip>
+            </Box>
+          </Flex>
+        </HStack>
+        <Tabs variant="soft-rounded" colorScheme="gray" width="100%">
+          <TabList 
+            overflowX="auto" 
+            overflowY="hidden" 
+            py={2}
+            display="flex"
+            justifyContent="center"
+            sx={{
+              '&::-webkit-scrollbar': {
+                height: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: 'whiteAlpha.100',
+                borderRadius: 'full',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'gray.500',
+                borderRadius: 'full',
+              },
+            }}
+          >
+            {Object.keys(actionsByMetal).map((metal) => (
+              <Tab
+                key={metal}
+                _selected={{ 
+                  bg: 'gray.700', 
+                  color: 'white',
+                  boxShadow: '0 0 10px rgba(100, 116, 139, 0.5)'
+                }}
+                _hover={{
+                  bg: 'whiteAlpha.200'
+                }}
+                whiteSpace="nowrap"
+                minW="auto"
+                px={6}
+                py={2}
+                fontWeight="semibold"
+                textTransform="capitalize"
+              >
+                {metal}
+              </Tab>
+            ))}
+          </TabList>
+          <TabPanels>
+            {Object.entries(actionsByMetal).map(([metal, metalActions]) => (
+              <TabPanel key={metal} p={4}>
+                <Grid
+                  templateColumns={{
+                    base: 'repeat(1, 1fr)',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                    lg: 'repeat(4, 1fr)',
+                    xl: 'repeat(5, 1fr)'
+                  }}
+                  gap={4}
+                  maxH="calc(100vh - 500px)"
+                  overflowY="auto"
+                  sx={{
+                    '&::-webkit-scrollbar': {
+                      width: '8px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      background: 'whiteAlpha.100',
+                      borderRadius: 'full',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      background: 'gray.500',
+                      borderRadius: 'full',
+                    },
+                  }}
+                >
+                  {metalActions.map((action) => (
+                    <ActionButton
+                      key={action.id}
+                      action={action}
+                      onClick={() => onActionClick(action)}
+                      isDisabled={!canPerformAction(action)}
+                      isActive={currentAction?.id === action.id}
+                    />
+                  ))}
+                </Grid>
+              </TabPanel>
+            ))}
+          </TabPanels>
+        </Tabs>
+      </VStack>
+    </Box>
   );
 };
 
@@ -391,9 +417,24 @@ export const ForgeLocation = () => {
     startAction(action);
   };
 
-  const smithingActions = currentLocation.actions.filter(
-    action => action.type === 'smithing' || (action.type === 'smithing_category' && action.subActions)
-  ).flatMap(action => action.type === 'smithing_category' ? action.subActions || [] : [action]);
+  // Filter and type smithing actions as SkillAction[]
+  const smithingActions = currentLocation.actions
+    .filter((action): action is SkillAction | SmithingCategoryAction =>
+      action.type === 'smithing' || (action.type === 'smithing_category' && 'subActions' in action)
+    )
+    .flatMap(action =>
+      action.type === 'smithing_category' && 'subActions' in action && Array.isArray(action.subActions)
+        ? action.subActions
+        : [action as SkillAction]
+    );
+
+  // Helper to safely cast currentAction to SkillAction | null
+  const getSkillCurrentAction = (type: string): SkillAction | null => {
+    if (currentAction && (currentAction.type === type)) {
+      return currentAction as SkillAction;
+    }
+    return null;
+  };
 
   return (
     <Box
@@ -414,22 +455,37 @@ export const ForgeLocation = () => {
         },
       }}
     >
-      {/* Background with forge theme */}
+      {/* Forge background image */}
       <Box
         position="absolute"
         top={0}
         left={0}
         right={0}
         bottom={0}
-        bg="linear-gradient(135deg, #2a1f1d 0%, #3d2b28 100%)"
-        zIndex={-1}
+        bgImage={`url(${forgeBg})`}
+        bgSize="cover"
+        bgPosition="center"
+        bgRepeat="no-repeat"
+        zIndex={0}
+        _after={{
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          bg: 'rgba(0,0,0,0.45)',
+          zIndex: 1
+        }}
       />
-
+      {/* Content */}
       <Flex
-        direction="column"
-        minH="100%"
-        p={{ base: 4, md: 8 }}
         position="relative"
+        direction="column"
+        height="100%"
+        zIndex={2}
+        p={{ base: 4, md: 8 }}
+        w="100%"
       >
         <VStack 
           spacing={8} 
@@ -469,7 +525,6 @@ export const ForgeLocation = () => {
               {currentLocation.description}
             </Text>
           </Box>
-
           {/* Actions Grid */}
           <Grid
             templateColumns="1fr"
@@ -485,7 +540,7 @@ export const ForgeLocation = () => {
                 actions={smithingActions}
                 onActionClick={handleActionStart}
                 canPerformAction={storeCanPerformAction}
-                currentAction={currentAction}
+                currentAction={getSkillCurrentAction('smithing')}
               />
             </Box>
           </Grid>
