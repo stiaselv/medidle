@@ -131,24 +131,26 @@ export const Navigation = () => {
 
   // Get full location objects for recent and favorite locations
   const recentLocationObjects = recentLocations
-    .map(id => {
-      const loc = mockLocations.find(l => l.id === id);
+    .map((id: string) => {
+      const loc = mockLocations.find((l) => l.id === id);
       return loc ? { ...loc, icon: locationIcons[loc.id] || FaCompass } : null;
     })
-    .filter((loc): loc is Location & { icon: IconType } => Boolean(loc));
+    .filter((loc): loc is Location & { icon: IconType } => Boolean(loc))
+    .filter((loc: Location & { icon: IconType }) => !['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave', 'slayer_cave'].includes(loc.id));
 
-  const favoriteLocationObjects = favoriteLocations
-    .map(id => {
-      const loc = mockLocations.find(l => l.id === id);
+  const favoriteLocationObjects = (favoriteLocations as string[])
+    .map((id: string) => {
+      const loc = mockLocations.find((l) => l.id === id);
       return loc ? { ...loc, icon: locationIcons[loc.id] || FaCompass } : null;
     })
-    .filter((loc): loc is Location & { icon: IconType } => Boolean(loc));
+    .filter((loc): loc is Location & { icon: IconType } => Boolean(loc))
+    .filter((loc: Location & { icon: IconType }) => !['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave', 'slayer_cave'].includes(loc.id));
 
   // Add icons to all locations
   const locationsWithIcons = mockLocations.map(loc => ({
     ...loc,
     icon: locationIcons[loc.id] || FaCompass
-  }));
+  })).filter((loc) => !['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave', 'slayer_cave'].includes(loc.id));
 
   return (
     <Box p={4} bg={useColorModeValue('white', 'gray.900')} borderRadius="xl" shadow="lg">

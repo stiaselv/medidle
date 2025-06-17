@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
 import type { ItemReward, GameState, Character } from '../../types/game';
-import { EQUIPMENT_SLOTS, getItemById } from '../../data/items';
+import { EQUIPMENT_SLOTS, getItemById, getEquipmentLevelRequirement } from '../../data/items';
 import type { KeyboardEvent } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { LoadingState } from '../common/LoadingState';
@@ -102,6 +102,22 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
           <VStack spacing={2} align="start" minW="200px">
             <Text fontWeight="bold" fontSize="lg">{itemData?.name || slotName}</Text>
             
+            {itemData && (
+              (() => {
+                const req = getEquipmentLevelRequirement(itemData);
+                if (!req) return null;
+                const charLevel = character?.skills?.[req.skill]?.level ?? 0;
+                const met = charLevel >= req.level;
+                return (
+                  <HStack spacing={2} color={met ? 'green.200' : 'red.200'}>
+                    <Text fontWeight="semibold">Required:</Text>
+                    <Text>{req.skill.charAt(0).toUpperCase() + req.skill.slice(1)} lvl {req.level}</Text>
+                    <Text>({met ? 'Met' : 'Not met'})</Text>
+                  </HStack>
+                );
+              })()
+            )}
+
             {itemData?.level && (
               <HStack spacing={2} color={woodcuttingLevel >= itemData.level ? 'green.200' : 'red.200'}>
                 <Text fontWeight="semibold">Required Level:</Text>
@@ -112,14 +128,55 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
             {itemData?.stats && Object.entries(itemData.stats).length > 0 && (
               <Box w="100%">
                 <Text fontWeight="semibold" mb={1} color="blue.200">Item Stats</Text>
-                <Grid templateColumns="repeat(2, 1fr)" gap={2}>
-                  {Object.entries(itemData.stats).map(([stat, value]) => (
-                    <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
-                      <Text fontSize="sm">{stat.charAt(0).toUpperCase() + stat.slice(1)}:</Text>
-                      <Text fontSize="sm" color="green.200">+{value}</Text>
-                    </HStack>
-                  ))}
-                </Grid>
+                {/* Grouped stats */}
+                {/* Attack Stats */}
+                {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].some(stat => stat in itemData.stats!) && (
+                  <Box mb={1}>
+                    <Text fontSize="xs" color="blue.100" fontWeight="bold">Attack</Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                      {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].map(stat =>
+                        stat in itemData.stats! ? (
+                          <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                            <Text fontSize="sm">{stat.replace('attack','Atk ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
+                            <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
+                          </HStack>
+                        ) : null
+                      )}
+                    </Grid>
+                  </Box>
+                )}
+                {/* Defence Stats */}
+                {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].some(stat => stat in itemData.stats!) && (
+                  <Box mb={1}>
+                    <Text fontSize="xs" color="blue.100" fontWeight="bold">Defence</Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                      {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].map(stat =>
+                        stat in itemData.stats! ? (
+                          <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                            <Text fontSize="sm">{stat.replace('defence','Def ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
+                            <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
+                          </HStack>
+                        ) : null
+                      )}
+                    </Grid>
+                  </Box>
+                )}
+                {/* Other Stats */}
+                {Object.keys(itemData.stats).some(stat => !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat)) && (
+                  <Box>
+                    <Text fontSize="xs" color="blue.100" fontWeight="bold">Other</Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                      {Object.entries(itemData.stats).map(([stat, value]) =>
+                        !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat) ? (
+                          <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
+                            <Text fontSize="sm">{stat.charAt(0).toUpperCase() + stat.slice(1)}</Text>
+                            <Text fontSize="sm" color="green.200">+{value}</Text>
+                          </HStack>
+                        ) : null
+                      )}
+                    </Grid>
+                  </Box>
+                )}
               </Box>
             )}
 

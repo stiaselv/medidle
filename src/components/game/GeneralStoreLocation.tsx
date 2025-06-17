@@ -28,6 +28,7 @@ import type { StoreAction, StoreItem, SkillName } from '../../types/game';
 import { getItemById, meetsLevelRequirement } from '../../data/items';
 import { useState } from 'react';
 import { SearchIcon } from '@chakra-ui/icons';
+import generalStoreBg from '../../assets/BG/general_store.webp';
 
 interface ItemCardProps {
   id: string;
@@ -66,18 +67,24 @@ const ItemCard = ({
 
   return (
     <Box
-      bg={bgColor}
+      bg={isSelected ? 'rgba(255,255,255,0.18)' : 'rgba(40,40,40,0.92)'}
       p={2}
-      borderRadius="md"
-      border="2px"
-      borderColor={isSelected ? selectedBorderColor : borderColor}
+      borderRadius="lg"
+      borderWidth={2}
+      borderColor={isSelected ? '#fbbf24' : 'rgba(255,255,255,0.12)'}
+      boxShadow={isSelected ? '0 0 0 3px #fbbf24, 0 4px 24px 0 rgba(0,0,0,0.25)' : '0 2px 12px 0 rgba(0,0,0,0.18)'}
       cursor="pointer"
       onClick={onClick}
       position="relative"
       opacity={1}
-      transition="all 0.2s"
+      transition="box-shadow 0.2s, background 0.2s, border-color 0.2s, transform 0.2s"
       _hover={{
-        transform: 'scale(1.02)',
+        transform: 'scale(1.04)',
+        bg: isSelected ? 'rgba(255,255,255,0.22)' : 'rgba(60,60,60,0.98)',
+        boxShadow: isSelected
+          ? '0 0 0 4px #fbbf24, 0 8px 32px 0 rgba(0,0,0,0.28)'
+          : '0 4px 24px 0 rgba(0,0,0,0.28)',
+        borderColor: isSelected ? '#fbbf24' : 'rgba(255,255,255,0.22)'
       }}
       style={{
         backgroundColor: !canAfford ? 'rgba(255, 0, 0, 0.1)' : undefined
@@ -243,407 +250,402 @@ export const GeneralStoreLocation = () => {
   };
 
   return (
-    <Box
-      minH="100vh"
-      w="100%"
-      position="relative"
-      bgGradient="linear(to-b, gray.900, gray.800)"
-      p={6}
-    >
-      {/* Header */}
+    <Box position="relative" width="100%" minH="100vh" p={0}>
+      {/* General Store background image */}
       <Box
-        bg="blackAlpha.700"
-        p={6}
-        borderRadius="xl"
-        backdropFilter="blur(10px)"
-        border="1px solid"
-        borderColor="whiteAlpha.200"
-        boxShadow="dark-lg"
-        maxW="600px"
-        mx="auto"
-        mb={8}
-        textAlign="center"
-      >
-        <Text
-          fontSize="3xl"
-          fontWeight="bold"
-          color="white"
-          textShadow="0 2px 4px rgba(0,0,0,0.4)"
-          mb={3}
-        >
-          {currentLocation.name}
-        </Text>
-        <Text
-          fontSize="md"
-          color="gray.300"
-          maxW="500px"
-          mx="auto"
-          lineHeight="1.6"
-        >
-          {currentLocation.description}
-        </Text>
-      </Box>
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bgImage={`url(${generalStoreBg})`}
+        bgSize="cover"
+        bgPosition="center"
+        bgRepeat="no-repeat"
+        zIndex={0}
+        _after={{
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          bg: 'rgba(0,0,0,0.55)',
+          zIndex: 1
+        }}
+      />
+      {/* Content */}
+      <Box position="relative" zIndex={2} p={6} mt={12}>
+        <Flex align="flex-start" gap={8}>
+          {/* Bank Items */}
+          <Box 
+            flex={2} 
+            bg="rgba(24,24,24,0.85)" 
+            p={4} 
+            borderRadius="2xl" 
+            display="flex" 
+            flexDirection="column"
+            minW="400px"
+            boxShadow="xl"
+            backdropFilter="blur(8px)"
+            borderWidth={2}
+            borderColor="rgba(120,120,120,0.32)"
+            transition="box-shadow 0.2s, background 0.2s"
+          >
+            <Text color="white" fontSize="xl" mb={4}>Your Bank</Text>
+            <InputGroup mb={4} size="sm">
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search bank items..."
+                value={bankSearch}
+                onChange={(e) => setBankSearch(e.target.value)}
+                bg="whiteAlpha.200"
+                color="white"
+                _placeholder={{ color: 'gray.400' }}
+              />
+            </InputGroup>
+            <Box overflowY="auto" flex={1}>
+              <Grid templateColumns="repeat(auto-fill, minmax(100px, 1fr))" gap={3}>
+                {character.bank.filter(item => 
+                  item.name.toLowerCase().includes(bankSearch.toLowerCase())
+                ).map((item) => {
+                  const itemDetails = getItemById(item.id);
+                  if (!itemDetails) return null;
+                  const storeItem = getStoreItemForBankItem(item.id);
+                  return (
+                    <Tooltip 
+                      key={item.id} 
+                      label={getItemTooltip(storeItem || { 
+                        id: item.id, 
+                        name: item.name,
+                        buyPrice: itemDetails.buyPrice || 0,
+                        sellPrice: itemDetails.sellPrice || 0,
+                        levelRequired: itemDetails.level
+                      })}
+                      placement="right"
+                      hasArrow
+                      bg="gray.800"
+                      color="white"
+                      p={3}
+                      borderRadius="md"
+                      whiteSpace="pre-line"
+                    >
+                      <Box
+                        className={`relative cursor-pointer ${
+                          selectedBankItem === item.id ? 'border-2 border-blue-500' : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedBankItem(selectedBankItem === item.id ? null : item.id);
+                          setSelectedStoreItem(null);
+                        }}
+                      >
+                        <ItemCard
+                          key={item.id}
+                          id={item.id}
+                          name={item.name}
+                          icon={itemDetails.icon}
+                          quantity={item.quantity}
+                          isSelected={selectedBankItem === item.id}
+                        />
+                      </Box>
+                    </Tooltip>
+                  );
+                })}
+              </Grid>
+            </Box>
+          </Box>
 
-      {/* Main Content */}
-      <Flex gap={6} maxW="1800px" mx="auto" h="70vh">
-        {/* Bank Items */}
-        <Box 
-          flex={2} 
-          bg="blackAlpha.400" 
-          p={4} 
-          borderRadius="xl" 
-          display="flex" 
-          flexDirection="column"
-          minW="400px"
-        >
-          <Text color="white" fontSize="xl" mb={4}>Your Bank</Text>
-          <InputGroup mb={4} size="sm">
-            <InputLeftElement pointerEvents="none">
-              <SearchIcon color="gray.300" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search bank items..."
-              value={bankSearch}
-              onChange={(e) => setBankSearch(e.target.value)}
-              bg="whiteAlpha.200"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
-            />
-          </InputGroup>
-          <Box overflowY="auto" flex={1}>
-            <Grid templateColumns="repeat(auto-fill, minmax(100px, 1fr))" gap={3}>
-              {character.bank.filter(item => 
-                item.name.toLowerCase().includes(bankSearch.toLowerCase())
-              ).map((item) => {
-                const itemDetails = getItemById(item.id);
-                if (!itemDetails) return null;
-                const storeItem = getStoreItemForBankItem(item.id);
-                return (
-                  <Tooltip 
-                    key={item.id} 
-                    label={getItemTooltip(storeItem || { 
-                      id: item.id, 
-                      name: item.name,
-                      buyPrice: itemDetails.buyPrice || 0,
-                      sellPrice: itemDetails.sellPrice || 0,
-                      levelRequired: itemDetails.level
-                    })}
-                    placement="right"
-                    hasArrow
-                    bg="gray.800"
-                    color="white"
-                    p={3}
-                    borderRadius="md"
-                    whiteSpace="pre-line"
-                  >
-                    <Box
-                      className={`relative cursor-pointer ${
-                        selectedBankItem === item.id ? 'border-2 border-blue-500' : ''
-                      }`}
+          {/* Middle Section - Quantity Selection */}
+          <VStack 
+            spacing={6} 
+            minW="240px" 
+            alignSelf="center"
+            bg="blackAlpha.400"
+            p={6}
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="whiteAlpha.200"
+          >
+            <Text 
+              color="white" 
+              fontSize="xl" 
+              fontWeight="semibold"
+              textAlign="center"
+            >
+              Quantity
+            </Text>
+            
+            <VStack spacing={4} width="full">
+              <Box width="full">
+                <Text 
+                  color="gray.300" 
+                  fontSize="sm" 
+                  mb={2}
+                  textAlign="center"
+                >
+                  Select Preset Amount
+                </Text>
+                <Grid templateColumns="repeat(2, 1fr)" gap={2} width="full">
+                  {[1, 10, 25, 50].map((amount) => (
+                    <Button
+                      key={amount}
+                      size="md"
+                      variant={!isCustomAmount && quantity === amount ? "solid" : "outline"}
+                      colorScheme="blue"
                       onClick={() => {
-                        setSelectedBankItem(selectedBankItem === item.id ? null : item.id);
-                        setSelectedStoreItem(null);
+                        setQuantity(amount);
+                        setIsCustomAmount(false);
+                      }}
+                      width="full"
+                      _hover={{
+                        transform: 'scale(1.05)',
+                        transition: 'transform 0.2s',
                       }}
                     >
-                      <ItemCard
-                        key={item.id}
-                        id={item.id}
-                        name={item.name}
-                        icon={itemDetails.icon}
-                        quantity={item.quantity}
-                        isSelected={selectedBankItem === item.id}
-                      />
-                    </Box>
-                  </Tooltip>
-                );
-              })}
-            </Grid>
-          </Box>
-        </Box>
-
-        {/* Middle Section - Quantity Selection */}
-        <VStack 
-          spacing={6} 
-          minW="240px" 
-          alignSelf="center"
-          bg="blackAlpha.400"
-          p={6}
-          borderRadius="xl"
-          border="1px solid"
-          borderColor="whiteAlpha.200"
-        >
-          <Text 
-            color="white" 
-            fontSize="xl" 
-            fontWeight="semibold"
-            textAlign="center"
-          >
-            Quantity
-          </Text>
-          
-          <VStack spacing={4} width="full">
-            <Box width="full">
-              <Text 
-                color="gray.300" 
-                fontSize="sm" 
-                mb={2}
-                textAlign="center"
-              >
-                Select Preset Amount
-              </Text>
-              <Grid templateColumns="repeat(2, 1fr)" gap={2} width="full">
-                {[1, 10, 25, 50].map((amount) => (
+                      {amount}
+                    </Button>
+                  ))}
                   <Button
-                    key={amount}
                     size="md"
-                    variant={!isCustomAmount && quantity === amount ? "solid" : "outline"}
-                    colorScheme="blue"
+                    variant={!isCustomAmount && quantity === -1 ? "solid" : "outline"}
+                    colorScheme="purple"
                     onClick={() => {
-                      setQuantity(amount);
+                      const maxQuantity = calculateMaxQuantity();
+                      setQuantity(maxQuantity);
                       setIsCustomAmount(false);
                     }}
                     width="full"
+                    gridColumn="span 2"
                     _hover={{
                       transform: 'scale(1.05)',
                       transition: 'transform 0.2s',
                     }}
                   >
-                    {amount}
+                    MAX
                   </Button>
-                ))}
-                <Button
-                  size="md"
-                  variant={!isCustomAmount && quantity === -1 ? "solid" : "outline"}
-                  colorScheme="purple"
-                  onClick={() => {
-                    const maxQuantity = calculateMaxQuantity();
-                    setQuantity(maxQuantity);
-                    setIsCustomAmount(false);
-                  }}
-                  width="full"
-                  gridColumn="span 2"
-                  _hover={{
-                    transform: 'scale(1.05)',
-                    transition: 'transform 0.2s',
-                  }}
-                >
-                  MAX
-                </Button>
-              </Grid>
-            </Box>
+                </Grid>
+              </Box>
 
-            <Box width="full" position="relative" py={2}>
-              <Divider />
-              <Text
-                color="gray.400"
-                fontSize="sm"
-                bg="blackAlpha.400"
-                px={3}
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-              >
-                OR
-              </Text>
-            </Box>
-            
-            <Box width="full">
-              <Text 
-                color="gray.300" 
-                fontSize="sm" 
-                mb={2}
-                textAlign="center"
-              >
-                Custom Amount
-              </Text>
-              <HStack width="full">
-                <Input
-                  type="number"
-                  min={1}
-                  value={isCustomAmount ? quantity : ''}
-                  placeholder="Enter amount..."
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setQuantity(value);
-                    setIsCustomAmount(true);
-                  }}
-                  textAlign="center"
-                  size="md"
-                  color="white"
-                  bg="whiteAlpha.200"
-                  borderColor="whiteAlpha.300"
-                  _hover={{
-                    borderColor: "whiteAlpha.400"
-                  }}
-                  _focus={{
-                    borderColor: "blue.300",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-blue-300)"
-                  }}
-                />
-                <Button
-                  colorScheme="purple"
-                  variant={isCustomAmount ? "solid" : "outline"}
-                  onClick={() => {
-                    if (!isCustomAmount) {
-                      setIsCustomAmount(true);
-                      onOpen();
-                    } else {
-                      setIsCustomAmount(false);
-                      setQuantity(1);
-                    }
-                  }}
-                  _hover={{
-                    transform: 'scale(1.05)',
-                    transition: 'transform 0.2s',
-                  }}
+              <Box width="full" position="relative" py={2}>
+                <Divider />
+                <Text
+                  color="gray.400"
+                  fontSize="sm"
+                  bg="blackAlpha.400"
+                  px={3}
+                  position="absolute"
+                  top="50%"
+                  left="50%"
+                  transform="translate(-50%, -50%)"
                 >
-                  {isCustomAmount ? "Clear" : "Set"}
-                </Button>
-              </HStack>
+                  OR
+                </Text>
+              </Box>
+              
+              <Box width="full">
+                <Text 
+                  color="gray.300" 
+                  fontSize="sm" 
+                  mb={2}
+                  textAlign="center"
+                >
+                  Custom Amount
+                </Text>
+                <HStack width="full">
+                  <Input
+                    type="number"
+                    min={1}
+                    value={isCustomAmount ? quantity : ''}
+                    placeholder="Enter amount..."
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 1;
+                      setQuantity(value);
+                      setIsCustomAmount(true);
+                    }}
+                    textAlign="center"
+                    size="md"
+                    color="white"
+                    bg="whiteAlpha.200"
+                    borderColor="whiteAlpha.300"
+                    _hover={{
+                      borderColor: "whiteAlpha.400"
+                    }}
+                    _focus={{
+                      borderColor: "blue.300",
+                      boxShadow: "0 0 0 1px var(--chakra-colors-blue-300)"
+                    }}
+                  />
+                  <Button
+                    colorScheme="purple"
+                    variant={isCustomAmount ? "solid" : "outline"}
+                    onClick={() => {
+                      if (!isCustomAmount) {
+                        setIsCustomAmount(true);
+                        onOpen();
+                      } else {
+                        setIsCustomAmount(false);
+                        setQuantity(1);
+                      }
+                    }}
+                    _hover={{
+                      transform: 'scale(1.05)',
+                      transition: 'transform 0.2s',
+                    }}
+                  >
+                    {isCustomAmount ? "Clear" : "Set"}
+                  </Button>
+                </HStack>
+              </Box>
+            </VStack>
+
+            <Box 
+              width="full" 
+              borderTop="1px" 
+              borderColor="whiteAlpha.200" 
+              pt={4}
+            >
+              {(selectedStoreItem || selectedBankItem) && (
+                <VStack spacing={2} mb={4} width="full">
+                  <Text color="gray.300" fontSize="sm" textAlign="center">
+                    Transaction Preview
+                  </Text>
+                  {selectedStoreItem && (
+                    <>
+                      <Text color="white" fontSize="lg" fontWeight="bold" textAlign="center">
+                        {storeAction.storeItems.find(i => i.id === selectedStoreItem)?.name}
+                      </Text>
+                      <Text color="gray.400" fontSize="sm" textAlign="center">
+                        Quantity: {quantity}
+                      </Text>
+                      <Text color="white" fontSize="md" textAlign="center">
+                        Total Cost: {(quantity * (storeAction.storeItems.find(i => i.id === selectedStoreItem)?.buyPrice || 0)).toLocaleString()} coins
+                      </Text>
+                      <Text color="gray.400" fontSize="sm" textAlign="center">
+                        Your coins: {(character.bank.find(item => item.id === 'coins')?.quantity || 0).toLocaleString()}
+                      </Text>
+                    </>
+                  )}
+                  {selectedBankItem && (
+                    <>
+                      <Text color="white" fontSize="lg" fontWeight="bold" textAlign="center">
+                        {character.bank.find(i => i.id === selectedBankItem)?.name}
+                      </Text>
+                      <Text color="gray.400" fontSize="sm" textAlign="center">
+                        Quantity: {quantity}
+                      </Text>
+                      {(() => {
+                        const storeItem = getStoreItemForBankItem(selectedBankItem);
+                        const sellPrice = storeItem?.sellPrice || 0;
+                        return (
+                          <Text color="white" fontSize="md" textAlign="center">
+                            You will receive: {(quantity * sellPrice).toLocaleString()} coins
+                          </Text>
+                        );
+                      })()}
+                      <Text color="gray.400" fontSize="sm" textAlign="center">
+                        Available to sell: {(character.bank.find(item => item.id === selectedBankItem)?.quantity || 0).toLocaleString()}
+                      </Text>
+                    </>
+                  )}
+                </VStack>
+              )}
+              <Button
+                colorScheme={selectedStoreItem ? "green" : "orange"}
+                isDisabled={!selectedStoreItem && !selectedBankItem}
+                onClick={handleTransaction}
+                width="full"
+                size="lg"
+                fontWeight="bold"
+                _hover={{
+                  transform: 'scale(1.05)',
+                  transition: 'transform 0.2s',
+                }}
+              >
+                {selectedStoreItem ? "Buy Items" : selectedBankItem ? "Sell Items" : "Select Items"}
+              </Button>
             </Box>
           </VStack>
 
+          {/* Store Items */}
           <Box 
-            width="full" 
-            borderTop="1px" 
-            borderColor="whiteAlpha.200" 
-            pt={4}
+            flex={2} 
+            bg="rgba(24,24,24,0.85)" 
+            p={4} 
+            borderRadius="2xl" 
+            display="flex" 
+            flexDirection="column"
+            minW="400px"
+            boxShadow="xl"
+            backdropFilter="blur(8px)"
+            borderWidth={2}
+            borderColor="rgba(120,120,120,0.32)"
+            transition="box-shadow 0.2s, background 0.2s"
           >
-            {(selectedStoreItem || selectedBankItem) && (
-              <VStack spacing={2} mb={4} width="full">
-                <Text color="gray.300" fontSize="sm" textAlign="center">
-                  Transaction Preview
-                </Text>
-                {selectedStoreItem && (
-                  <>
-                    <Text color="white" fontSize="lg" fontWeight="bold" textAlign="center">
-                      {storeAction.storeItems.find(i => i.id === selectedStoreItem)?.name}
-                    </Text>
-                    <Text color="gray.400" fontSize="sm" textAlign="center">
-                      Quantity: {quantity}
-                    </Text>
-                    <Text color="white" fontSize="md" textAlign="center">
-                      Total Cost: {(quantity * (storeAction.storeItems.find(i => i.id === selectedStoreItem)?.buyPrice || 0)).toLocaleString()} coins
-                    </Text>
-                    <Text color="gray.400" fontSize="sm" textAlign="center">
-                      Your coins: {(character.bank.find(item => item.id === 'coins')?.quantity || 0).toLocaleString()}
-                    </Text>
-                  </>
-                )}
-                {selectedBankItem && (
-                  <>
-                    <Text color="white" fontSize="lg" fontWeight="bold" textAlign="center">
-                      {character.bank.find(i => i.id === selectedBankItem)?.name}
-                    </Text>
-                    <Text color="gray.400" fontSize="sm" textAlign="center">
-                      Quantity: {quantity}
-                    </Text>
-                    {(() => {
-                      const storeItem = getStoreItemForBankItem(selectedBankItem);
-                      const sellPrice = storeItem?.sellPrice || 0;
-                      return (
-                        <Text color="white" fontSize="md" textAlign="center">
-                          You will receive: {(quantity * sellPrice).toLocaleString()} coins
-                        </Text>
-                      );
-                    })()}
-                    <Text color="gray.400" fontSize="sm" textAlign="center">
-                      Available to sell: {(character.bank.find(item => item.id === selectedBankItem)?.quantity || 0).toLocaleString()}
-                    </Text>
-                  </>
-                )}
-              </VStack>
-            )}
-            <Button
-              colorScheme={selectedStoreItem ? "green" : "orange"}
-              isDisabled={!selectedStoreItem && !selectedBankItem}
-              onClick={handleTransaction}
-              width="full"
-              size="lg"
-              fontWeight="bold"
-              _hover={{
-                transform: 'scale(1.05)',
-                transition: 'transform 0.2s',
-              }}
-            >
-              {selectedStoreItem ? "Buy Items" : selectedBankItem ? "Sell Items" : "Select Items"}
-            </Button>
-          </Box>
-        </VStack>
-
-        {/* Store Items */}
-        <Box 
-          flex={2} 
-          bg="blackAlpha.400" 
-          p={4} 
-          borderRadius="xl" 
-          display="flex" 
-          flexDirection="column"
-          minW="400px"
-        >
-          <Text color="white" fontSize="xl" mb={4}>Store Items</Text>
-          <InputGroup mb={4} size="sm">
-            <InputLeftElement pointerEvents="none">
-              <SearchIcon color="gray.300" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search store items..."
-              value={storeSearch}
-              onChange={(e) => setStoreSearch(e.target.value)}
-              bg="whiteAlpha.200"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
-            />
-          </InputGroup>
-          <Box overflowY="auto" flex={1}>
-            <Grid templateColumns="repeat(auto-fill, minmax(100px, 1fr))" gap={3}>
-              {storeAction.storeItems.filter(item => 
-                item.name.toLowerCase().includes(storeSearch.toLowerCase())
-              ).map((item) => {
-                const itemDetails = getItemById(item.id);
-                if (!itemDetails) return null;
-                const skill = getSkillForItem(item.id);
-                return (
-                  <Tooltip 
-                    key={item.id} 
-                    label={getItemTooltip(item)}
-                    placement="right"
-                    hasArrow
-                    bg="gray.800"
-                    color="white"
-                    p={3}
-                    borderRadius="md"
-                    whiteSpace="pre-line"
-                  >
-                    <Box
-                      className={`relative cursor-pointer ${
-                        selectedStoreItem === item.id ? 'border-2 border-blue-500' : ''
-                      }`}
-                      onClick={() => {
-                        setSelectedStoreItem(selectedStoreItem === item.id ? null : item.id);
-                        setSelectedBankItem(null);
-                      }}
+            <Text color="white" fontSize="xl" mb={4}>Store Items</Text>
+            <InputGroup mb={4} size="sm">
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search store items..."
+                value={storeSearch}
+                onChange={(e) => setStoreSearch(e.target.value)}
+                bg="whiteAlpha.200"
+                color="white"
+                _placeholder={{ color: 'gray.400' }}
+              />
+            </InputGroup>
+            <Box overflowY="auto" flex={1}>
+              <Grid templateColumns="repeat(auto-fill, minmax(100px, 1fr))" gap={3}>
+                {storeAction.storeItems.filter(item => 
+                  item.name.toLowerCase().includes(storeSearch.toLowerCase())
+                ).map((item) => {
+                  const itemDetails = getItemById(item.id);
+                  if (!itemDetails) return null;
+                  const skill = getSkillForItem(item.id);
+                  return (
+                    <Tooltip 
+                      key={item.id} 
+                      label={getItemTooltip(item)}
+                      placement="right"
+                      hasArrow
+                      bg="gray.800"
+                      color="white"
+                      p={3}
+                      borderRadius="md"
+                      whiteSpace="pre-line"
                     >
-                      <ItemCard
-                        id={item.id}
-                        name={item.name}
-                        icon={itemDetails.icon}
-                        quantity={999}
-                        isSelected={selectedStoreItem === item.id}
-                        isStore={true}
-                        levelRequired={item.levelRequired}
-                        playerLevel={character.skills[skill].level}
-                        price={item.buyPrice}
-                      />
-                    </Box>
-                  </Tooltip>
-                );
-              })}
-            </Grid>
+                      <Box
+                        className={`relative cursor-pointer ${
+                          selectedStoreItem === item.id ? 'border-2 border-blue-500' : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedStoreItem(selectedStoreItem === item.id ? null : item.id);
+                          setSelectedBankItem(null);
+                        }}
+                      >
+                        <ItemCard
+                          id={item.id}
+                          name={item.name}
+                          icon={itemDetails.icon}
+                          quantity={999}
+                          isSelected={selectedStoreItem === item.id}
+                          isStore={true}
+                          levelRequired={item.levelRequired}
+                          playerLevel={character.skills[skill].level}
+                          price={item.buyPrice}
+                        />
+                      </Box>
+                    </Tooltip>
+                  );
+                })}
+              </Grid>
+            </Box>
           </Box>
-        </Box>
-      </Flex>
+        </Flex>
+      </Box>
 
       {/* Custom Quantity Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>

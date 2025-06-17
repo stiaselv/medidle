@@ -186,6 +186,24 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
     if (playerDamage > 0) {
       setMonsterFlash(true);
       setTimeout(() => setMonsterFlash(false), 300);
+      // Determine skill based on attack style
+      let skill: string = 'attack';
+      const style = (currentAction as any)?.attackStyle || attackStyle || 'accurate';
+      if (style === 'aggressive') skill = 'strength';
+      else if (style === 'defensive') skill = 'defence';
+      else skill = 'attack';
+      // If player is using ranged or magic, try to infer from weapon
+      if (character?.equipment?.weapon) {
+        const weaponId = character.equipment.weapon.id;
+        if (weaponId.includes('bow') || weaponId.includes('crossbow') || weaponId.includes('dart') || weaponId.includes('knife')) {
+          skill = 'ranged';
+        } else if (weaponId.includes('staff') || weaponId.includes('wand')) {
+          skill = 'magic';
+        }
+      }
+      const xpGained = playerDamage * 4;
+      const hitpointsXp = Math.round(playerDamage * 1.33);
+      setCombatLog(log => [...log, `You gain ${xpGained} XP in ${skill.charAt(0).toUpperCase() + skill.slice(1)} and ${hitpointsXp} XP in Hitpoints!`]);
     }
     setCombatLog(log => [...log, `The ${monsterName} hits you for ${monsterDamage} damage!`] );
     if (monsterDamage > 0) {

@@ -2515,7 +2515,823 @@ export const mockLocations: Location[] = [
     icon: '/assets/locations/placeholder.png',
     group: 'Raids',
     actions: []
-  }
+  },
+  {
+    id: 'workbench',
+    name: 'Workbench',
+    description: 'A sturdy workbench for crafting and fletching various items.',
+    type: 'resource',
+    levelRequired: 1,
+    resources: [],
+    category: 'crafting',
+    icon: '/assets/locations/workbench.png',
+    actions: [
+      // --- Arrows ---
+      {
+        id: 'fletch_arrow_shafts',
+        name: 'Fletch Arrow Shafts',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 1,
+        experience: 5,
+        baseTime: 2000,
+        itemReward: { id: 'arrow_shafts', name: 'Arrow Shafts', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_headless_arrows',
+        name: 'Fletch Headless Arrows',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 1,
+        experience: 5,
+        baseTime: 2000,
+        itemReward: { id: 'headless_arrows', name: 'Headless Arrows', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'arrow_shafts', quantity: 15 },
+          { type: 'item', itemId: 'feathers', quantity: 15 }
+        ]
+      },
+      {
+        id: 'fletch_bronze_arrows',
+        name: 'Fletch Bronze Arrows',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 1,
+        experience: 10,
+        baseTime: 2000,
+        itemReward: { id: 'bronze_arrows', name: 'Bronze Arrows', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'headless_arrows', quantity: 15 },
+          { type: 'item', itemId: 'bronze_arrowtips', quantity: 15 }
+        ]
+      },
+      {
+        id: 'fletch_iron_arrows',
+        name: 'Fletch Iron Arrows',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 15,
+        experience: 15,
+        baseTime: 2000,
+        itemReward: { id: 'iron_arrows', name: 'Iron Arrows', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'headless_arrows', quantity: 15 },
+          { type: 'item', itemId: 'iron_arrowtips', quantity: 15 }
+        ]
+      },
+      {
+        id: 'fletch_steel_arrows',
+        name: 'Fletch Steel Arrows',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 30,
+        experience: 20,
+        baseTime: 2000,
+        itemReward: { id: 'steel_arrows', name: 'Steel Arrows', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'headless_arrows', quantity: 15 },
+          { type: 'item', itemId: 'steel_arrowtips', quantity: 15 }
+        ]
+      },
+      {
+        id: 'fletch_mithril_arrows',
+        name: 'Fletch Mithril Arrows',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 45,
+        experience: 25,
+        baseTime: 2000,
+        itemReward: { id: 'mithril_arrows', name: 'Mithril Arrows', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'headless_arrows', quantity: 15 },
+          { type: 'item', itemId: 'mithril_arrowtips', quantity: 15 }
+        ]
+      },
+      {
+        id: 'fletch_adamant_arrows',
+        name: 'Fletch Adamant Arrows',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 60,
+        experience: 30,
+        baseTime: 2000,
+        itemReward: { id: 'adamant_arrows', name: 'Adamant Arrows', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'headless_arrows', quantity: 15 },
+          { type: 'item', itemId: 'adamant_arrowtips', quantity: 15 }
+        ]
+      },
+      {
+        id: 'fletch_rune_arrows',
+        name: 'Fletch Rune Arrows',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 75,
+        experience: 40,
+        baseTime: 2000,
+        itemReward: { id: 'rune_arrows', name: 'Rune Arrows', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'headless_arrows', quantity: 15 },
+          { type: 'item', itemId: 'rune_arrowtips', quantity: 15 }
+        ]
+      },
+      // --- Bows ---
+      // Oak
+      {
+        id: 'fletch_oak_shortbow_u',
+        name: 'Fletch Oak Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 5,
+        experience: 10,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_oak_shortbow', name: 'Unstrung Oak Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'oak_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_oak_shortbow',
+        name: 'String Oak Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 5,
+        experience: 10,
+        baseTime: 3000,
+        itemReward: { id: 'oak_shortbow', name: 'Oak Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_oak_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_oak_longbow_u',
+        name: 'Fletch Oak Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 5,
+        experience: 15,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_oak_longbow', name: 'Unstrung Oak Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'oak_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_oak_longbow',
+        name: 'String Oak Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 5,
+        experience: 15,
+        baseTime: 3500,
+        itemReward: { id: 'oak_longbow', name: 'Oak Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_oak_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // Willow
+      {
+        id: 'fletch_willow_shortbow_u',
+        name: 'Fletch Willow Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 10,
+        experience: 15,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_willow_shortbow', name: 'Unstrung Willow Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'willow_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_willow_shortbow',
+        name: 'String Willow Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 10,
+        experience: 15,
+        baseTime: 3000,
+        itemReward: { id: 'willow_shortbow', name: 'Willow Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_willow_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_willow_longbow_u',
+        name: 'Fletch Willow Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 10,
+        experience: 20,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_willow_longbow', name: 'Unstrung Willow Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'willow_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_willow_longbow',
+        name: 'String Willow Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 10,
+        experience: 20,
+        baseTime: 3500,
+        itemReward: { id: 'willow_longbow', name: 'Willow Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_willow_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // Maple
+      {
+        id: 'fletch_maple_shortbow_u',
+        name: 'Fletch Maple Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 20,
+        experience: 20,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_maple_shortbow', name: 'Unstrung Maple Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'maple_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_maple_shortbow',
+        name: 'String Maple Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 20,
+        experience: 20,
+        baseTime: 3000,
+        itemReward: { id: 'maple_shortbow', name: 'Maple Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_maple_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_maple_longbow_u',
+        name: 'Fletch Maple Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 20,
+        experience: 25,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_maple_longbow', name: 'Unstrung Maple Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'maple_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_maple_longbow',
+        name: 'String Maple Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 20,
+        experience: 25,
+        baseTime: 3500,
+        itemReward: { id: 'maple_longbow', name: 'Maple Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_maple_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // Yew
+      {
+        id: 'fletch_yew_shortbow_u',
+        name: 'Fletch Yew Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 40,
+        experience: 40,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_yew_shortbow', name: 'Unstrung Yew Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'yew_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_yew_shortbow',
+        name: 'String Yew Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 40,
+        experience: 40,
+        baseTime: 3000,
+        itemReward: { id: 'yew_shortbow', name: 'Yew Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_yew_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_yew_longbow_u',
+        name: 'Fletch Yew Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 40,
+        experience: 45,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_yew_longbow', name: 'Unstrung Yew Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'yew_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_yew_longbow',
+        name: 'String Yew Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 40,
+        experience: 45,
+        baseTime: 3500,
+        itemReward: { id: 'yew_longbow', name: 'Yew Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_yew_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // Magic
+      {
+        id: 'fletch_magic_shortbow_u',
+        name: 'Fletch Magic Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 50,
+        experience: 60,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_magic_shortbow', name: 'Unstrung Magic Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'magic_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_magic_shortbow',
+        name: 'String Magic Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 50,
+        experience: 60,
+        baseTime: 3000,
+        itemReward: { id: 'magic_shortbow', name: 'Magic Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_magic_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_magic_longbow_u',
+        name: 'Fletch Magic Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 50,
+        experience: 75,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_magic_longbow', name: 'Unstrung Magic Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'magic_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_magic_longbow',
+        name: 'String Magic Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 50,
+        experience: 75,
+        baseTime: 3500,
+        itemReward: { id: 'magic_longbow', name: 'Magic Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_magic_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // Redwood
+      {
+        id: 'fletch_redwood_shortbow_u',
+        name: 'Fletch Redwood Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 60,
+        experience: 80,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_redwood_shortbow', name: 'Unstrung Redwood Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'redwood_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_redwood_shortbow',
+        name: 'String Redwood Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 60,
+        experience: 80,
+        baseTime: 3000,
+        itemReward: { id: 'redwood_shortbow', name: 'Redwood Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_redwood_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_redwood_longbow_u',
+        name: 'Fletch Redwood Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 60,
+        experience: 90,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_redwood_longbow', name: 'Unstrung Redwood Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'redwood_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_redwood_longbow',
+        name: 'String Redwood Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 60,
+        experience: 90,
+        baseTime: 3500,
+        itemReward: { id: 'redwood_longbow', name: 'Redwood Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_redwood_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // Teak
+      {
+        id: 'fletch_teak_shortbow_u',
+        name: 'Fletch Teak Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 35,
+        experience: 30,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_teak_shortbow', name: 'Unstrung Teak Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'teak_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_teak_shortbow',
+        name: 'String Teak Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 35,
+        experience: 30,
+        baseTime: 3000,
+        itemReward: { id: 'teak_shortbow', name: 'Teak Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_teak_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_teak_longbow_u',
+        name: 'Fletch Teak Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 35,
+        experience: 35,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_teak_longbow', name: 'Unstrung Teak Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'teak_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_teak_longbow',
+        name: 'String Teak Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 35,
+        experience: 35,
+        baseTime: 3500,
+        itemReward: { id: 'teak_longbow', name: 'Teak Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_teak_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // Mahogany
+      {
+        id: 'fletch_mahogany_shortbow_u',
+        name: 'Fletch Mahogany Shortbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 45,
+        experience: 50,
+        baseTime: 3000,
+        itemReward: { id: 'unstrung_mahogany_shortbow', name: 'Unstrung Mahogany Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'mahogany_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_mahogany_shortbow',
+        name: 'String Mahogany Shortbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 45,
+        experience: 50,
+        baseTime: 3000,
+        itemReward: { id: 'mahogany_shortbow', name: 'Mahogany Shortbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_mahogany_shortbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      {
+        id: 'fletch_mahogany_longbow_u',
+        name: 'Fletch Mahogany Longbow (u)',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 45,
+        experience: 55,
+        baseTime: 3500,
+        itemReward: { id: 'unstrung_mahogany_longbow', name: 'Unstrung Mahogany Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'mahogany_logs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'string_mahogany_longbow',
+        name: 'String Mahogany Longbow',
+        type: 'fletching',
+        skill: 'fletching',
+        levelRequired: 45,
+        experience: 55,
+        baseTime: 3500,
+        itemReward: { id: 'mahogany_longbow', name: 'Mahogany Longbow', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'unstrung_mahogany_longbow', quantity: 1 },
+          { type: 'item', itemId: 'bow_string', quantity: 1 }
+        ]
+      },
+      // --- Placeholders for Staves, Armor, Jewelry, Tan ---
+      // TODO: Add actions for Staves
+      // TODO: Add actions for Armor
+      // TODO: Add actions for Jewelry
+      // TODO: Add actions for Tan
+    ]
+  },
+  {
+    id: 'temple',
+    name: 'Temple',
+    description: 'A sacred temple where you can train your spiritual and magical skills.',
+    type: 'resource',
+    levelRequired: 1,
+    resources: [],
+    category: 'temple',
+    icon: '/assets/BG/temple.webp',
+    availableSkills: ['prayer', 'runecrafting'],
+    actions: [
+      // Prayer actions
+      {
+        id: 'offer_normal_bones',
+        name: 'Offer Normal Bones',
+        type: 'prayer',
+        skill: 'prayer',
+        levelRequired: 1,
+        experience: 15,
+        baseTime: 3000,
+        itemReward: { id: 'prayer_xp', name: 'Prayer XP', quantity: 15 },
+        requirements: [ { type: 'item', itemId: 'bones', quantity: 1 } ]
+      },
+      {
+        id: 'offer_big_bones',
+        name: 'Offer Big Bones',
+        type: 'prayer',
+        skill: 'prayer',
+        levelRequired: 1,
+        experience: 52,
+        baseTime: 3000,
+        itemReward: { id: 'prayer_xp', name: 'Prayer XP', quantity: 52 },
+        requirements: [ { type: 'item', itemId: 'big_bones', quantity: 1 } ]
+      },
+      {
+        id: 'offer_babydragon_bones',
+        name: 'Offer Babydragon Bones',
+        type: 'prayer',
+        skill: 'prayer',
+        levelRequired: 1,
+        experience: 105,
+        baseTime: 3000,
+        itemReward: { id: 'prayer_xp', name: 'Prayer XP', quantity: 105 },
+        requirements: [ { type: 'item', itemId: 'babydragon_bones', quantity: 1 } ]
+      },
+      {
+        id: 'offer_wyrm_bones',
+        name: 'Offer Wyrm Bones',
+        type: 'prayer',
+        skill: 'prayer',
+        levelRequired: 1,
+        experience: 150,
+        baseTime: 3000,
+        itemReward: { id: 'prayer_xp', name: 'Prayer XP', quantity: 150 },
+        requirements: [ { type: 'item', itemId: 'wyrm_bones', quantity: 1 } ]
+      },
+      {
+        id: 'offer_wyvern_bones',
+        name: 'Offer Wyvern Bones',
+        type: 'prayer',
+        skill: 'prayer',
+        levelRequired: 1,
+        experience: 252,
+        baseTime: 3000,
+        itemReward: { id: 'prayer_xp', name: 'Prayer XP', quantity: 252 },
+        requirements: [ { type: 'item', itemId: 'wyvern_bones', quantity: 1 } ]
+      },
+      {
+        id: 'offer_dragon_bones',
+        name: 'Offer Dragon Bones',
+        type: 'prayer',
+        skill: 'prayer',
+        levelRequired: 1,
+        experience: 252,
+        baseTime: 3000,
+        itemReward: { id: 'prayer_xp', name: 'Prayer XP', quantity: 252 },
+        requirements: [ { type: 'item', itemId: 'dragon_bones', quantity: 1 } ]
+      },
+      {
+        id: 'offer_superior_dragon_bones',
+        name: 'Offer Superior Dragon Bones',
+        type: 'prayer',
+        skill: 'prayer',
+        levelRequired: 70,
+        experience: 400,
+        baseTime: 3000,
+        itemReward: { id: 'prayer_xp', name: 'Prayer XP', quantity: 400 },
+        requirements: [ { type: 'item', itemId: 'superior_dragon_bones', quantity: 1 } ]
+      },
+      // Runecrafting actions
+      {
+        id: 'craft_air_rune',
+        name: 'Craft Air Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 1,
+        experience: 5,
+        baseTime: 4000,
+        itemReward: { id: 'air_rune', name: 'Air Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_mind_rune',
+        name: 'Craft Mind Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 2,
+        experience: 5.5,
+        baseTime: 4000,
+        itemReward: { id: 'mind_rune', name: 'Mind Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_water_rune',
+        name: 'Craft Water Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 5,
+        experience: 6,
+        baseTime: 4000,
+        itemReward: { id: 'water_rune', name: 'Water Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_earth_rune',
+        name: 'Craft Earth Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 9,
+        experience: 6.5,
+        baseTime: 4000,
+        itemReward: { id: 'earth_rune', name: 'Earth Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_fire_rune',
+        name: 'Craft Fire Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 14,
+        experience: 7,
+        baseTime: 4000,
+        itemReward: { id: 'fire_rune', name: 'Fire Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_body_rune',
+        name: 'Craft Body Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 20,
+        experience: 7.5,
+        baseTime: 4000,
+        itemReward: { id: 'body_rune', name: 'Body Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_cosmic_rune',
+        name: 'Craft Cosmic Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 27,
+        experience: 8,
+        baseTime: 4000,
+        itemReward: { id: 'cosmic_rune', name: 'Cosmic Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_chaos_rune',
+        name: 'Craft Chaos Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 35,
+        experience: 8.5,
+        baseTime: 4000,
+        itemReward: { id: 'chaos_rune', name: 'Chaos Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_astral_rune',
+        name: 'Craft Astral Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 40,
+        experience: 8.7,
+        baseTime: 4000,
+        itemReward: { id: 'astral_rune', name: 'Astral Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_nature_rune',
+        name: 'Craft Nature Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 44,
+        experience: 9,
+        baseTime: 4000,
+        itemReward: { id: 'nature_rune', name: 'Nature Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_law_rune',
+        name: 'Craft Law Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 54,
+        experience: 9.5,
+        baseTime: 4000,
+        itemReward: { id: 'law_rune', name: 'Law Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_death_rune',
+        name: 'Craft Death Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 65,
+        experience: 10,
+        baseTime: 4000,
+        itemReward: { id: 'death_rune', name: 'Death Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_blood_rune',
+        name: 'Craft Blood Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 77,
+        experience: 23.8,
+        baseTime: 4000,
+        itemReward: { id: 'blood_rune', name: 'Blood Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      },
+      {
+        id: 'craft_soul_rune',
+        name: 'Craft Soul Rune',
+        type: 'runecrafting',
+        skill: 'runecrafting',
+        levelRequired: 90,
+        experience: 29.7,
+        baseTime: 4000,
+        itemReward: { id: 'soul_rune', name: 'Soul Rune', quantity: 1 },
+        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+      }
+    ]
+  },
 ];
 
 export const mockCharacter: Character = {
@@ -2566,5 +3382,19 @@ export const mockCharacter: Character = {
   maxSpecialEnergy: 100,
   activeEffects: [],
   slayerPoints: 0,
-  currentSlayerTask: null
+  currentSlayerTask: null,
+  slayerTaskStreak: 0,
+  stats: {
+    deaths: 0,
+    foodEaten: 0,
+    hitpointsGained: 0,
+    damageDone: 0,
+    damageTaken: 0,
+    coinsSpent: 0,
+    coinsEarned: 0,
+    slayerPointsSpent: 0,
+    slayerPointsEarned: 0,
+    totalActiveTime: 0,
+    totalOfflineTime: 0
+  }
 }; 

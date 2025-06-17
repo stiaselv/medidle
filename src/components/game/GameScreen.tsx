@@ -8,8 +8,10 @@ import GeneralStoreLocation from './GeneralStoreLocation';
 import { ForgeLocation } from './ForgeLocation';
 import { SlayerCaveLocation } from './SlayerCaveLocation';
 import { CombatLocation } from './CombatLocation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { mockLocations } from '../../data/mockData';
+import { WorkbenchLocation } from './WorkbenchLocation';
+import { TempleLocation } from './TempleLocation';
 
 const MotionBox = motion(Box);
 
@@ -27,6 +29,38 @@ export const GameScreen = () => {
     'goblin_village'
   ];
   const combatLocations = mockLocations.filter((l: import('../../types/game').Location) => combatAreas.includes(l.id));
+
+  // Add cave IDs to a list for easy checking
+  const caveIds = ['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave'];
+
+  // Track if we've auto-selected a monster for the current cave
+  const autoSelectedRef = useRef<{ locationId: string | null }>({ locationId: null });
+
+  // Reset auto-select ref when location changes
+  useEffect(() => {
+    if (!currentLocation || autoSelectedRef.current.locationId !== currentLocation.id) {
+      autoSelectedRef.current.locationId = null;
+    }
+  }, [currentLocation]);
+
+  // Auto-select first monster in cave only once per cave entry
+  useEffect(() => {
+    if (
+      currentLocation &&
+      caveIds.includes(currentLocation.id) &&
+      selectedMonster === null &&
+      currentLocation.actions &&
+      currentLocation.actions.length > 0 &&
+      autoSelectedRef.current.locationId !== currentLocation.id
+    ) {
+      // Find the first action with a monster property
+      const firstCombatAction = currentLocation.actions.find((a: any) => a && typeof a === 'object' && 'monster' in a && a.monster);
+      if (firstCombatAction && typeof firstCombatAction === 'object' && 'monster' in firstCombatAction) {
+        setSelectedMonster((firstCombatAction as import('../../types/game').CombatAction).monster);
+        autoSelectedRef.current.locationId = currentLocation.id;
+      }
+    }
+  }, [currentLocation, selectedMonster]);
 
   const handleCombatClick = () => {
     console.log('Combat card clicked');
@@ -106,6 +140,15 @@ export const GameScreen = () => {
     if (selectedCombatArea && currentLocation && combatAreas.includes(currentLocation.id) && selectedMonster) {
       return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => setSelectedMonster(null)} />;
     }
+    // --- CAVE FLOW ---
+    // If in a cave and no monster is selected, show monster selector (only if no monsters or auto-select failed)
+    if (currentLocation && caveIds.includes(currentLocation.id) && !selectedMonster) {
+      return renderMonsterSelector(currentLocation);
+    }
+    // If in a cave and a monster is selected, render CombatLocation
+    if (currentLocation && caveIds.includes(currentLocation.id) && selectedMonster) {
+      return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => setSelectedMonster(null)} />;
+    }
     // ... existing switch/case for other locations ...
     switch (currentLocation?.id) {
       case 'forest':
@@ -120,11 +163,10 @@ export const GameScreen = () => {
         return <ForgeLocation />;
       case 'slayer_cave':
         return <SlayerCaveLocation />;
-      case 'easy_cave':
-      case 'medium_cave':
-      case 'hard_cave':
-      case 'nightmare_cave':
-        return <CombatLocation location={currentLocation} />;
+      case 'workbench':
+        return <WorkbenchLocation />;
+      case 'temple':
+        return <TempleLocation />;
       default:
         return <ForestLocation />;
     }

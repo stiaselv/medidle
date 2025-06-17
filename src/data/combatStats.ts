@@ -264,50 +264,36 @@ export const getCombinedStats = (
 
 // Tool stats for different metal tiers
 export const BRONZE_TOOL_STATS: ItemStats = {
-  mining: 1,
   woodcutting: 1,
-  attack: 4,
   defence: 1
 };
 
 export const IRON_TOOL_STATS: ItemStats = {
-  mining: 2,
   woodcutting: 2,
-  attack: 7,
   defence: 2
 };
 
 export const STEEL_TOOL_STATS: ItemStats = {
-  mining: 3,
   woodcutting: 3,
-  attack: 11,
   defence: 3
 };
 
 export const MITHRIL_TOOL_STATS: ItemStats = {
-  mining: 5,
   woodcutting: 5,
-  attack: 16,
   defence: 5
 };
 
 export const ADAMANT_TOOL_STATS: ItemStats = {
-  mining: 7,
   woodcutting: 7,
-  attack: 22,
   defence: 7
 };
 
 export const RUNE_TOOL_STATS: ItemStats = {
-  mining: 10,
   woodcutting: 10,
-  attack: 29,
   defence: 10
 };
 
 export const DRAGON_TOOL_STATS: ItemStats = {
-  mining: 13,
   woodcutting: 13,
-  attack: 38,
   defence: 13
 }; 

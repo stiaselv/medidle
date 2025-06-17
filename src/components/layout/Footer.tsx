@@ -3,7 +3,7 @@ import type { TooltipProps } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
 import { mockLocations } from '../../data/mockData';
-import type { Location, SkillName } from '../../types/game';
+import type { Location, SkillName, Skills, Skill } from '../../types/game';
 import { BankPanel } from '../bank/BankPanel';
 import { EquipmentPanel } from '../equipment/EquipmentPanel';
 import React, { useState } from 'react';
@@ -53,11 +53,19 @@ const LocationCard = ({ location, isActive, onClick }: { location: Location; isA
 );
 
 export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
-  const { character, currentLocation, setLocation } = useGameStore();
   const { isFooterExpanded } = useUIStore();
   const [tabIndex, setTabIndex] = useState(0);
 
+  const character = useGameStore(state => state.character);
+  const currentLocation = useGameStore(state => state.currentLocation);
+  const setLocation = useGameStore(state => state.setLocation);
+  const setCharacter = useGameStore(state => state.setCharacter);
+
   if (!character) return null;
+
+  // Granular selectors for top bar skills
+  const attack = useGameStore(state => state.character?.skills.attack);
+  const strength = useGameStore(state => state.character?.skills.strength);
 
   // List of custom combat locations
   const combatAreas = [
@@ -68,6 +76,20 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
     'goblin_village'
   ];
   const combatLocations = mockLocations.filter(l => combatAreas.includes(l.id));
+
+  // Instead of using the whole character object for skills, use granular selectors for each skill
+  const skillNames: (keyof Skills)[] = [
+    'attack', 'strength', 'defence', 'ranged', 'prayer', 'magic', 'runecrafting', 'construction', 'hitpoints', 'agility',
+    'herblore', 'thieving', 'crafting', 'fletching', 'slayer', 'hunter', 'mining', 'smithing', 'fishing', 'cooking',
+    'firemaking', 'woodcutting', 'farming', 'none'
+  ];
+
+  const skills: Record<keyof Skills, Skill | undefined> = Object.fromEntries(
+    skillNames.map(skillName => [
+      skillName,
+      useGameStore(state => state.character?.skills[skillName])
+    ])
+  ) as Record<keyof Skills, Skill | undefined>;
 
   return (
     <Flex 
@@ -162,9 +184,9 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                 <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4} w="100%" maxW="1200px">
                   {mockLocations
                     .filter((location: Location) =>
-                      // Exclude custom combat locations from the grid
+                      // Exclude only the four sub-caves from the grid
                       !combatAreas.includes(location.id) &&
-                      (!location.id.includes('_cave') || location.id === 'slayer_cave')
+                      !['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave'].includes(location.id)
                     )
                     .map((location: Location) => (
                       <LocationCard
@@ -185,7 +207,6 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                     alignItems="center"
                     gap={2}
                     onClick={() => {
-                      console.log('Combat location button clicked');
                       setTabIndex(0); // Ensure Locations tab is selected
                       onCombatClick && onCombatClick();
                     }}
@@ -209,7 +230,8 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
               {/* Skills Panel */}
               <TabPanel display="flex" flexDirection="column" alignItems="center" role="tabpanel" aria-label="Skills">
                 <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} w="100%" maxW="1200px">
-                  {Object.entries(character.skills).map(([name, skill]) => {
+                  {Object.entries(skills).map(([skillName, skill]) => {
+                    if (!skill) return null;
                     // Calculate current level XP thresholds
                     const currentLevelExp = skill.level === 1 ? 0 : Math.floor((skill.level - 1) * (skill.level - 1) * 83);
                     const nextLevelExp = Math.floor(skill.level * skill.level * 83);
@@ -219,7 +241,7 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
 
                     return (
                       <SkillTooltip
-                        key={name}
+                        key={skillName}
                         label={
                           <VStack spacing={1} p={1}>
                             <Text>Current XP: {skill.experience.toLocaleString()}</Text>
@@ -235,10 +257,10 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                           _hover={{ bg: 'gray.500' }}
                           transition="all 0.2s"
                           role="region"
-                          aria-label={`${name} skill information`}
+                          aria-label={`${skillName} skill information`}
                         >
                           <Flex justify="space-between" mb={2}>
-                            <Text>{name}</Text>
+                            <Text>{skillName}</Text>
                             <Text fontWeight="bold" aria-label={`Level ${skill.level}`}>{skill.level}</Text>
                           </Flex>
                           <Flex direction="column">
@@ -247,7 +269,7 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                               size="sm"
                               colorScheme="green"
                               mb={1}
-                              aria-label={`${name} progress: ${progressPercentage.toFixed(1)}%`}
+                              aria-label={`${skillName} progress: ${progressPercentage.toFixed(1)}%`}
                             />
                             <Text fontSize="xs" color="gray.400" textAlign="right" aria-hidden="true">
                               {progressPercentage.toFixed(1)}%

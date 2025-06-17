@@ -6,6 +6,7 @@ import { useGameStore, calculateLevel, getNextLevelExperience } from '../../stor
 import type { SkillAction, Requirement } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
+import quarryBg from '../../assets/BG/quarry.webp';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -41,6 +42,7 @@ const ActionButton = ({
 }) => {
   const icon = getActionIcon(action.type);
   const { character, completeAction, stopAction, canPerformAction } = useGameStore();
+  const currentAction = useGameStore(state => state.currentAction);
   
   const allRequirementsMet = canPerformAction(action);
   
@@ -240,9 +242,8 @@ const ActionButton = ({
             {/* Progress Bar */}
             {isActive && (
               <ProgressBar
-                duration={action.baseTime}
+                progress={currentAction && currentAction.id === action.id ? (useGameStore.getState().actionProgress) : 0}
                 isActive={isActive}
-                onComplete={handleActionComplete}
                 aria-label={`Action progress for ${action.name}`}
               />
             )}
@@ -276,87 +277,111 @@ const ActionSection = ({
   const prevLevelExp = getNextLevelExperience(currentLevel - 1);
   const expProgress = ((currentSkillExp - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
 
+  // Choose accent color and gradient based on skill type
+  const accent = skillType === 'mining' ? 'gray' : skillType === 'smithing' ? 'orange' : 'gray';
+  const cardGradient =
+    accent === 'gray'
+      ? 'linear(to-br, gray.900 0%, gray.800 100%)'
+      : accent === 'orange'
+      ? 'linear(to-br, orange.900 0%, gray.900 100%)'
+      : 'linear(to-br, gray.800 0%, gray.900 100%)';
+  const borderColor = accent === 'gray' ? 'gray.600' : accent === 'orange' ? 'orange.700' : 'gray.600';
+
   return (
-    <VStack spacing={4} align="stretch" width="100%">
-      <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
-        <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
-          <Icon as={getActionIcon(actions[0]?.type || '')} />
-          {title}
-        </Heading>
-        <Box flex={1} maxW="300px">
-          <Tooltip
-            label={
-              <VStack align="start" spacing={1} p={2}>
-                <Text fontWeight="bold" color="white" mb={1}>Experience Progress</Text>
-                <Text>Current XP: {currentSkillExp.toLocaleString()}</Text>
-                <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
-                <Text>Remaining: {(nextLevelExp - currentSkillExp).toLocaleString()}</Text>
-              </VStack>
-            }
-            placement="top"
-            hasArrow
-            bg="gray.800"
-            borderRadius="md"
-          >
-            <Box width="100%" position="relative" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
-              <Progress
-                value={expProgress}
-                size="sm"
-                colorScheme="green"
-                borderRadius="full"
-                background="whiteAlpha.200"
-                hasStripe
-                isAnimated
-                sx={{
-                  '& > div:first-of-type': {
-                    transitionProperty: 'width',
-                    transitionDuration: '0.3s',
-                  }
-                }}
-              />
-              <Text 
-                fontSize="xs" 
-                color="gray.300" 
-                mt={1} 
-                textAlign="center"
-                fontWeight="medium"
-                textShadow="0 1px 2px rgba(0,0,0,0.3)"
-              >
-                Level {currentLevel} • {expProgress.toFixed(1)}% to {currentLevel + 1}
-              </Text>
-            </Box>
-          </Tooltip>
-        </Box>
-      </HStack>
-      <Grid
-        templateColumns="1fr"
-        maxH="600px"
-        overflowY="auto"
-        gap={2}
-        sx={{
-          '&::-webkit-scrollbar': {
-            width: '4px',
-          },
-          '&::-webkit-scrollbar-track': {
-            width: '6px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: 'gray.500',
-            borderRadius: '24px',
-          },
-        }}
-      >
-        {actions.map((action) => (
-          <ActionButton
-            key={action.id}
-            action={action}
-            onClick={() => onActionClick(action)}
-            isDisabled={!canPerformAction(action)}
-            isActive={currentAction?.id === action.id}
-          />
-        ))}
-      </Grid>
-    </VStack>
+    <Box
+      bgGradient={cardGradient}
+      borderRadius="2xl"
+      borderWidth={2}
+      borderColor={borderColor}
+      boxShadow="xl"
+      p={{ base: 3, md: 4 }}
+      transition="box-shadow 0.2s, background 0.2s"
+      backdropFilter="blur(6px)"
+      maxW="420px"
+      mx="auto"
+      w="100%"
+    >
+      <VStack spacing={4} align="stretch" width="100%">
+        <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
+          <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
+            <Icon as={getActionIcon(actions[0]?.type || '')} />
+            {title}
+          </Heading>
+          <Box flex={1} maxW="300px">
+            <Tooltip
+              label={
+                <VStack align="start" spacing={1} p={2}>
+                  <Text fontWeight="bold" color="white" mb={1}>Experience Progress</Text>
+                  <Text>Current XP: {currentSkillExp.toLocaleString()}</Text>
+                  <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
+                  <Text>Remaining: {(nextLevelExp - currentSkillExp).toLocaleString()}</Text>
+                </VStack>
+              }
+              placement="top"
+              hasArrow
+              bg="gray.800"
+              borderRadius="md"
+            >
+              <Box width="100%" position="relative" _hover={{ transform: 'scale(1.02)' }} transition="all 0.2s">
+                <Progress
+                  value={expProgress}
+                  size="sm"
+                  colorScheme={accent === 'gray' ? 'gray' : 'orange'}
+                  borderRadius="full"
+                  background="whiteAlpha.200"
+                  hasStripe
+                  isAnimated
+                  sx={{
+                    '& > div:first-of-type': {
+                      transitionProperty: 'width',
+                      transitionDuration: '0.3s',
+                    }
+                  }}
+                />
+                <Text 
+                  fontSize="xs" 
+                  color="gray.300" 
+                  mt={1} 
+                  textAlign="center"
+                  fontWeight="medium"
+                  textShadow="0 1px 2px rgba(0,0,0,0.3)"
+                >
+                  Level {currentLevel} • {expProgress.toFixed(1)}% to {currentLevel + 1}
+                </Text>
+              </Box>
+            </Tooltip>
+          </Box>
+        </HStack>
+        <Grid
+          templateColumns="1fr"
+          maxH="600px"
+          overflowY="auto"
+          gap={2}
+          sx={{
+            '&::-webkit-scrollbar': {
+              width: '4px',
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: accent === 'gray' ? 'gray.600' : 'orange.600',
+              borderRadius: '24px',
+            },
+          }}
+        >
+          {actions.map((action) => (
+            <ActionButton
+              key={action.id}
+              action={action}
+              onClick={() => onActionClick(action)}
+              isDisabled={!canPerformAction(action)}
+              isActive={currentAction?.id === action.id}
+            />
+          ))}
+        </Grid>
+      </VStack>
+    </Box>
   );
 };
 
@@ -370,13 +395,22 @@ export const QuarryLocation = () => {
     startAction(action);
   };
 
+  // Filter and type actions as SkillAction[]
   const miningActions = currentLocation.actions.filter(
-    action => action.type === 'mining'
+    (action): action is SkillAction => action.type === 'mining'
   );
 
   const smithingActions = currentLocation.actions.filter(
-    action => action.type === 'smithing'
+    (action): action is SkillAction => action.type === 'smithing'
   );
+
+  // Helper to safely cast currentAction to SkillAction | null
+  const getSkillCurrentAction = (type: string): SkillAction | null => {
+    if (currentAction && (currentAction.type === type)) {
+      return currentAction as SkillAction;
+    }
+    return null;
+  };
 
   return (
     <Box
@@ -397,25 +431,18 @@ export const QuarryLocation = () => {
         },
       }}
     >
-      {/* Background with quarry theme */}
+      {/* Quarry background image */}
       <Box
         position="absolute"
         top={0}
         left={0}
         right={0}
         bottom={0}
-        bgGradient="linear(to-b, gray.800, gray.700)"
-        _before={{
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          bg: "rgba(0,0,0,0.2)",
-          opacity: 0.8,
-          zIndex: 1
-        }}
+        bgImage={`url(${quarryBg})`}
+        bgSize="cover"
+        bgPosition="center"
+        bgRepeat="no-repeat"
+        zIndex={0}
         _after={{
           content: '""',
           position: 'absolute',
@@ -423,61 +450,10 @@ export const QuarryLocation = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          bgGradient: "linear(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 100%)",
-          backdropFilter: "blur(1px)",
-          zIndex: 2
+          bg: 'rgba(0,0,0,0.45)',
+          zIndex: 1
         }}
-        zIndex={0}
-      >
-        {/* Rock formations in the background */}
-        <Box
-          position="absolute"
-          top="5%"
-          left="10%"
-          width="25%"
-          height="40%"
-          bg="gray.600"
-          borderRadius="10%"
-          filter="blur(8px)"
-          opacity={0.7}
-          transform="skewY(-15deg)"
-        />
-        <Box
-          position="absolute"
-          top="15%"
-          right="15%"
-          width="30%"
-          height="45%"
-          bg="gray.700"
-          borderRadius="10%"
-          filter="blur(10px)"
-          opacity={0.6}
-          transform="skewY(15deg)"
-        />
-        {/* Forge glow */}
-        <Box
-          position="absolute"
-          bottom="15%"
-          right="20%"
-          width="30%"
-          height="25%"
-          bgGradient="radial-gradient(circle at 50% 50%, orange.500 0%, orange.700 40%, transparent 70%)"
-          borderRadius="full"
-          filter="blur(20px)"
-          opacity={0.3}
-          _before={{
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            bgGradient: "linear(180deg, rgba(255,165,0,0.2) 0%, transparent 100%)",
-            borderRadius: "full"
-          }}
-        />
-      </Box>
-
+      />
       {/* Content */}
       <Flex
         position="relative"
@@ -525,7 +501,6 @@ export const QuarryLocation = () => {
               {currentLocation.description}
             </Text>
           </Box>
-
           {/* Actions Grid */}
           <Grid
             templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
@@ -541,10 +516,9 @@ export const QuarryLocation = () => {
                 actions={miningActions}
                 onActionClick={handleActionStart}
                 canPerformAction={storeCanPerformAction}
-                currentAction={currentAction}
+                currentAction={getSkillCurrentAction('mining')}
               />
             </Box>
-
             {/* Smithing Section */}
             <Box maxW="400px" mx="auto" w="100%">
               <ActionSection
@@ -552,7 +526,7 @@ export const QuarryLocation = () => {
                 actions={smithingActions}
                 onActionClick={handleActionStart}
                 canPerformAction={storeCanPerformAction}
-                currentAction={currentAction}
+                currentAction={getSkillCurrentAction('smithing')}
               />
             </Box>
           </Grid>

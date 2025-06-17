@@ -35,36 +35,36 @@ function App() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <ChakraProvider theme={theme}>
-        <Router>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/create" element={<CharacterCreation />} />
-            <Route path="/select" element={<CharacterSelection />} />
+    <ChakraProvider theme={theme}>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/create" element={<CharacterCreation />} />
+          <Route path="/select" element={<CharacterSelection />} />
 
-            {/* Protected routes - require character */}
-            <Route element={character ? <GameLayout /> : <Navigate to="/select" />}>
-              {/* Default route */}
-              <Route path="/" element={<Navigate to="/game" />} />
-              
-              {/* Game route */}
-              <Route path="/game" element={<GameScreen />} />
-              
-              {/* Test route */}
-              <Route path="/test" element={<TestPlan />} />
-              
-              {/* Catch all route */}
-              <Route path="*" element={<Navigate to="/game" />} />
-            </Route>
-          </Routes>
-          <ActionFeedback />
-          <OfflineProgressPopup
-            isOpen={showOfflineProgress}
-            onClose={() => setShowOfflineProgress(false)}
-            rewards={offlineRewards}
-          />
-        </Router>
-      </ChakraProvider>
+          {/* Protected routes - require character */}
+          <Route element={character ? <GameLayout /> : <Navigate to="/select" />}>
+            {/* Default route */}
+            <Route path="/" element={<Navigate to="/game" />} />
+            
+            {/* Game route */}
+            <Route path="/game" element={<GameScreen />} />
+            
+            {/* Test route */}
+            <Route path="/test" element={<TestPlan />} />
+            
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/game" />} />
+          </Route>
+        </Routes>
+        <ActionFeedback />
+        <OfflineProgressPopup
+          isOpen={showOfflineProgress}
+          onClose={() => setShowOfflineProgress(false)}
+          rewards={offlineRewards}
+        />
+      </Router>
+    </ChakraProvider>
     </DndProvider>
   );
 }

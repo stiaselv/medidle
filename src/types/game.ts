@@ -1,5 +1,40 @@
 import type { IconType } from 'react-icons';
 
+// Equipment Level Requirement Rule
+//
+// Weapons
+// Melee:
+//   - Bronze and Iron: require level 1 Attack
+//   - Steel: require level 5 Attack
+//   - Mithril: require level 20 Attack
+//   - Adamant: require level 30 Attack
+//   - Rune: require level 40 Attack
+//   - Dragon: require level 60 Attack
+// Ranged:
+//   - Bows and longbows: require level 1 Ranged
+//   - Oak shortbow/longbow: require level 5 Ranged
+//   - Willow shortbow/longbow: require level 20 Ranged
+//   - Maple shortbow/longbow: require level 30 Ranged
+//   - Yew shortbow/longbow: require level 40 Ranged
+//   - Magic shortbow/longbow: require level 50 Ranged
+// Magic:
+//   - No requirement for wielding staffs
+//
+// Armor
+// Melee:
+//   - Bronze and Iron: require level 1 Defence
+//   - Steel: require level 5 Defence
+//   - Mithril: require level 20 Defence
+//   - Adamant: require level 30 Defence
+//   - Rune: require level 40 Defence
+//   - Dragon: require level 60 Defence
+// Ranged:
+//   - Ranged armor not yet added (will be added through crafting)
+// Magic:
+//   - Not implemented yet
+//
+// This rule will be updated as new weapons and armor are added.
+
 export type SkillName = 
   | 'woodcutting'
   | 'fishing'
@@ -37,15 +72,15 @@ export type ActionType =
   | 'combat'
   | 'combat_selection'  // For selecting combat difficulty
   | 'store'
+  | 'crafting'
+  | 'fletching'
   | 'none'
   | 'death';
 
 export type ItemType = 'tool' | 'resource' | 'consumable' | 'currency';
 
 export type ItemStats = {
-  attack?: number;
   defence?: number;
-  mining?: number;
   woodcutting?: number;
   fishing?: number;
   // Add other skill stats as needed
@@ -124,7 +159,7 @@ export interface BaseAction {
 }
 
 export interface SkillAction extends BaseAction {
-  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category';
+  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category' | 'crafting' | 'fletching' | 'prayer' | 'runecrafting';
 }
 
 export interface StoreAction extends BaseAction {
@@ -192,6 +227,21 @@ export interface SlayerTask {
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Nightmare';
 }
 
+// Tracks all persistent character statistics for the statistics modal
+export interface CharacterStats {
+  deaths: number;
+  foodEaten: number;
+  hitpointsGained: number;
+  damageDone: number;
+  damageTaken: number;
+  coinsSpent: number;
+  coinsEarned: number;
+  slayerPointsSpent: number;
+  slayerPointsEarned: number;
+  totalActiveTime: number; // ms
+  totalOfflineTime: number; // ms
+}
+
 export interface Character {
   id: string;
   name: string;
@@ -224,6 +274,8 @@ export interface Character {
   }[];
   slayerPoints: number;
   currentSlayerTask: SlayerTask | null;
+  slayerTaskStreak: number;
+  stats: CharacterStats;
 }
 
 import type { CombatStyle } from '../combat/combatTriangle';
@@ -261,16 +313,12 @@ export interface CombatStats {
   attackCrush: number;
   attackMagic: number;
   attackRanged: number;
-  attack?: number;  // Generic attack bonus
-  mining?: number;  // Mining bonus
-
   // Defence bonuses
   defenceStab: number;
   defenceSlash: number;
   defenceCrush: number;
   defenceMagic: number;
   defenceRanged: number;
-
   // Other bonuses
   strengthMelee: number;
   strengthRanged: number;
@@ -347,6 +395,7 @@ export interface GameState {
   // Slayer actions
   getNewSlayerTask: (difficulty: 'Easy' | 'Medium' | 'Hard' | 'Nightmare') => void;
   completeSlayerTask: () => void;
+  cancelSlayerTask: () => void;
 
   // Offline progress
   processOfflineProgress: () => OfflineRewards | null;
@@ -355,6 +404,11 @@ export interface GameState {
   // Auth
   signOut: () => void;
   updateCharacter: (character: Character) => void;
+
+  // Stat helpers
+  incrementStat: (stat: keyof Character["stats"], amount?: number) => void;
+  updateActiveTime: (ms: number) => void;
+  updateOfflineTime: (ms: number) => void;
 }
 
 export interface Item {
@@ -364,7 +418,7 @@ export interface Item {
   category: string;
   icon: string;
   level?: number;
-  stats?: CombatStats;
+  stats?: CombatStats | ItemStats;
   slot?: string;
   speed?: number;
   quantity?: number;
@@ -378,12 +432,23 @@ export interface Item {
   };
 }
 
-export const createSkill = (name: string, level = 1): Skill => ({
-  name,
-  level,
-  experience: 0,
-  nextLevelExperience: 83 // Level 2 experience
-});
+// Helper function for next level experience (move from gameStore.ts)
+export const getNextLevelExperience = (level: number): number => {
+  // Cap level at 99 for next level experience calculation
+  const cappedLevel = Math.min(level, 99);
+  return cappedLevel * cappedLevel * 83;
+};
+
+export const createSkill = (name: string, level = 1): Skill => {
+  // Set experience to the minimum required for the given level
+  const experience = level > 1 ? getNextLevelExperience(level - 1) : 0;
+  return {
+    name,
+    level,
+    experience,
+    nextLevelExperience: getNextLevelExperience(level)
+  };
+};
 
 // Helper function to ensure level requirements don't exceed 99
 export const capLevelRequirement = (level: number): number => {

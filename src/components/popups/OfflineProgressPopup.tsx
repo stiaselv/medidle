@@ -27,7 +27,7 @@ interface OfflineRewards {
     id: string;
     name: string;
     quantity: number;
-  };
+  } | null;
   skill: string;
   timePassed: number;
   actionsCompleted: number;

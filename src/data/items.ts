@@ -1,4 +1,4 @@
-import type { Item, ItemType, ItemStats, CombatStats } from '../types/game';
+import type { Item, ItemType, ItemStats, CombatStats, SkillName } from '../types/game';
 import { capLevelRequirement } from '../types/game';
 import { getCombinedStats, BRONZE_TOOL_STATS, IRON_TOOL_STATS, STEEL_TOOL_STATS, MITHRIL_TOOL_STATS, ADAMANT_TOOL_STATS, RUNE_TOOL_STATS, DRAGON_TOOL_STATS } from './combatStats';
 
@@ -103,43 +103,37 @@ export const TOOL_TIERS = {
     name: 'Bronze Pickaxe',
     level: 1,
     category: ITEM_CATEGORIES.TOOLS,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: BRONZE_TOOL_STATS
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   iron_pickaxe: {
     name: 'Iron Pickaxe',
     level: 10,
     category: ITEM_CATEGORIES.TOOLS,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: IRON_TOOL_STATS
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   steel_pickaxe: {
     name: 'Steel Pickaxe',
     level: 20,
     category: ITEM_CATEGORIES.TOOLS,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: STEEL_TOOL_STATS
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   mithril_pickaxe: {
     name: 'Mithril Pickaxe',
     level: 30,
     category: ITEM_CATEGORIES.TOOLS,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: MITHRIL_TOOL_STATS
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   adamant_pickaxe: {
     name: 'Adamant Pickaxe',
     level: 40,
     category: ITEM_CATEGORIES.TOOLS,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: ADAMANT_TOOL_STATS
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   rune_pickaxe: {
     name: 'Rune Pickaxe',
     level: 50,
     category: ITEM_CATEGORIES.TOOLS,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: RUNE_TOOL_STATS
+    slot: EQUIPMENT_SLOTS.WEAPON
   }
 } as const;
 
@@ -239,11 +233,11 @@ const SMITHING_TEMPLATES: SmithingTemplate[] = [
   { id: 'platebody', name: 'Platebody', levelOver: 14, bars: 5, type: 'armor', armorType: 'platebody' }
 ];
 
-// Helper function to create default combat stats
-const createDefaultCombatStats = (attack = 0, mining = 0): CombatStats => ({
-  attackStab: attack,
-  attackSlash: attack,
-  attackCrush: attack,
+// Helper function to create default combat stats for weapons/armor
+const createDefaultCombatStats = (): CombatStats => ({
+  attackStab: 0,
+  attackSlash: 0,
+  attackCrush: 0,
   attackMagic: 0,
   attackRanged: 0,
   defenceStab: 0,
@@ -254,9 +248,7 @@ const createDefaultCombatStats = (attack = 0, mining = 0): CombatStats => ({
   strengthMelee: 0,
   strengthRanged: 0,
   strengthMagic: 0,
-  prayerBonus: 0,
-  attack,
-  mining
+  prayerBonus: 0
 });
 
 // Helper function to get equipment slot based on item type
@@ -282,8 +274,8 @@ const generateSmithingItems = (metalType: string) => {
   SMITHING_TEMPLATES.forEach(template => {
     const itemId = `${metalType}_${template.id}`;
     const combatStats = template.type === 'weapon' 
-      ? createDefaultCombatStats(getMetalTier(metalType))
-      : createDefaultCombatStats(0);
+      ? createDefaultCombatStats()
+      : createDefaultCombatStats();
     
     items[itemId] = {
       id: itemId,
@@ -332,7 +324,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 1,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(1)
+    stats: { woodcutting: 1 }
   },
   iron_axe: {
     id: 'iron_axe',
@@ -342,7 +334,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 10,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(2)
+    stats: { woodcutting: 2 }
   },
   steel_axe: {
     id: 'steel_axe',
@@ -352,7 +344,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 20,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(3)
+    stats: { woodcutting: 3 }
   },
   mithril_axe: {
     id: 'mithril_axe',
@@ -362,7 +354,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 30,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(4)
+    stats: { woodcutting: 4 }
   },
   adamant_axe: {
     id: 'adamant_axe',
@@ -372,7 +364,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 40,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(5)
+    stats: { woodcutting: 5 }
   },
   rune_axe: {
     id: 'rune_axe',
@@ -382,7 +374,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 50,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(6)
+    stats: { woodcutting: 6 }
   },
 
   // Tools - Fishing
@@ -821,8 +813,7 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: defaultImg,
     level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(0, 1)
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   iron_pickaxe: {
     id: 'iron_pickaxe',
@@ -831,8 +822,7 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: defaultImg,
     level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(0, 2)
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   steel_pickaxe: {
     id: 'steel_pickaxe',
@@ -841,8 +831,7 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: defaultImg,
     level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(0, 3)
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   mithril_pickaxe: {
     id: 'mithril_pickaxe',
@@ -851,8 +840,7 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: defaultImg,
     level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(0, 4)
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   adamant_pickaxe: {
     id: 'adamant_pickaxe',
@@ -861,8 +849,7 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: defaultImg,
     level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(0, 5)
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
   rune_pickaxe: {
     id: 'rune_pickaxe',
@@ -871,8 +858,7 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: defaultImg,
     level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(0, 6)
+    slot: EQUIPMENT_SLOTS.WEAPON
   },
 
   // Resources - Mining
@@ -1056,7 +1042,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Bronze Full Helm',
     type: 'tool',
     level: 1,
-    stats: createDefaultCombatStats(1),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1068,7 +1054,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Bronze Platebody',
     type: 'tool',
     level: 2,
-    stats: createDefaultCombatStats(3),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1080,7 +1066,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Bronze Platelegs',
     type: 'tool',
     level: 3,
-    stats: createDefaultCombatStats(2),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1094,7 +1080,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Iron Full Helm',
     type: 'tool',
     level: 15,
-    stats: createDefaultCombatStats(2),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1106,7 +1092,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Iron Platebody',
     type: 'tool',
     level: 18,
-    stats: createDefaultCombatStats(6),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1118,7 +1104,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Iron Platelegs',
     type: 'tool',
     level: 16,
-    stats: createDefaultCombatStats(4),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1132,7 +1118,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Full Helm',
     type: 'tool',
     level: 30,
-    stats: createDefaultCombatStats(3),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1144,7 +1130,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Platebody',
     type: 'tool',
     level: 33,
-    stats: createDefaultCombatStats(9),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1156,7 +1142,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Platelegs',
     type: 'tool',
     level: 31,
-    stats: createDefaultCombatStats(6),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1170,7 +1156,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Full Helm',
     type: 'tool',
     level: 50,
-    stats: createDefaultCombatStats(4),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1182,7 +1168,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Platebody',
     type: 'tool',
     level: 53,
-    stats: createDefaultCombatStats(12),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1194,7 +1180,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Platelegs',
     type: 'tool',
     level: 51,
-    stats: createDefaultCombatStats(8),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1208,7 +1194,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamant Full Helm',
     type: 'tool',
     level: 70,
-    stats: createDefaultCombatStats(5),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1220,7 +1206,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamant Platebody',
     type: 'tool',
     level: 73,
-    stats: createDefaultCombatStats(15),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1232,7 +1218,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamant Platelegs',
     type: 'tool',
     level: 71,
-    stats: createDefaultCombatStats(10),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1246,7 +1232,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Rune Full Helm',
     type: 'tool',
     level: 85,
-    stats: createDefaultCombatStats(6),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.HEAD,
     icon: '/assets/items/placeholder.png',
@@ -1258,7 +1244,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Rune Platebody',
     type: 'tool',
     level: 88,
-    stats: createDefaultCombatStats(18),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.BODY,
     icon: '/assets/items/placeholder.png',
@@ -1270,7 +1256,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Rune Platelegs',
     type: 'tool',
     level: 86,
-    stats: createDefaultCombatStats(12),
+    stats: createDefaultCombatStats(),
     category: ITEM_CATEGORIES.ARMOR,
     slot: EQUIPMENT_SLOTS.LEGS,
     icon: '/assets/items/placeholder.png',
@@ -1286,7 +1272,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 1,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(1)
+    stats: createDefaultCombatStats()
   },
   iron_dagger: {
     id: 'iron_dagger',
@@ -1296,7 +1282,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 10,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(2)
+    stats: createDefaultCombatStats()
   },
   steel_dagger: {
     id: 'steel_dagger',
@@ -1306,7 +1292,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 20,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(3)
+    stats: createDefaultCombatStats()
   },
   mithril_dagger: {
     id: 'mithril_dagger',
@@ -1316,7 +1302,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 30,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(4)
+    stats: createDefaultCombatStats()
   },
   adamant_dagger: {
     id: 'adamant_dagger',
@@ -1326,7 +1312,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 40,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(5)
+    stats: createDefaultCombatStats()
   },
   rune_dagger: {
     id: 'rune_dagger',
@@ -1336,7 +1322,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 50,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(6)
+    stats: createDefaultCombatStats()
   },
   bronze_sword: {
     id: 'bronze_sword',
@@ -1346,7 +1332,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 1,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(1)
+    stats: createDefaultCombatStats()
   },
   iron_sword: {
     id: 'iron_sword',
@@ -1356,7 +1342,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 10,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(2)
+    stats: createDefaultCombatStats()
   },
   steel_sword: {
     id: 'steel_sword',
@@ -1366,7 +1352,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 20,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(3)
+    stats: createDefaultCombatStats()
   },
   mithril_sword: {
     id: 'mithril_sword',
@@ -1376,7 +1362,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 30,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(4)
+    stats: createDefaultCombatStats()
   },
   adamant_sword: {
     id: 'adamant_sword',
@@ -1386,7 +1372,7 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 40,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(5)
+    stats: createDefaultCombatStats()
   },
   rune_sword: {
     id: 'rune_sword',
@@ -1396,7 +1382,433 @@ export const ITEMS: Record<string, Item> = {
     icon: defaultImg,
     level: 50,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(6)
+    stats: createDefaultCombatStats()
+  },
+
+  // Fletching & Bow Crafting Items
+  arrow_shafts: {
+    id: 'arrow_shafts',
+    name: 'Arrow Shafts',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/arrow_shafts.png',
+    buyPrice: 5,
+    sellPrice: 2,
+  },
+  headless_arrows: {
+    id: 'headless_arrows',
+    name: 'Headless Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/headless_arrows.png',
+    buyPrice: 10,
+    sellPrice: 4,
+  },
+  bow_string: {
+    id: 'bow_string',
+    name: 'Bow String',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/bow_string.png',
+    buyPrice: 20,
+    sellPrice: 8,
+  },
+  bronze_arrowtips: {
+    id: 'bronze_arrowtips',
+    name: 'Bronze Arrowtips',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/bronze_arrowtips.png',
+    buyPrice: 15,
+    sellPrice: 6,
+  },
+  iron_arrowtips: {
+    id: 'iron_arrowtips',
+    name: 'Iron Arrowtips',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/iron_arrowtips.png',
+    buyPrice: 30,
+    sellPrice: 12,
+  },
+  steel_arrowtips: {
+    id: 'steel_arrowtips',
+    name: 'Steel Arrowtips',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/steel_arrowtips.png',
+    buyPrice: 60,
+    sellPrice: 24,
+  },
+  mithril_arrowtips: {
+    id: 'mithril_arrowtips',
+    name: 'Mithril Arrowtips',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/mithril_arrowtips.png',
+    buyPrice: 120,
+    sellPrice: 48,
+  },
+  adamant_arrowtips: {
+    id: 'adamant_arrowtips',
+    name: 'Adamant Arrowtips',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/adamant_arrowtips.png',
+    buyPrice: 240,
+    sellPrice: 96,
+  },
+  rune_arrowtips: {
+    id: 'rune_arrowtips',
+    name: 'Rune Arrowtips',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/rune_arrowtips.png',
+    buyPrice: 480,
+    sellPrice: 192,
+  },
+  bronze_arrows: {
+    id: 'bronze_arrows',
+    name: 'Bronze Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/bronze_arrows.png',
+    buyPrice: 30,
+    sellPrice: 12,
+  },
+  iron_arrows: {
+    id: 'iron_arrows',
+    name: 'Iron Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/iron_arrows.png',
+    buyPrice: 60,
+    sellPrice: 24,
+  },
+  steel_arrows: {
+    id: 'steel_arrows',
+    name: 'Steel Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/steel_arrows.png',
+    buyPrice: 120,
+    sellPrice: 48,
+  },
+  mithril_arrows: {
+    id: 'mithril_arrows',
+    name: 'Mithril Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/mithril_arrows.png',
+    buyPrice: 240,
+    sellPrice: 96,
+  },
+  adamant_arrows: {
+    id: 'adamant_arrows',
+    name: 'Adamant Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/adamant_arrows.png',
+    buyPrice: 480,
+    sellPrice: 192,
+  },
+  rune_arrows: {
+    id: 'rune_arrows',
+    name: 'Rune Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/rune_arrows.png',
+    buyPrice: 960,
+    sellPrice: 384,
+  },
+  // Unstrung and Strung Bows for each log type
+  unstrung_oak_shortbow: {
+    id: 'unstrung_oak_shortbow',
+    name: 'Unstrung Oak Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_oak_shortbow.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  oak_shortbow: {
+    id: 'oak_shortbow',
+    name: 'Oak Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/oak_shortbow.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_oak_longbow: {
+    id: 'unstrung_oak_longbow',
+    name: 'Unstrung Oak Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_oak_longbow.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  oak_longbow: {
+    id: 'oak_longbow',
+    name: 'Oak Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/oak_longbow.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_willow_shortbow: {
+    id: 'unstrung_willow_shortbow',
+    name: 'Unstrung Willow Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_willow_shortbow.png',
+    level: 10,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  willow_shortbow: {
+    id: 'willow_shortbow',
+    name: 'Willow Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/willow_shortbow.png',
+    level: 10,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_willow_longbow: {
+    id: 'unstrung_willow_longbow',
+    name: 'Unstrung Willow Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_willow_longbow.png',
+    level: 10,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  willow_longbow: {
+    id: 'willow_longbow',
+    name: 'Willow Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/willow_longbow.png',
+    level: 10,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_maple_shortbow: {
+    id: 'unstrung_maple_shortbow',
+    name: 'Unstrung Maple Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_maple_shortbow.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  maple_shortbow: {
+    id: 'maple_shortbow',
+    name: 'Maple Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/maple_shortbow.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_maple_longbow: {
+    id: 'unstrung_maple_longbow',
+    name: 'Unstrung Maple Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_maple_longbow.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  maple_longbow: {
+    id: 'maple_longbow',
+    name: 'Maple Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/maple_longbow.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_yew_shortbow: {
+    id: 'unstrung_yew_shortbow',
+    name: 'Unstrung Yew Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_yew_shortbow.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  yew_shortbow: {
+    id: 'yew_shortbow',
+    name: 'Yew Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/yew_shortbow.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_yew_longbow: {
+    id: 'unstrung_yew_longbow',
+    name: 'Unstrung Yew Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_yew_longbow.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  yew_longbow: {
+    id: 'yew_longbow',
+    name: 'Yew Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/yew_longbow.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_magic_shortbow: {
+    id: 'unstrung_magic_shortbow',
+    name: 'Unstrung Magic Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_magic_shortbow.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  magic_shortbow: {
+    id: 'magic_shortbow',
+    name: 'Magic Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/magic_shortbow.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_magic_longbow: {
+    id: 'unstrung_magic_longbow',
+    name: 'Unstrung Magic Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_magic_longbow.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  magic_longbow: {
+    id: 'magic_longbow',
+    name: 'Magic Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/magic_longbow.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_redwood_shortbow: {
+    id: 'unstrung_redwood_shortbow',
+    name: 'Unstrung Redwood Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_redwood_shortbow.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  redwood_shortbow: {
+    id: 'redwood_shortbow',
+    name: 'Redwood Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/redwood_shortbow.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_redwood_longbow: {
+    id: 'unstrung_redwood_longbow',
+    name: 'Unstrung Redwood Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_redwood_longbow.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  redwood_longbow: {
+    id: 'redwood_longbow',
+    name: 'Redwood Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/redwood_longbow.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_teak_shortbow: {
+    id: 'unstrung_teak_shortbow',
+    name: 'Unstrung Teak Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_teak_shortbow.png',
+    level: 35,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  teak_shortbow: {
+    id: 'teak_shortbow',
+    name: 'Teak Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/teak_shortbow.png',
+    level: 35,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_teak_longbow: {
+    id: 'unstrung_teak_longbow',
+    name: 'Unstrung Teak Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_teak_longbow.png',
+    level: 35,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  teak_longbow: {
+    id: 'teak_longbow',
+    name: 'Teak Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/teak_longbow.png',
+    level: 35,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_mahogany_shortbow: {
+    id: 'unstrung_mahogany_shortbow',
+    name: 'Unstrung Mahogany Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_mahogany_shortbow.png',
+    level: 45,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  mahogany_shortbow: {
+    id: 'mahogany_shortbow',
+    name: 'Mahogany Shortbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/mahogany_shortbow.png',
+    level: 45,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  unstrung_mahogany_longbow: {
+    id: 'unstrung_mahogany_longbow',
+    name: 'Unstrung Mahogany Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/unstrung_mahogany_longbow.png',
+    level: 45,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+  },
+  mahogany_longbow: {
+    id: 'mahogany_longbow',
+    name: 'Mahogany Longbow',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/mahogany_longbow.png',
+    level: 45,
+    slot: EQUIPMENT_SLOTS.WEAPON,
   },
 };
 
@@ -1420,4 +1832,44 @@ export const meetsLevelRequirement = (item: Item, playerLevel: number): boolean 
   if (!item.level) return true;
   const cappedLevel = capLevelRequirement(item.level);
   return playerLevel >= cappedLevel;
-}; 
+};
+
+// Returns the required skill and level for equipping an item, or null if no requirement
+export function getEquipmentLevelRequirement(item: Item): { skill: SkillName, level: number } | null {
+  if (!item || !item.slot) return null;
+  const name = item.id.toLowerCase();
+  // Melee weapons
+  if (item.slot === 'weapon') {
+    if (name.includes('sword') || name.includes('scimitar') || name.includes('mace') || name.includes('axe') || name.includes('warhammer') || name.includes('longsword') || name.includes('battleaxe')) {
+      if (name.includes('bronze') || name.includes('iron')) return { skill: 'attack', level: 1 };
+      if (name.includes('steel')) return { skill: 'attack', level: 5 };
+      if (name.includes('mithril')) return { skill: 'attack', level: 20 };
+      if (name.includes('adamant')) return { skill: 'attack', level: 30 };
+      if (name.includes('rune')) return { skill: 'attack', level: 40 };
+      if (name.includes('dragon')) return { skill: 'attack', level: 60 };
+    }
+    // Ranged weapons (bows)
+    if (name.includes('bow')) {
+      if (name.includes('oak')) return { skill: 'ranged', level: 5 };
+      if (name.includes('willow')) return { skill: 'ranged', level: 20 };
+      if (name.includes('maple')) return { skill: 'ranged', level: 30 };
+      if (name.includes('yew')) return { skill: 'ranged', level: 40 };
+      if (name.includes('magic')) return { skill: 'ranged', level: 50 };
+      // Default for regular bows
+      return { skill: 'ranged', level: 1 };
+    }
+    // Magic staves: no requirement
+    if (name.includes('staff')) return null;
+  }
+  // Melee armor
+  if (item.slot === 'head' || item.slot === 'body' || item.slot === 'legs' || item.slot === 'shield' || item.slot === 'feet' || item.slot === 'hands') {
+    if (name.includes('bronze') || name.includes('iron')) return { skill: 'defence', level: 1 };
+    if (name.includes('steel')) return { skill: 'defence', level: 5 };
+    if (name.includes('mithril')) return { skill: 'defence', level: 20 };
+    if (name.includes('adamant')) return { skill: 'defence', level: 30 };
+    if (name.includes('rune')) return { skill: 'defence', level: 40 };
+    if (name.includes('dragon')) return { skill: 'defence', level: 60 };
+  }
+  // Ranged and magic armor not implemented yet
+  return null;
+} 
