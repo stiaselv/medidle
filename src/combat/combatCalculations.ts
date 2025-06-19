@@ -1,8 +1,100 @@
 import type { Character, Monster, CombatStats } from '../types/game';
 import { getCombatStyle, type CombatStyle } from './combatTriangle';
-import { getCombatTriangleMultipliers, getEffectiveCombatLevels } from './enhancedCombatTriangle';
+import { getCombatTriangleMultipliers, getEffectiveCombatLevels, getStyleBonuses } from './enhancedCombatTriangle';
 
-// Calculate max hit based on strength level and equipment bonuses
+// --- New Combat Damage Calculation Helpers ---
+
+// Get potion bonus for a character (stub: returns 0, fill in with actual logic)
+function getPotionBonus(attacker: Character | Monster): number {
+  // TODO: Check active potions/buffs on the character
+  return 0;
+}
+
+// Get prayer bonus multiplier for a character (stub: returns 1.0, fill in with actual logic)
+function getPrayerBonus(attacker: Character | Monster): number {
+  // TODO: Check active prayers on the character
+  return 1.0;
+}
+
+// Get void bonus multiplier for a character (stub: returns 1.0, fill in with actual logic)
+function getVoidBonus(attacker: Character | Monster): number {
+  // TODO: Check if character is wearing void melee armour
+  return 1.0;
+}
+
+// Get style bonus for a given attack style (typically 0, 1, or 3)
+function getStyleBonus(attackStyle: string): number {
+  // Aggressive: +3, Accurate: +1, Defensive: 0, Balanced: 0
+  switch (attackStyle) {
+    case 'aggressive': return 3;
+    case 'accurate': return 1;
+    default: return 0;
+  }
+}
+
+// Calculate effective strength for the new formula
+function calculateEffectiveStrength(attacker: Character | Monster, attackStyle: string): number {
+  // Strength Level
+  let strengthLevel = 'skills' in attacker ? attacker.skills.strength.level : 1;
+  // Potion Bonus
+  const potionBonus = getPotionBonus(attacker);
+  // Prayer Bonus (multiplier)
+  const prayerBonus = getPrayerBonus(attacker);
+  // Style Bonus
+  const styleBonus = getStyleBonus(attackStyle);
+  // Void Bonus (multiplier)
+  const voidBonus = getVoidBonus(attacker);
+
+  // Effective Strength formula
+  const afterPotion = strengthLevel + potionBonus;
+  const afterPrayer = Math.floor(afterPotion * prayerBonus);
+  const afterStyle = afterPrayer + styleBonus + 8;
+  const afterVoid = Math.floor(afterStyle * voidBonus);
+  return afterVoid;
+}
+
+// Get ranged potion bonus for a character (stub: returns 0, fill in with actual logic)
+function getRangedPotionBonus(attacker: Character | Monster): number {
+  // TODO: Check active ranged potions/buffs on the character
+  return 0;
+}
+
+// Get ranged prayer bonus multiplier for a character (stub: returns 1.0, fill in with actual logic)
+function getRangedPrayerBonus(attacker: Character | Monster): number {
+  // TODO: Check active ranged prayers on the character
+  return 1.0;
+}
+
+// Get ranged void bonus multiplier for a character (stub: returns 1.0, fill in with actual logic)
+function getRangedVoidBonus(attacker: Character | Monster): number {
+  // TODO: Check if character is wearing void ranged armour
+  return 1.0;
+}
+
+// Calculate effective ranged for the new formula
+function calculateEffectiveRanged(attacker: Character | Monster, attackStyle: string): number {
+  // Ranged Level
+  let rangedLevel = 'skills' in attacker ? attacker.skills.ranged.level : 1;
+  // Potion Bonus
+  const potionBonus = getRangedPotionBonus(attacker);
+  // Prayer Bonus (multiplier)
+  const prayerBonus = getRangedPrayerBonus(attacker);
+  // Style Bonus
+  const styleBonus = getStyleBonus(attackStyle);
+  // Void Bonus (multiplier)
+  const voidBonus = getRangedVoidBonus(attacker);
+
+  // Effective Ranged formula
+  const afterPotion = rangedLevel + potionBonus;
+  const afterPrayer = Math.floor(afterPotion * prayerBonus);
+  const afterStyle = afterPrayer + styleBonus + 8;
+  const afterVoid = Math.floor(afterStyle * voidBonus);
+  return afterVoid;
+}
+
+// --- END New Helpers ---
+
+// Calculate max hit based on new rules
 export const calculateMaxHit = (
   attacker: Character | Monster,
   attackStyle: 'accurate' | 'aggressive' | 'defensive' | 'rapid' | 'longrange' | 'balanced',
@@ -10,25 +102,53 @@ export const calculateMaxHit = (
   isSpecialAttack: boolean = false,
   specialAttackBonus: number = 1.0
 ): number => {
-  // Get combat styles and triangle multipliers
   const attackerStyle = getCombatStyle(attacker);
+  if (attackerStyle === 'melee') {
+    // Calculate effective strength
+    const effectiveStrength = calculateEffectiveStrength(attacker, attackStyle);
+    // Get strength bonus from equipment
+    const strengthBonus = 'equipment' in attacker 
+      ? Object.values(attacker.equipment).reduce((total, item) => {
+          if (!item?.stats || typeof (item.stats as CombatStats).strengthMelee !== 'number') return total;
+          return total + (item.stats as CombatStats).strengthMelee;
+        }, 0)
+      : attacker.stats.strengthMelee;
+    // Base damage formula
+    const baseDamage = 0.5 + (effectiveStrength * (strengthBonus + 64)) / 640;
+    let maxHit = Math.floor(baseDamage);
+    if (isSpecialAttack && specialAttackBonus !== 1.0) {
+      maxHit = Math.floor(maxHit * specialAttackBonus);
+    }
+    return maxHit;
+  } else if (attackerStyle === 'ranged') {
+    // Calculate effective ranged
+    const effectiveRanged = calculateEffectiveRanged(attacker, attackStyle);
+    // Get ranged strength bonus from equipment
+    const strengthBonus = 'equipment' in attacker 
+      ? Object.values(attacker.equipment).reduce((total, item) => {
+          if (!item?.stats || typeof (item.stats as CombatStats).strengthRanged !== 'number') return total;
+          return total + (item.stats as CombatStats).strengthRanged;
+        }, 0)
+      : attacker.stats.strengthRanged;
+    // Base damage formula
+    const baseDamage = 0.5 + (effectiveRanged * (strengthBonus + 64)) / 640;
+    let maxHit = Math.floor(baseDamage);
+    if (isSpecialAttack && specialAttackBonus !== 1.0) {
+      maxHit = Math.floor(maxHit * specialAttackBonus);
+    }
+    return maxHit;
+  }
+  // Fallback to old logic for other styles (e.g., magic)
   const defenderStyle = getCombatStyle(defender);
   const triangleMultipliers = getCombatTriangleMultipliers(attackerStyle, defenderStyle);
-
-  // Get effective levels with style bonuses
   const effectiveLevels = getEffectiveCombatLevels(attacker, attackStyle);
-  
-  // Get strength bonus from equipment
   const strengthBonus = 'equipment' in attacker 
     ? Object.values(attacker.equipment).reduce((total, item) => {
-        return total + (item?.stats?.strengthMelee || 0);
+        if (!item?.stats || typeof (item.stats as CombatStats).strengthMelee !== 'number') return total;
+        return total + (item.stats as CombatStats).strengthMelee;
       }, 0)
     : attacker.stats.strengthMelee;
-
-  // Calculate base max hit with effective strength
   const baseMaxHit = Math.floor((effectiveLevels.effectiveStrength + 8) * (strengthBonus + 64) / 640);
-
-  // Apply combat triangle damage multiplier and special attack bonus
   return Math.floor(
     baseMaxHit * 
     triangleMultipliers.damage * 
@@ -126,17 +246,18 @@ const getAttackBonus = (entity: Character | Monster, style: CombatStyle): number
     // For characters, get bonus from equipment
     return Object.values(entity.equipment).reduce((total, item) => {
       if (!item?.stats) return total;
+      const stats = item.stats as CombatStats;
       switch (style) {
         case 'melee':
           return total + Math.max(
-            item.stats.attackStab,
-            item.stats.attackSlash,
-            item.stats.attackCrush
+            stats.attackStab || 0,
+            stats.attackSlash || 0,
+            stats.attackCrush || 0
           );
         case 'ranged':
-          return total + item.stats.attackRanged;
+          return total + (stats.attackRanged || 0);
         case 'magic':
-          return total + item.stats.attackMagic;
+          return total + (stats.attackMagic || 0);
         default:
           return total;
       }
@@ -166,17 +287,18 @@ const getDefenceBonus = (entity: Character | Monster, attackStyle: CombatStyle):
     // For characters, get bonus from equipment
     return Object.values(entity.equipment).reduce((total, item) => {
       if (!item?.stats) return total;
+      const stats = item.stats as CombatStats;
       switch (attackStyle) {
         case 'melee':
           return total + Math.max(
-            item.stats.defenceStab,
-            item.stats.defenceSlash,
-            item.stats.defenceCrush
+            stats.defenceStab || 0,
+            stats.defenceSlash || 0,
+            stats.defenceCrush || 0
           );
         case 'ranged':
-          return total + item.stats.defenceRanged;
+          return total + (stats.defenceRanged || 0);
         case 'magic':
-          return total + item.stats.defenceMagic;
+          return total + (stats.defenceMagic || 0);
         default:
           return total;
       }

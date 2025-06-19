@@ -31,7 +31,7 @@ export const MONSTERS: Record<string, Monster> = {
       { itemId: 'bronze_shield', quantity: 1, chance: 0.1 },
       { itemId: 'coins', quantity: 5, chance: 1.0 }
     ],
-    thumbnail: '/assets/monsters/goblin.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/goblin.png'
   },
   rat: {
     id: 'rat',
@@ -111,7 +111,8 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         id: 'fight_goblin',
         name: 'Fight Goblin',
         type: 'combat',
-        skill: 'combat',
+        skill: 'attack',
+        levelRequired: 1,
         experience: MONSTERS.goblin.maxHitpoints * 4,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -136,7 +137,8 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         id: 'fight_chicken',
         name: 'Fight Chicken',
         type: 'combat',
-        skill: 'combat',
+        skill: 'attack',
+        levelRequired: 1,
         experience: MONSTERS.chicken.maxHitpoints * 4,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -161,7 +163,8 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         id: 'fight_rat',
         name: 'Fight Giant Rat',
         type: 'combat',
-        skill: 'combat',
+        skill: 'attack',
+        levelRequired: 1,
         experience: MONSTERS.rat.maxHitpoints * 4,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },

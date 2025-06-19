@@ -117,7 +117,12 @@ export const GameScreen = () => {
               justifyContent="flex-start"
             >
               <Box mr={3} as="span" display="inline-block" minW="32px">
-                {/* Optionally add an icon or image here */}
+                <img
+                  src={action.monster.thumbnail || `/assets/monsters/${action.monster.id}.png`}
+                  alt={action.monster.name + ' icon'}
+                  style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: 4 }}
+                  onError={e => { (e.target as HTMLImageElement).src = '/assets/monsters/placeholder.png'; }}
+                />
               </Box>
               <Text fontWeight="bold">{action.monster.name}</Text>
               <Text fontSize="sm" color="gray.500" ml={2}>Level {action.monster.level}</Text>

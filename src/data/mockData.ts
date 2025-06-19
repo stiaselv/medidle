@@ -152,7 +152,8 @@ export const mockMonsters: Monster[] = [
         quantity: 1,
         chance: 10 // 10% chance
       }
-    ]
+    ],
+    thumbnail: '/assets/ItemThumbnail/Combat/goblin.png'
   }
   // Add more monsters here...
 ];

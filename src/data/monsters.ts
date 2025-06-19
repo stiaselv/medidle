@@ -130,10 +130,16 @@ export const EASY_MONSTERS: Monster[] = [
     combatStyle: 'melee',
     stats: GOBLIN_STATS,
     drops: [
-      { itemId: 'coins', quantity: 5, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 }
+      { itemId: 'bones', quantity: 1, chance: 100.0 },
+      { itemId: 'bronze_spear', quantity: 1, chance: 3.13 },
+      { itemId: 'water_rune', quantity: 6, chance: 4.76 },
+      { itemId: 'earth_rune', quantity: 4, chance: 2.38 },
+      { itemId: 'bronze_bolts', quantity: 8, chance: 2.38 },
+      { itemId: 'coins', quantity: 5, chance: 20.0 },
+      { itemId: 'coins', quantity: 9, chance: 2.38 },
+      { itemId: 'coins', quantity: 15, chance: 2.38 },
     ],
-    thumbnail: '/assets/monsters/goblin.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/goblin.png'
   },
   {
     id: 'giant_rat',
@@ -144,11 +150,10 @@ export const EASY_MONSTERS: Monster[] = [
     combatStyle: 'melee',
     stats: RAT_STATS,
     drops: [
-      { itemId: 'coins', quantity: 3, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
-      { itemId: 'raw_rat_meat', quantity: 1, chance: 0.5 }
+      { itemId: 'bones', quantity: 1, chance: 100.0 },
+      { itemId: 'raw_meat', quantity: 1, chance: 100.0 },
     ],
-    thumbnail: '/assets/monsters/giant_rat.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/giant_rat.png'
   },
   {
     id: 'crawling_hand',
@@ -174,11 +179,15 @@ export const EASY_MONSTERS: Monster[] = [
       prayerBonus: 0
     },
     drops: [
-      { itemId: 'coins', quantity: 8, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
-      { itemId: 'leather_gloves', quantity: 1, chance: 0.1 }
+      { itemId: 'bones', quantity: 1, chance: 100.0 },
+      { itemId: 'leather_gloves', quantity: 1, chance: 14.29 },
+      { itemId: 'gold_ring', quantity: 1, chance: 2.38 },
+      { itemId: 'sapphire_ring', quantity: 1, chance: 1.56 },
+      { itemId: 'emerald_ring', quantity: 1, chance: 1.56 },
+      { itemId: 'coins', quantity: 5, chance: 20.0 },
+      { itemId: 'coins', quantity: 8, chance: 16.67 },
     ],
-    thumbnail: '/assets/monsters/crawling_hand.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/crawling_hand.png'
   },
   {
     id: 'minotaur',
@@ -189,11 +198,17 @@ export const EASY_MONSTERS: Monster[] = [
     combatStyle: 'melee',
     stats: MINOTAUR_STATS,
     drops: [
-      { itemId: 'coins', quantity: 12, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
-      { itemId: 'iron_axe', quantity: 1, chance: 0.1 }
+      { itemId: 'bones', quantity: 1, chance: 100.0 },
+      { itemId: 'iron_arrows', quantity: 7, chance: 10.0 },
+      { itemId: 'bronze_spear', quantity: 1, chance: 9.90 },
+      { itemId: 'bronze_full_helm', quantity: 1, chance: 9.90 },
+      { itemId: 'bronze_dagger', quantity: 1, chance: 3.96 },
+      { itemId: 'copper_ore', quantity: 1, chance: 5.94 },
+      { itemId: 'tin_ore', quantity: 1, chance: 5.94 },
+      { itemId: 'pure_essence', quantity: 15, chance: 4.95 },
+      { itemId: 'cooked_meat', quantity: 1, chance: 2.97 },
     ],
-    thumbnail: '/assets/monsters/minotaur.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/minotaur.png'
   },
   {
     id: 'zombie',
@@ -204,11 +219,17 @@ export const EASY_MONSTERS: Monster[] = [
     combatStyle: 'melee',
     stats: ZOMBIE_STATS,
     drops: [
-      { itemId: 'coins', quantity: 15, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
-      { itemId: 'zombie_essence', quantity: 1, chance: 0.1 }
+      { itemId: 'bones', quantity: 1, chance: 100.0 },
+      { itemId: 'bronze_med_helm', quantity: 1, chance: 3.13 },
+      { itemId: 'bronze_longsword', quantity: 1, chance: 0.78 },
+      { itemId: 'iron_axe', quantity: 1, chance: 0.78 },
+      { itemId: 'iron_arrows', quantity: 5, chance: 5.56 },
+      { itemId: 'body_rune', quantity: 6, chance: 3.91 },
+      { itemId: 'mind_rune', quantity: 5, chance: 3.91 },
+      { itemId: 'air_rune', quantity: 13, chance: 3.13 },
+      { itemId: 'nature_rune', quantity: 6, chance: 0.78 },
     ],
-    thumbnail: '/assets/monsters/zombie.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/zombie.png'
   },
   {
     id: 'bear',
@@ -219,12 +240,16 @@ export const EASY_MONSTERS: Monster[] = [
     combatStyle: 'melee',
     stats: BEAR_STATS,
     drops: [
-      { itemId: 'coins', quantity: 18, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
-      { itemId: 'bear_fur', quantity: 1, chance: 0.5 },
-      { itemId: 'raw_bear_meat', quantity: 1, chance: 0.5 }
+      { itemId: 'bones', quantity: 1, chance: 100.0 },
+      { itemId: 'raw_meat', quantity: 1, chance: 100.0 },
+      { itemId: 'coins', quantity: 15, chance: 8.33 },
+      { itemId: 'bronze_full_helm', quantity: 1, chance: 9.90 },
+      { itemId: 'bronze_dagger', quantity: 1, chance: 3.96 },
+      { itemId: 'copper_ore', quantity: 1, chance: 5.94 },
+      { itemId: 'iron_axe', quantity: 1, chance: 0.78 },
+      { itemId: 'iron_arrows', quantity: 5, chance: 5.56 },
     ],
-    thumbnail: '/assets/monsters/bear.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/bear.png'
   },
   {
     id: 'ghost',
@@ -235,11 +260,12 @@ export const EASY_MONSTERS: Monster[] = [
     combatStyle: 'magic',
     stats: GHOST_STATS,
     drops: [
-      { itemId: 'coins', quantity: 22, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
-      { itemId: 'ghost_essence', quantity: 1, chance: 0.1 }
+      { itemId: 'death_rune', quantity: 1, chance: 2.73 },
+      { itemId: 'blood_rune', quantity: 1, chance: 1.49 },
+      { itemId: 'pure_essence', quantity: 5, chance: 6.67 },
+      { itemId: 'coins', quantity: 5, chance: 33.33 },
     ],
-    thumbnail: '/assets/monsters/ghost.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/ghost.png'
   },
   {
     id: 'cave_crawler',
@@ -250,11 +276,30 @@ export const EASY_MONSTERS: Monster[] = [
     combatStyle: 'melee',
     stats: CAVE_CRAWLER_STATS,
     drops: [
-      { itemId: 'coins', quantity: 25, chance: 1.0 },
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
-      { itemId: 'herbs', quantity: 1, chance: 0.3 }
+      { itemId: 'bronze_boots', quantity: 1, chance: 0.78 },
+      { itemId: 'nature_rune', quantity: 3, chance: 4.69 },
+      { itemId: 'fire_rune', quantity: 12, chance: 3.91 },
+      { itemId: 'earth_rune', quantity: 9, chance: 1.56 },
+      { itemId: 'potato_seed', quantity: 2, chance: 10.20 },
+      { itemId: 'onion_seed', quantity: 2, chance: 5.08 },
+      { itemId: 'cabbage_seed', quantity: 2, chance: 2.56 },
+      { itemId: 'tomato_seed', quantity: 1, chance: 1.28 },
+      { itemId: 'sweetcorn_seed', quantity: 1, chance: 0.64 },
+      { itemId: 'strawberry_seed', quantity: 1, chance: 0.32 },
+      { itemId: 'watermelon_seed', quantity: 1, chance: 0.16 },
+      { itemId: 'guam_leaf', quantity: 1, chance: 4.35 },
+      { itemId: 'marrentill', quantity: 1, chance: 3.23 },
+      { itemId: 'tarromin', quantity: 1, chance: 2.44 },
+      { itemId: 'harralander', quantity: 1, chance: 1.89 },
+      { itemId: 'ranarr_weed', quantity: 1, chance: 1.48 },
+      { itemId: 'irit_leaf', quantity: 1, chance: 1.07 },
+      { itemId: 'avantoe', quantity: 1, chance: 0.81 },
+      { itemId: 'kwuarm', quantity: 1, chance: 0.67 },
+      { itemId: 'cadantine', quantity: 1, chance: 0.54 },
+      { itemId: 'lantadyme', quantity: 1, chance: 0.40 },
+      { itemId: 'dwarf_weed', quantity: 1, chance: 0.40 },
     ],
-    thumbnail: '/assets/monsters/cave_crawler.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/cave_crawler.png'
   }
 ];
 

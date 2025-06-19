@@ -277,10 +277,11 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
       >
         <HStack spacing={3}>
           <Image 
-            src={`/assets/monsters/${monster.id}.png`}
+            src={monster.thumbnail || `/assets/monsters/${monster.id}.png`}
             fallbackSrc="/assets/monsters/placeholder.png"
-            boxSize="32px"
+            boxSize="48px"
             objectFit="contain"
+            alt={`${monster.name} icon`}
           />
           <VStack align="start" spacing={0}>
             <Text>{monster.name}</Text>
@@ -340,6 +341,16 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
 
                   {/* Monster Stats */}
                   <Box>
+                    <Box textAlign="center" mb={2}>
+                      <Image 
+                        src={monsterForDisplay.thumbnail || `/assets/monsters/${monsterForDisplay.id}.png`}
+                        fallbackSrc="/assets/monsters/placeholder.png"
+                        boxSize="80px"
+                        objectFit="contain"
+                        alt={`${monsterForDisplay.name} icon`}
+                        mx="auto"
+                      />
+                    </Box>
                     {renderStatDisplay(monsterForDisplay, false)}
                   </Box>
                 </Grid>

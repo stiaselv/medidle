@@ -763,7 +763,8 @@ const createStore = () => create<GameState>()(
     // --- Stat update helpers ---
     incrementStat: (stat: keyof Character["stats"], amount = 1) => {
       set((state) => {
-        if (!state.character) return {};
+        if (!state.character || !state.character.stats) return {};
+        if (!(stat in state.character.stats)) return {}; // Prevent undefined stat error
         return {
           character: {
             ...state.character,
