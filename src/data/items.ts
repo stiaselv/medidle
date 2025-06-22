@@ -1,6 +1,6 @@
 import type { Item, ItemType, ItemStats, CombatStats, SkillName } from '../types/game';
 import { capLevelRequirement } from '../types/game';
-import { getCombinedStats, BRONZE_TOOL_STATS, IRON_TOOL_STATS, STEEL_TOOL_STATS, MITHRIL_TOOL_STATS, ADAMANT_TOOL_STATS, RUNE_TOOL_STATS, DRAGON_TOOL_STATS } from './combatStats';
+import { combineStats, BRONZE_TOOL_STATS, IRON_TOOL_STATS, STEEL_TOOL_STATS, MITHRIL_TOOL_STATS, ADAMANT_TOOL_STATS, RUNE_TOOL_STATS, DRAGON_TOOL_STATS } from './combatStats';
 
 // Use a default image path for testing
 const defaultImg = '/assets/items/default.png';
@@ -105,7 +105,7 @@ export const TOOL_TIERS = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.WEAPON,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/bronze_pickaxe.png',
-    stats: { woodcutting: 1 }
+    stats: { mining: 1 }
   },
   iron_pickaxe: {
     name: 'Iron Pickaxe',
@@ -263,68 +263,76 @@ const createDefaultCombatStats = (): CombatStats => ({
   prayerBonus: 0
 });
 
-// Helper function to get equipment slot based on item type
 export const getEquipmentSlot = (template: SmithingTemplate): keyof typeof EQUIPMENT_SLOTS => {
-  if (template.type === 'weapon') return 'WEAPON';
-  if (template.type === 'armor') {
-    switch (template.armorType) {
-      case 'platebody': return 'BODY';
-      case 'platelegs':
-      case 'plateskirt': return 'LEGS';
-      case 'full_helm':
-      case 'medium_helm': return 'HEAD';
-      default: return 'SHIELD';
-    }
+  if (template.armorType) {
+    if (template.armorType.includes('helm')) return 'HEAD';
+    if (template.armorType.includes('body')) return 'BODY';
+    if (template.armorType.includes('legs') || template.armorType.includes('skirt')) return 'LEGS';
+    if (template.armorType.includes('shield')) return 'SHIELD';
   }
-  return 'TOOL';
+  return 'WEAPON';
 };
 
-// Update generateSmithingItems to use the helper function
 const generateSmithingItems = (metalType: string) => {
   const items: Record<string, Item> = {};
+  const metalTier = getMetalTier(metalType);
   
   SMITHING_TEMPLATES.forEach(template => {
     const itemId = `${metalType}_${template.id}`;
-    const combatStats = template.type === 'weapon' 
-      ? createDefaultCombatStats()
-      : createDefaultCombatStats();
+    const itemName = `${capitalize(metalType)} ${template.name}`;
+    const level = getSmithingLevel(metalType as keyof typeof SMITHING_BASE_LEVELS, template.levelOver);
+    const { buyPrice, sellPrice } = calculateSmithingItemPrice(metalType as keyof typeof METAL_PRICE_MULTIPLIERS, template.bars);
+
+    const baseStats = createDefaultCombatStats();
+    let combatStats: CombatStats;
+
+    if (template.type === 'weapon') {
+      combatStats = combineStats(baseStats, {
+        attackStab: metalTier * 5,
+        attackSlash: metalTier * 5,
+        attackCrush: metalTier * 5,
+        strengthMelee: metalTier * 3,
+      });
+    } else if (template.type === 'armor') {
+      combatStats = combineStats(baseStats, {
+        defenceStab: metalTier * 10,
+        defenceSlash: metalTier * 10,
+        defenceCrush: metalTier * 10,
+      });
+    } else {
+      combatStats = baseStats;
+    }
+
+    const iconPath = template.weaponType
+      ? `/assets/ItemThumbnail/Gear/Weapons/${template.weaponType}/${metalType}_${template.weaponType}.png`
+      : `/assets/items/placeholder.png`;
     
     items[itemId] = {
       id: itemId,
-      name: `${capitalize(metalType)} ${template.name}`,
-      type: 'tool',
-      category: ITEM_CATEGORIES.TOOLS,
-      icon: defaultImg,
-      level: getMetalTier(metalType) + template.levelOver,
+      name: itemName,
+      type: template.type as ItemType,
+      category: ITEM_CATEGORIES.SMITHING,
+      icon: iconPath,
+      level: level,
+      buyPrice: buyPrice,
+      sellPrice: sellPrice,
+      slot: template.type === 'weapon' || template.type === 'armor' ? getEquipmentSlot(template) : undefined,
       stats: combatStats,
-      slot: EQUIPMENT_SLOTS[getEquipmentSlot(template)],
-      speed: template.speed
+      speed: template.speed,
     };
   });
   
   return items;
 };
 
-// Generate all smithing items for each metal type
-const SMITHING_ITEMS = {
-  ...generateSmithingItems('bronze'),
-  ...generateSmithingItems('iron'),
-  ...generateSmithingItems('steel'),
-  ...generateSmithingItems('mithril'),
-  ...generateSmithingItems('adamant'),
-  ...generateSmithingItems('rune'),
-};
-
-// Item Definitions
 export const ITEMS: Record<string, Item> = {
+  // --- Static Items ---
   coins: {
     id: 'coins',
     name: 'Coins',
-    type: 'resource',
-    category: ITEM_CATEGORIES.MISC,
-    icon: '/assets/ItemThumbnail/Div/coins.png',
-    buyPrice: 1,
-    sellPrice: 1
+    type: 'currency',
+    category: ITEM_CATEGORIES.CURRENCY,
+    icon: '/assets/ItemThumbnail/Div/Coins.png'
   },
 
   // Tools - Woodcutting
@@ -394,11 +402,11 @@ export const ITEMS: Record<string, Item> = {
     id: 'small_fishing_net',
     name: 'Small Fishing Net',
     type: 'tool',
+    level: 1,
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
-    icon: '/assets/ItemThumbnail/Div/small_fishing_net.png',
-    buyPrice: 100,
-    sellPrice: 40,
+    stats: { fishing: 1 },
+    icon: '/assets/ItemThumbnail/Div/small_fishing_net.png'
   },
   big_fishing_net: {
     id: 'big_fishing_net',
@@ -407,8 +415,6 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/big_fishing_net.png',
-    buyPrice: 200,
-    sellPrice: 80,
   },
   fishing_rod: {
     id: 'fishing_rod',
@@ -417,8 +423,6 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/fishing_rod.png',
-    buyPrice: 150,
-    sellPrice: 60,
   },
   fly_fishing_rod: {
     id: 'fly_fishing_rod',
@@ -427,8 +431,6 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/fly_fishing_rod.png',
-    buyPrice: 500,
-    sellPrice: 200,
   },
   harpoon: {
     id: 'harpoon',
@@ -437,8 +439,6 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/harpoon.png',
-    buyPrice: 1000,
-    sellPrice: 400,
   },
   lobster_pot: {
     id: 'lobster_pot',
@@ -447,8 +447,6 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/lobster_pot.png',
-    buyPrice: 300,
-    sellPrice: 120,
   },
   feather: {
     id: 'feather',
@@ -456,338 +454,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Div/feather.png',
-    buyPrice: 2,
-    sellPrice: 1,
-  },
-
-
-  teak_logs: {
-    id: 'teak_logs',
-    name: 'Teak Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Teak_Log.png',
-    buyPrice: 100,
-    sellPrice: 40,
-  },
-  mahogany_logs: {
-    id: 'mahogany_logs',
-    name: 'Mahogany Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Mahogany_Log.png',
-    buyPrice: 140,
-    sellPrice: 56,
-  },
-
-  // Resources - Fishing
-  raw_shrimp: {
-    id: 'raw_shrimp',
-    name: 'Raw Shrimp',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/raw_shrimp.png',
-    buyPrice: 5,
-    sellPrice: 2,
-  },
-  raw_anchovy: {
-    id: 'raw_anchovy',
-    name: 'Raw Anchovy',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/raw_anchovy.png',
-    buyPrice: 10,
-    sellPrice: 4,
-  },
-  raw_trout: {
-    id: 'raw_trout',
-    name: 'Raw Trout',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Trout.png',
-    buyPrice: 20,
-    sellPrice: 8,
-  },
-  raw_herring: {
-    id: 'raw_herring',
-    name: 'Raw Herring',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Herring.png',
-    buyPrice: 15,
-    sellPrice: 6,
-  },
-  raw_pike: {
-    id: 'raw_pike',
-    name: 'Raw Pike',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Pike.png',
-    buyPrice: 25,
-    sellPrice: 10,
-  },
-  raw_salmon: {
-    id: 'raw_salmon',
-    name: 'Raw Salmon',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Salmon.png',
-    buyPrice: 30,
-    sellPrice: 12,
-  },
-  raw_tuna: {
-    id: 'raw_tuna',
-    name: 'Raw Tuna',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Tuna.png',
-    buyPrice: 35,
-    sellPrice: 14,
-  },
-  raw_lobster: {
-    id: 'raw_lobster',
-    name: 'Raw Lobster',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Lobster.png',
-    buyPrice: 40,
-    sellPrice: 16,
-  },
-  raw_bass: {
-    id: 'raw_bass',
-    name: 'Raw Bass',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Bass.png',
-    buyPrice: 45,
-    sellPrice: 18,
-  },
-  raw_swordfish: {
-    id: 'raw_swordfish',
-    name: 'Raw Swordfish',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Swordfish.png',
-    buyPrice: 50,
-    sellPrice: 20,
-  },
-  raw_monkfish: {
-    id: 'raw_monkfish',
-    name: 'Raw Monkfish',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Monkfish.png',
-    buyPrice: 60,
-    sellPrice: 24,
-  },
-  raw_shark: {
-    id: 'raw_shark',
-    name: 'Raw Shark',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Shark.png',
-    buyPrice: 75,
-    sellPrice: 30,
-  },
-  raw_anglerfish: {
-    id: 'raw_anglerfish',
-    name: 'Raw Anglerfish',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Anglerfish.png',
-    buyPrice: 90,
-    sellPrice: 36,
-  },
-  raw_dark_crab: {
-    id: 'raw_dark_crab',
-    name: 'Raw Dark Crab',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Dark_Crab.png',
-    buyPrice: 100,
-    sellPrice: 40,
-  },
-  feathers: {
-    id: 'feathers',
-    name: 'Feathers',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Feathers.png',
-    buyPrice: 2,
-    sellPrice: 1,
-  },
-
-  // Cooked Food
-  cooked_meat: {
-    id: 'cooked_meat',
-    name: 'Cooked Meat',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Meat.png',
-    buyPrice: 12,
-    sellPrice: 5,
-    healing: 3,
-  },
-  cooked_chicken: {
-    id: 'cooked_chicken',
-    name: 'Cooked Chicken',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Chicken.png',
-    buyPrice: 12,
-    sellPrice: 5,
-    healing: 3,
-  },
-  cooked_shrimp: {
-    id: 'cooked_shrimp',
-    name: 'Cooked Shrimp',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Shrimp.png',
-    buyPrice: 12,
-    sellPrice: 5,
-    healing: 3,
-  },
-  cooked_sardine: {
-    id: 'cooked_sardine',
-    name: 'Cooked Sardine',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Sardine.png',
-    buyPrice: 15,
-    sellPrice: 6,
-    healing: 4,
-  },
-  cooked_herring: {
-    id: 'cooked_herring',
-    name: 'Cooked Herring',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Herring.png',
-    buyPrice: 20,
-    sellPrice: 8,
-    healing: 5,
-  },
-  cooked_trout: {
-    id: 'cooked_trout',
-    name: 'Cooked Trout',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Trout.png',
-    buyPrice: 25,
-    sellPrice: 10,
-    healing: 7,
-  },
-  cooked_pike: {
-    id: 'cooked_pike',
-    name: 'Cooked Pike',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Pike.png',
-    buyPrice: 30,
-    sellPrice: 12,
-    healing: 8,
-  },
-  cooked_salmon: {
-    id: 'cooked_salmon',
-    name: 'Cooked Salmon',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Salmon.png',
-    buyPrice: 35,
-    sellPrice: 14,
-    healing: 9,
-  },
-  cooked_tuna: {
-    id: 'cooked_tuna',
-    name: 'Cooked Tuna',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Tuna.png',
-    buyPrice: 40,
-    sellPrice: 16,
-    healing: 10,
-  },
-  cooked_lobster: {
-    id: 'cooked_lobster',
-    name: 'Cooked Lobster',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Lobster.png',
-    buyPrice: 50,
-    sellPrice: 20,
-    healing: 12,
-  },
-  cooked_bass: {
-    id: 'cooked_bass',
-    name: 'Cooked Bass',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Bass.png',
-    buyPrice: 55,
-    sellPrice: 22,
-    healing: 13,
-  },
-  cooked_swordfish: {
-    id: 'cooked_swordfish',
-    name: 'Cooked Swordfish',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Swordfish.png',
-    buyPrice: 60,
-    sellPrice: 24,
-    healing: 14,
-  },
-  cooked_monkfish: {
-    id: 'cooked_monkfish',
-    name: 'Cooked Monkfish',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Monkfish.png',
-    buyPrice: 70,
-    sellPrice: 28,
-    healing: 16,
-  },
-  cooked_shark: {
-    id: 'cooked_shark',
-    name: 'Cooked Shark',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Shark.png',
-    buyPrice: 85,
-    sellPrice: 34,
-    healing: 20,
-  },
-  cooked_anglerfish: {
-    id: 'cooked_anglerfish',
-    name: 'Cooked Anglerfish',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Anglerfish.png',
-    buyPrice: 100,
-    sellPrice: 40,
-    healing: 21,
-  },
-  cooked_dark_crab: {
-    id: 'cooked_dark_crab',
-    name: 'Cooked Dark Crab',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Dark_Crab.png',
-    buyPrice: 110,
-    sellPrice: 44,
-    healing: 22,
-  },
-
-  // Firemaking Products
-  ashes: {
-    id: 'ashes',
-    name: 'Ashes',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/ashes.png',
-    buyPrice: 2,
-    sellPrice: 1,
   },
 
   // Tools - Mining
@@ -795,10 +461,11 @@ export const ITEMS: Record<string, Item> = {
     id: 'bronze_pickaxe',
     name: 'Bronze Pickaxe',
     type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/bronze_pickaxe.png',
     level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { mining: 1 },
+    icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/bronze_pickaxe.png'
   },
   iron_pickaxe: {
     id: 'iron_pickaxe',
@@ -846,15 +513,13 @@ export const ITEMS: Record<string, Item> = {
     slot: EQUIPMENT_SLOTS.WEAPON
   },
 
-  // Resources - Mining
+  // Resources - Ores
   copper_ore: {
     id: 'copper_ore',
     name: 'Copper Ore',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Copper_Ore.png',
-    buyPrice: 10,
-    sellPrice: 4,
   },
   tin_ore: {
     id: 'tin_ore',
@@ -862,8 +527,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Tin_Ore.png',
-    buyPrice: 10,
-    sellPrice: 4,
   },
   iron_ore: {
     id: 'iron_ore',
@@ -871,8 +534,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Iron_Ore.png',
-    buyPrice: 20,
-    sellPrice: 8,
   },
   silver_ore: {
     id: 'silver_ore',
@@ -880,8 +541,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Silver_Ore.png',
-    buyPrice: 25,
-    sellPrice: 10,
   },
   gold_ore: {
     id: 'gold_ore',
@@ -889,8 +548,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Gold_Ore.png',
-    buyPrice: 45,
-    sellPrice: 18,
   },
   mithril_ore: {
     id: 'mithril_ore',
@@ -898,8 +555,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Mithril_Ore.png',
-    buyPrice: 80,
-    sellPrice: 32,
   },
   adamantite_ore: {
     id: 'adamantite_ore',
@@ -907,8 +562,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Adamant_Ore.png',
-    buyPrice: 160,
-    sellPrice: 64,
   },
   runite_ore: {
     id: 'runite_ore',
@@ -916,8 +569,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Rune_Ore.png',
-    buyPrice: 320,
-    sellPrice: 128,
   },
   coal: {
     id: 'coal',
@@ -925,82 +576,15 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Coal_Ore.png',
-    buyPrice: 45,
-    sellPrice: 18,
-  },
-  magic_logs: {
-    id: 'magic_logs',
-    name: 'Magic Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Magic_Log.png',
-    buyPrice: 320,
-    sellPrice: 128,
-  },
-  maple_logs: {
-    id: 'maple_logs',
-    name: 'Maple Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Maple_Log.png',
-    buyPrice: 80,
-    sellPrice: 32,
-  },
-  normal_logs: {
-    id: 'normal_logs',
-    name: 'Normal Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Normal_Log.png',
-    buyPrice: 10,
-    sellPrice: 4,
-  },
-  oak_logs: {
-    id: 'oak_logs',
-    name: 'Oak Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Oak_Log.png',
-    buyPrice: 20,
-    sellPrice: 8,
-  },
-  redwood_logs: {
-    id: 'redwood_logs',
-    name: 'Redwood Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/RedWood_Log.png',
-    buyPrice: 400,
-    sellPrice: 160,
-  },
-  willow_logs: {
-    id: 'willow_logs',
-    name: 'Willow Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Willow_Log.png',
-    buyPrice: 40,
-    sellPrice: 16,
-  },
-  yew_logs: {
-    id: 'yew_logs',
-    name: 'Yew Logs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Yew_Log.png',
-    buyPrice: 160,
-    sellPrice: 64,
   },
 
-  // Resources - Smithing
+  // Resources - Bars
   bronze_bar: {
     id: 'bronze_bar',
     name: 'Bronze Bar',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Bronze_Bar.png',
-    buyPrice: 50,
-    sellPrice: 20,
   },
   iron_bar: {
     id: 'iron_bar',
@@ -1008,8 +592,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Iron_Bar.png',
-    buyPrice: 100,
-    sellPrice: 40,
   },
   silver_bar: {
     id: 'silver_bar',
@@ -1017,8 +599,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Silver_Bar.png',
-    buyPrice: 75,
-    sellPrice: 30,
   },
   steel_bar: {
     id: 'steel_bar',
@@ -1026,8 +606,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Steel_Bar.png',
-    buyPrice: 200,
-    sellPrice: 80,
   },
   gold_bar: {
     id: 'gold_bar',
@@ -1035,8 +613,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Gold_Bar.png',
-    buyPrice: 150,
-    sellPrice: 60,
   },
   mithril_bar: {
     id: 'mithril_bar',
@@ -1044,8 +620,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Mithril_Bar.png',
-    buyPrice: 400,
-    sellPrice: 160,
   },
   adamant_bar: {
     id: 'adamant_bar',
@@ -1053,8 +627,6 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Adamant_Bar.png',
-    buyPrice: 800,
-    sellPrice: 320,
   },
   runite_bar: {
     id: 'runite_bar',
@@ -1062,785 +634,312 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Smithing/Runite_Bar.png',
-    buyPrice: 1600,
-    sellPrice: 640,
   },
 
-  // Bronze Armor
-  bronze_helmet: {
-    id: 'bronze_helmet',
-    name: 'Bronze Full Helm',
-    type: 'tool',
-    level: 1,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 200,
-    sellPrice: 80,
+  // Resources - Logs
+  normal_logs: {
+    id: 'normal_logs',
+    name: 'Normal Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Woodcutting/Normal_Log.png'
   },
-  bronze_platebody: {
-    id: 'bronze_platebody',
-    name: 'Bronze Platebody',
-    type: 'tool',
-    level: 2,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.BODY,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 500,
-    sellPrice: 200,
+  oak_logs: {
+    id: 'oak_logs',
+    name: 'Oak Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png' // Placeholder, update later
   },
-  bronze_platelegs: {
-    id: 'bronze_platelegs',
-    name: 'Bronze Platelegs',
-    type: 'tool',
-    level: 3,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 300,
-    sellPrice: 120,
+  willow_logs: {
+    id: 'willow_logs',
+    name: 'Willow Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png' // Placeholder, update later
+  },
+  maple_logs: {
+    id: 'maple_logs',
+    name: 'Maple Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Woodcutting/Maple_Log.png'
+  },
+  yew_logs: {
+    id: 'yew_logs',
+    name: 'Yew Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png' // Placeholder, update later
+  },
+  magic_logs: {
+    id: 'magic_logs',
+    name: 'Magic Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Woodcutting/Magic_Log.png'
+  },
+  redwood_logs: {
+    id: 'redwood_logs',
+    name: 'Redwood Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png' // Placeholder, update later
+  },
+  teak_logs: {
+    id: 'teak_logs',
+    name: 'Teak Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Woodcutting/Teak_Log.png',
+  },
+  mahogany_logs: {
+    id: 'mahogany_logs',
+    name: 'Mahogany Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Woodcutting/Mahogany_Log.png',
   },
 
-  // Iron Armor
-  iron_helmet: {
-    id: 'iron_helmet',
-    name: 'Iron Full Helm',
-    type: 'tool',
-    level: 15,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 400,
-    sellPrice: 160,
+  // Resources - Fishing
+  raw_shrimp: {
+    id: 'raw_shrimp',
+    name: 'Raw Shrimp',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/raw_shrimp.png',
   },
-  iron_platebody: {
-    id: 'iron_platebody',
-    name: 'Iron Platebody',
-    type: 'tool',
-    level: 18,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.BODY,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 1000,
-    sellPrice: 400,
+  raw_anchovy: {
+    id: 'raw_anchovy',
+    name: 'Raw Anchovy',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/raw_anchovy.png',
   },
-  iron_platelegs: {
-    id: 'iron_platelegs',
-    name: 'Iron Platelegs',
-    type: 'tool',
-    level: 16,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 600,
-    sellPrice: 240,
+  raw_trout: {
+    id: 'raw_trout',
+    name: 'Raw Trout',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Trout.png',
+  },
+  raw_herring: {
+    id: 'raw_herring',
+    name: 'Raw Herring',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Herring.png',
+  },
+  raw_pike: {
+    id: 'raw_pike',
+    name: 'Raw Pike',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Pike.png',
+  },
+  raw_salmon: {
+    id: 'raw_salmon',
+    name: 'Raw Salmon',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Salmon.png',
+  },
+  raw_tuna: {
+    id: 'raw_tuna',
+    name: 'Raw Tuna',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Tuna.png',
+  },
+  raw_lobster: {
+    id: 'raw_lobster',
+    name: 'Raw Lobster',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Lobster.png',
+  },
+  raw_bass: {
+    id: 'raw_bass',
+    name: 'Raw Bass',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Bass.png',
+  },
+  raw_swordfish: {
+    id: 'raw_swordfish',
+    name: 'Raw Swordfish',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Swordfish.png',
+  },
+  raw_monkfish: {
+    id: 'raw_monkfish',
+    name: 'Raw Monkfish',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Monkfish.png',
+  },
+  raw_shark: {
+    id: 'raw_shark',
+    name: 'Raw Shark',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Shark.png',
+  },
+  raw_anglerfish: {
+    id: 'raw_anglerfish',
+    name: 'Raw Anglerfish',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Anglerfish.png',
+  },
+  raw_dark_crab: {
+    id: 'raw_dark_crab',
+    name: 'Raw Dark Crab',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/Raw_Dark_Crab.png',
   },
 
-  // Steel Armor
-  steel_helmet: {
-    id: 'steel_helmet',
-    name: 'Steel Full Helm',
-    type: 'tool',
-    level: 30,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 800,
-    sellPrice: 320,
+  // Cooked Food
+  cooked_meat: {
+    id: 'cooked_meat',
+    name: 'Cooked Meat',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Meat.png',
+    healing: 3,
   },
-  steel_platebody: {
-    id: 'steel_platebody',
-    name: 'Steel Platebody',
-    type: 'tool',
-    level: 33,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.BODY,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 2000,
-    sellPrice: 800,
+  cooked_chicken: {
+    id: 'cooked_chicken',
+    name: 'Cooked Chicken',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Chicken.png',
+    healing: 3,
   },
-  steel_platelegs: {
-    id: 'steel_platelegs',
-    name: 'Steel Platelegs',
-    type: 'tool',
-    level: 31,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 1200,
-    sellPrice: 480,
+  cooked_shrimp: {
+    id: 'cooked_shrimp',
+    name: 'Cooked Shrimp',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Shrimp.png',
+    healing: 3,
   },
-
-  // Mithril Armor
-  mithril_helmet: {
-    id: 'mithril_helmet',
-    name: 'Mithril Full Helm',
-    type: 'tool',
-    level: 50,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 1600,
-    sellPrice: 640,
+  cooked_sardine: {
+    id: 'cooked_sardine',
+    name: 'Cooked Sardine',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Sardine.png',
+    healing: 4,
   },
-  mithril_platebody: {
-    id: 'mithril_platebody',
-    name: 'Mithril Platebody',
-    type: 'tool',
-    level: 53,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.BODY,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 4000,
-    sellPrice: 1600,
+  cooked_herring: {
+    id: 'cooked_herring',
+    name: 'Cooked Herring',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Herring.png',
+    healing: 5,
   },
-  mithril_platelegs: {
-    id: 'mithril_platelegs',
-    name: 'Mithril Platelegs',
-    type: 'tool',
-    level: 51,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 2400,
-    sellPrice: 960,
+  cooked_trout: {
+    id: 'cooked_trout',
+    name: 'Cooked Trout',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Trout.png',
+    healing: 7,
   },
-
-  // Adamant Armor
-  adamant_helmet: {
-    id: 'adamant_helmet',
-    name: 'Adamant Full Helm',
-    type: 'tool',
-    level: 70,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 3200,
-    sellPrice: 1280,
+  cooked_pike: {
+    id: 'cooked_pike',
+    name: 'Cooked Pike',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Pike.png',
+    healing: 8,
   },
-  adamant_platebody: {
-    id: 'adamant_platebody',
-    name: 'Adamant Platebody',
-    type: 'tool',
-    level: 73,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.BODY,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 8000,
-    sellPrice: 3200,
+  cooked_salmon: {
+    id: 'cooked_salmon',
+    name: 'Cooked Salmon',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Salmon.png',
+    healing: 9,
   },
-  adamant_platelegs: {
-    id: 'adamant_platelegs',
-    name: 'Adamant Platelegs',
-    type: 'tool',
-    level: 71,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 4800,
-    sellPrice: 1920,
+  cooked_tuna: {
+    id: 'cooked_tuna',
+    name: 'Cooked Tuna',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Tuna.png',
+    healing: 10,
   },
-
-  // Rune Armor
-  rune_helmet: {
-    id: 'rune_helmet',
-    name: 'Rune Full Helm',
-    type: 'tool',
-    level: 85,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 6400,
-    sellPrice: 2560,
+  cooked_lobster: {
+    id: 'cooked_lobster',
+    name: 'Cooked Lobster',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Lobster.png',
+    healing: 12,
   },
-  rune_platebody: {
-    id: 'rune_platebody',
-    name: 'Rune Platebody',
-    type: 'tool',
-    level: 88,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.BODY,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 16000,
-    sellPrice: 6400,
+  cooked_bass: {
+    id: 'cooked_bass',
+    name: 'Cooked Bass',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Bass.png',
+    healing: 13,
   },
-  rune_platelegs: {
-    id: 'rune_platelegs',
-    name: 'Rune Platelegs',
-    type: 'tool',
-    level: 86,
-    stats: createDefaultCombatStats(),
-    category: ITEM_CATEGORIES.ARMOR,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 9600,
-    sellPrice: 3840,
+  cooked_swordfish: {
+    id: 'cooked_swordfish',
+    name: 'Cooked Swordfish',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Swordfish.png',
+    healing: 14,
   },
-  ...SMITHING_ITEMS,
-  bronze_dagger: {
-    id: 'bronze_dagger',
-    name: 'Bronze Dagger',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/bronze_dagger.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
+  cooked_monkfish: {
+    id: 'cooked_monkfish',
+    name: 'Cooked Monkfish',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Monkfish.png',
+    healing: 16,
   },
-  iron_dagger: {
-    id: 'iron_dagger',
-    name: 'Iron Dagger',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/iron_dagger.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
+  cooked_shark: {
+    id: 'cooked_shark',
+    name: 'Cooked Shark',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Shark.png',
+    healing: 20,
   },
-  steel_dagger: {
-    id: 'steel_dagger',
-    name: 'Steel Dagger',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/steel_dagger.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
+  cooked_anglerfish: {
+    id: 'cooked_anglerfish',
+    name: 'Cooked Anglerfish',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Anglerfish.png',
+    healing: 21,
   },
-  mithril_dagger: {
-    id: 'mithril_dagger',
-    name: 'Mithril Dagger',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/mithril_dagger.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  adamant_dagger: {
-    id: 'adamant_dagger',
-    name: 'Adamant Dagger',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/adamant_dagger.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  rune_dagger: {
-    id: 'rune_dagger',
-    name: 'Rune Dagger',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/rune_dagger.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  bronze_sword: {
-    id: 'bronze_sword',
-    name: 'Bronze Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/sword/bronze_sword.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  iron_sword: {
-    id: 'iron_sword',
-    name: 'Iron Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/sword/iron_sword.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  steel_sword: {
-    id: 'steel_sword',
-    name: 'Steel Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/sword/steel_sword.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  mithril_sword: {
-    id: 'mithril_sword',
-    name: 'Mithril Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/sword/mithril_sword.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  adamant_sword: {
-    id: 'adamant_sword',
-    name: 'Adamant Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/sword/adamant_sword.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  rune_sword: {
-    id: 'rune_sword',
-    name: 'Rune Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/sword/rune_sword.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
+  cooked_dark_crab: {
+    id: 'cooked_dark_crab',
+    name: 'Cooked Dark Crab',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/Cooked_Dark_Crab.png',
+    healing: 22,
   },
 
-  // Fletching & Bow Crafting Items
-  arrow_shafts: {
-    id: 'arrow_shafts',
-    name: 'Arrow Shafts',
+  // Firemaking Products
+  ashes: {
+    id: 'ashes',
+    name: 'Ashes',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/arrow_shafts.png',
-    buyPrice: 5,
-    sellPrice: 2,
+    icon: '/assets/items/ashes.png',
   },
-  headless_arrows: {
-    id: 'headless_arrows',
-    name: 'Headless Arrows',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/headless_arrows.png',
-    buyPrice: 10,
-    sellPrice: 4,
-  },
-  bow_string: {
-    id: 'bow_string',
-    name: 'Bow String',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/bow_string.png',
-    buyPrice: 20,
-    sellPrice: 8,
-  },
-  bronze_arrowtips: {
-    id: 'bronze_arrowtips',
-    name: 'Bronze Arrowtips',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/bronze_arrowtips.png',
-    buyPrice: 15,
-    sellPrice: 6,
-  },
-  iron_arrowtips: {
-    id: 'iron_arrowtips',
-    name: 'Iron Arrowtips',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/iron_arrowtips.png',
-    buyPrice: 30,
-    sellPrice: 12,
-  },
-  steel_arrowtips: {
-    id: 'steel_arrowtips',
-    name: 'Steel Arrowtips',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/steel_arrowtips.png',
-    buyPrice: 60,
-    sellPrice: 24,
-  },
-  mithril_arrowtips: {
-    id: 'mithril_arrowtips',
-    name: 'Mithril Arrowtips',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/mithril_arrowtips.png',
-    buyPrice: 120,
-    sellPrice: 48,
-  },
-  adamant_arrowtips: {
-    id: 'adamant_arrowtips',
-    name: 'Adamant Arrowtips',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/adamant_arrowtips.png',
-    buyPrice: 240,
-    sellPrice: 96,
-  },
-  rune_arrowtips: {
-    id: 'rune_arrowtips',
-    name: 'Rune Arrowtips',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/rune_arrowtips.png',
-    buyPrice: 480,
-    sellPrice: 192,
-  },
-  bronze_arrows: {
-    id: 'bronze_arrows',
-    name: 'Bronze Arrows',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/bronze_arrows.png',
-    buyPrice: 30,
-    sellPrice: 12,
-  },
-  iron_arrows: {
-    id: 'iron_arrows',
-    name: 'Iron Arrows',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/iron_arrows.png',
-    buyPrice: 60,
-    sellPrice: 24,
-  },
-  steel_arrows: {
-    id: 'steel_arrows',
-    name: 'Steel Arrows',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/steel_arrows.png',
-    buyPrice: 120,
-    sellPrice: 48,
-  },
-  mithril_arrows: {
-    id: 'mithril_arrows',
-    name: 'Mithril Arrows',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/mithril_arrows.png',
-    buyPrice: 240,
-    sellPrice: 96,
-  },
-  adamant_arrows: {
-    id: 'adamant_arrows',
-    name: 'Adamant Arrows',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/adamant_arrows.png',
-    buyPrice: 480,
-    sellPrice: 192,
-  },
-  rune_arrows: {
-    id: 'rune_arrows',
-    name: 'Rune Arrows',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/rune_arrows.png',
-    buyPrice: 960,
-    sellPrice: 384,
-  },
-  // Unstrung and Strung Bows for each log type
-  unstrung_oak_shortbow: {
-    id: 'unstrung_oak_shortbow',
-    name: 'Unstrung Oak Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_oak_shortbow.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  oak_shortbow: {
-    id: 'oak_shortbow',
-    name: 'Oak Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/oak_shortbow.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_oak_longbow: {
-    id: 'unstrung_oak_longbow',
-    name: 'Unstrung Oak Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_oak_longbow.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  oak_longbow: {
-    id: 'oak_longbow',
-    name: 'Oak Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/oak_longbow.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_willow_shortbow: {
-    id: 'unstrung_willow_shortbow',
-    name: 'Unstrung Willow Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_willow_shortbow.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  willow_shortbow: {
-    id: 'willow_shortbow',
-    name: 'Willow Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/willow_shortbow.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_willow_longbow: {
-    id: 'unstrung_willow_longbow',
-    name: 'Unstrung Willow Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_willow_longbow.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  willow_longbow: {
-    id: 'willow_longbow',
-    name: 'Willow Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/willow_longbow.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_maple_shortbow: {
-    id: 'unstrung_maple_shortbow',
-    name: 'Unstrung Maple Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_maple_shortbow.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  maple_shortbow: {
-    id: 'maple_shortbow',
-    name: 'Maple Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/maple_shortbow.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_maple_longbow: {
-    id: 'unstrung_maple_longbow',
-    name: 'Unstrung Maple Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_maple_longbow.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  maple_longbow: {
-    id: 'maple_longbow',
-    name: 'Maple Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/maple_longbow.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_yew_shortbow: {
-    id: 'unstrung_yew_shortbow',
-    name: 'Unstrung Yew Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_yew_shortbow.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  yew_shortbow: {
-    id: 'yew_shortbow',
-    name: 'Yew Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/yew_shortbow.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_yew_longbow: {
-    id: 'unstrung_yew_longbow',
-    name: 'Unstrung Yew Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_yew_longbow.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  yew_longbow: {
-    id: 'yew_longbow',
-    name: 'Yew Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/yew_longbow.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_magic_shortbow: {
-    id: 'unstrung_magic_shortbow',
-    name: 'Unstrung Magic Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_magic_shortbow.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  magic_shortbow: {
-    id: 'magic_shortbow',
-    name: 'Magic Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/magic_shortbow.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_magic_longbow: {
-    id: 'unstrung_magic_longbow',
-    name: 'Unstrung Magic Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_magic_longbow.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  magic_longbow: {
-    id: 'magic_longbow',
-    name: 'Magic Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/magic_longbow.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_redwood_shortbow: {
-    id: 'unstrung_redwood_shortbow',
-    name: 'Unstrung Redwood Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_redwood_shortbow.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  redwood_shortbow: {
-    id: 'redwood_shortbow',
-    name: 'Redwood Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/redwood_shortbow.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_redwood_longbow: {
-    id: 'unstrung_redwood_longbow',
-    name: 'Unstrung Redwood Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_redwood_longbow.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  redwood_longbow: {
-    id: 'redwood_longbow',
-    name: 'Redwood Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/redwood_longbow.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_teak_shortbow: {
-    id: 'unstrung_teak_shortbow',
-    name: 'Unstrung Teak Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_teak_shortbow.png',
-    level: 35,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  teak_shortbow: {
-    id: 'teak_shortbow',
-    name: 'Teak Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/teak_shortbow.png',
-    level: 35,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_teak_longbow: {
-    id: 'unstrung_teak_longbow',
-    name: 'Unstrung Teak Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_teak_longbow.png',
-    level: 35,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  teak_longbow: {
-    id: 'teak_longbow',
-    name: 'Teak Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/teak_longbow.png',
-    level: 35,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_mahogany_shortbow: {
-    id: 'unstrung_mahogany_shortbow',
-    name: 'Unstrung Mahogany Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_mahogany_shortbow.png',
-    level: 45,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  mahogany_shortbow: {
-    id: 'mahogany_shortbow',
-    name: 'Mahogany Shortbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/mahogany_shortbow.png',
-    level: 45,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  unstrung_mahogany_longbow: {
-    id: 'unstrung_mahogany_longbow',
-    name: 'Unstrung Mahogany Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/unstrung_mahogany_longbow.png',
-    level: 45,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  mahogany_longbow: {
-    id: 'mahogany_longbow',
-    name: 'Mahogany Longbow',
-    type: 'tool',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/items/mahogany_longbow.png',
-    level: 45,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-  },
-  // --- MONSTER DROP ITEMS (PLACEHOLDER ICONS) ---
+
   bones: {
     id: 'bones',
     name: 'Bones',
@@ -1848,151 +947,79 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  bronze_spear: {
-    id: 'bronze_spear',
-    name: 'Bronze Spear',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/items/placeholder.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(),
-  },
-  water_rune: {
-    id: 'water_rune',
-    name: 'Water Rune',
+  big_bones: {
+    id: 'big_bones',
+    name: 'Big Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  earth_rune: {
-    id: 'earth_rune',
-    name: 'Earth Rune',
+  dragon_bones: {
+    id: 'dragon_bones',
+    name: 'Dragon Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  bronze_bolts: {
-    id: 'bronze_bolts',
-    name: 'Bronze Bolts',
+  bat_bones: {
+    id: 'bat_bones',
+    name: 'Bat Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  bronze_med_helm: {
-    id: 'bronze_med_helm',
-    name: 'Bronze Med Helm',
-    type: 'tool',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: createDefaultCombatStats(),
-  },
-  bronze_longsword: {
-    id: 'bronze_longsword',
-    name: 'Bronze Longsword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/items/placeholder.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats(),
-  },
-  body_rune: {
-    id: 'body_rune',
-    name: 'Body Rune',
+  burnt_bones: {
+    id: 'burnt_bones',
+    name: 'Burnt Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  mind_rune: {
-    id: 'mind_rune',
-    name: 'Mind Rune',
+  wolf_bones: {
+    id: 'wolf_bones',
+    name: 'Wolf Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  air_rune: {
-    id: 'air_rune',
-    name: 'Air Rune',
+  monkey_bones: {
+    id: 'monkey_bones',
+    name: 'Monkey Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  nature_rune: {
-    id: 'nature_rune',
-    name: 'Nature Rune',
+  dagannoth_bones: {
+    id: 'dagannoth_bones',
+    name: 'Dagannoth Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  leather_gloves: {
-    id: 'leather_gloves',
-    name: 'Leather Gloves',
-    type: 'tool',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
-    slot: EQUIPMENT_SLOTS.HANDS,
-    stats: createDefaultCombatStats(),
-  },
-  gold_ring: {
-    id: 'gold_ring',
-    name: 'Gold Ring',
-    type: 'tool',
-    category: ITEM_CATEGORIES.MISC,
-    icon: '/assets/items/placeholder.png',
-    slot: EQUIPMENT_SLOTS.RING,
-  },
-  sapphire_ring: {
-    id: 'sapphire_ring',
-    name: 'Sapphire Ring',
-    type: 'tool',
-    category: ITEM_CATEGORIES.MISC,
-    icon: '/assets/items/placeholder.png',
-    slot: EQUIPMENT_SLOTS.RING,
-  },
-  emerald_ring: {
-    id: 'emerald_ring',
-    name: 'Emerald Ring',
-    type: 'tool',
-    category: ITEM_CATEGORIES.MISC,
-    icon: '/assets/items/placeholder.png',
-    slot: EQUIPMENT_SLOTS.RING,
-  },
-  bronze_boots: {
-    id: 'bronze_boots',
-    name: 'Bronze Boots',
-    type: 'tool',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
-    slot: EQUIPMENT_SLOTS.FEET,
-    stats: createDefaultCombatStats(),
-  },
-  fire_rune: {
-    id: 'fire_rune',
-    name: 'Fire Rune',
+  wyvern_bones: {
+    id: 'wyvern_bones',
+    name: 'Wyvern Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  potato_seed: {
-    id: 'potato_seed',
-    name: 'Potato Seed',
+  lava_dragon_bones: {
+    id: 'lava_dragon_bones',
+    name: 'Lava Dragon Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  onion_seed: {
-    id: 'onion_seed',
-    name: 'Onion Seed',
+  babydragon_bones: {
+    id: 'babydragon_bones',
+    name: 'Babydragon Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  cabbage_seed: {
-    id: 'cabbage_seed',
-    name: 'Cabbage Seed',
+  superior_dragon_bones: {
+    id: 'superior_dragon_bones',
+    name: 'Superior Dragon Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
@@ -2116,186 +1143,6 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  bronze_scimitar: {
-    id: 'bronze_scimitar',
-    name: 'Bronze Scimitar',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/scimitar/bronze_scimitar.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  iron_scimitar: {
-    id: 'iron_scimitar',
-    name: 'Iron Scimitar',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/scimitar/iron_scimitar.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  steel_scimitar: {
-    id: 'steel_scimitar',
-    name: 'Steel Scimitar',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/scimitar/steel_scimitar.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  mithril_scimitar: {
-    id: 'mithril_scimitar',
-    name: 'Mithril Scimitar',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/scimitar/mithril_scimitar.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  adamant_scimitar: {
-    id: 'adamant_scimitar',
-    name: 'Adamant Scimitar',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/scimitar/adamant_scimitar.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  rune_scimitar: {
-    id: 'rune_scimitar',
-    name: 'Rune Scimitar',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/scimitar/rune_scimitar.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  bronze_mace: {
-    id: 'bronze_mace',
-    name: 'Bronze Mace',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/mace/bronze_mace.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  iron_mace: {
-    id: 'iron_mace',
-    name: 'Iron Mace',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/mace/iron_mace.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  steel_mace: {
-    id: 'steel_mace',
-    name: 'Steel Mace',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/mace/steel_mace.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  mithril_mace: {
-    id: 'mithril_mace',
-    name: 'Mithril Mace',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/mace/mithril_mace.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  adamant_mace: {
-    id: 'adamant_mace',
-    name: 'Adamant Mace',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/mace/adamant_mace.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  rune_mace: {
-    id: 'rune_mace',
-    name: 'Rune Mace',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/mace/rune_mace.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  bronze_two_handed_sword: {
-    id: 'bronze_two_handed_sword',
-    name: 'Bronze Two-Handed Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/bronze_two_handed_sword.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  iron_two_handed_sword: {
-    id: 'iron_two_handed_sword',
-    name: 'Iron Two-Handed Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/iron_two_handed_sword.png',
-    level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  steel_two_handed_sword: {
-    id: 'steel_two_handed_sword',
-    name: 'Steel Two-Handed Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/steel_two_handed_sword.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  mithril_two_handed_sword: {
-    id: 'mithril_two_handed_sword',
-    name: 'Mithril Two-Handed Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/mithril_two_handed_sword.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  adamant_two_handed_sword: {
-    id: 'adamant_two_handed_sword',
-    name: 'Adamant Two-Handed Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/adamant_two_handed_sword.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
-  rune_two_handed_sword: {
-    id: 'rune_two_handed_sword',
-    name: 'Rune Two-Handed Sword',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/rune_two_handed_sword.png',
-    level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: createDefaultCombatStats()
-  },
   goblin: {
     id: 'goblin',
     name: 'Goblin',
@@ -2303,6 +1150,14 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.MISC,
     icon: '/assets/ItemThumbnail/Combat/goblin.png',
   },
+
+  // --- Generated Smithing Items ---
+  ...generateSmithingItems('bronze'),
+  ...generateSmithingItems('iron'),
+  ...generateSmithingItems('steel'),
+  ...generateSmithingItems('mithril'),
+  ...generateSmithingItems('adamant'),
+  ...generateSmithingItems('rune'),
 };
 
 // Helper functions
@@ -2330,10 +1185,32 @@ export const meetsLevelRequirement = (item: Item, playerLevel: number): boolean 
 // Returns the required skill and level for equipping an item, or null if no requirement
 export function getEquipmentLevelRequirement(item: Item): { skill: SkillName, level: number } | null {
   if (!item || !item.slot) return null;
+
   const name = item.id.toLowerCase();
+
+  // Handle Tools first, as they might share the 'weapon' slot
+  if (item.category === ITEM_CATEGORIES.TOOLS) {
+    if (name.includes('_axe')) {
+      if (name.includes('bronze')) return { skill: 'woodcutting', level: 1 };
+      if (name.includes('iron')) return { skill: 'woodcutting', level: 10 };
+      if (name.includes('steel')) return { skill: 'woodcutting', level: 20 };
+      if (name.includes('mithril')) return { skill: 'woodcutting', level: 30 };
+      if (name.includes('adamant')) return { skill: 'woodcutting', level: 40 };
+      if (name.includes('rune')) return { skill: 'woodcutting', level: 50 };
+    }
+    if (name.includes('_pickaxe')) {
+      if (name.includes('bronze')) return { skill: 'mining', level: 1 };
+      if (name.includes('iron')) return { skill: 'mining', level: 10 };
+      if (name.includes('steel')) return { skill: 'mining', level: 20 };
+      if (name.includes('mithril')) return { skill: 'mining', level: 30 };
+      if (name.includes('adamant')) return { skill: 'mining', level: 40 };
+      if (name.includes('rune')) return { skill: 'mining', level: 50 };
+    }
+  }
+
   // Melee weapons
   if (item.slot === 'weapon') {
-    if (name.includes('sword') || name.includes('scimitar') || name.includes('mace') || name.includes('axe') || name.includes('warhammer') || name.includes('longsword') || name.includes('battleaxe')) {
+    if (name.includes('sword') || name.includes('scimitar') || name.includes('mace') || name.includes('warhammer') || name.includes('longsword') || name.includes('battleaxe')) {
       if (name.includes('bronze') || name.includes('iron')) return { skill: 'attack', level: 1 };
       if (name.includes('steel')) return { skill: 'attack', level: 5 };
       if (name.includes('mithril')) return { skill: 'attack', level: 20 };

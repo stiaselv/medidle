@@ -65,6 +65,8 @@ const createStore = () => create<GameState>()(
   (set, get) => ({
     // Initial state
     character: null,
+    user: null,
+    characters: [],
     selectedMonster: null,
     currentLocation: undefined,
     currentAction: null,
@@ -75,94 +77,116 @@ const createStore = () => create<GameState>()(
     characterState: 'idle' as const,
     lastActionReward: null,
     lastCombatRound: null,
+    isLoading: false,
+    activeView: 'location',
+
+    // Function to set the active view
+    setView: (view) => set({ activeView: view }),
+
+    // Function to load characters for the logged-in user
+    loadCharacters: async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/characters', {
+          credentials: 'include', // Important: sends cookies
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch characters.');
+        }
+        const characters = await response.json();
+        const charactersWithDates = characters.map((char: any) => ({
+          ...char,
+          lastLogin: new Date(char.lastLogin),
+          id: char._id,
+        }));
+        set({ characters: charactersWithDates });
+      } catch (error) {
+        console.error('Error loading characters:', error);
+        // If characters fail to load (e.g., unauthorized), log out the user
+        get().logout();
+      }
+    },
+    
+    // Function to save character progress to the backend
+    saveCharacter: async (character: Character) => {
+      if (!character || !character.id) return;
+      try {
+        await fetch(`http://localhost:5000/api/characters/${character.id}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(character),
+        });
+      } catch (error) {
+        console.error('Failed to save character progress:', error);
+        // Optionally, you could add a visual indicator in the UI that saving has failed
+      }
+    },
 
     // Character actions
+    selectCharacter: (character: Character) => {
+      set({ character });
+      // Here you might want to save the ID of the last selected character
+      // to local storage or the user's profile on the server, so you can
+      // auto-select it on next login.
+    },
     setCharacter: (character: Character | null) => {
       set({ character });
     },
-    createCharacter: (name: string) => {
-      // Generate a unique id for the character
-      const id = `char_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-      // Initialize all skills
-      const skills = {
-        none: createSkill('None'),
-        attack: createSkill('Attack'),
-        strength: createSkill('Strength'),
-        defence: createSkill('Defence'),
-        ranged: createSkill('Ranged'),
-        prayer: createSkill('Prayer'),
-        magic: createSkill('Magic'),
-        runecrafting: createSkill('Runecrafting'),
-        construction: createSkill('Construction'),
-        hitpoints: createSkill('Hitpoints', 10),
-        agility: createSkill('Agility'),
-        herblore: createSkill('Herblore'),
-        thieving: createSkill('Thieving'),
-        crafting: createSkill('Crafting'),
-        fletching: createSkill('Fletching'),
-        slayer: createSkill('Slayer'),
-        hunter: createSkill('Hunter'),
-        mining: createSkill('Mining'),
-        smithing: createSkill('Smithing'),
-        fishing: createSkill('Fishing'),
-        cooking: createSkill('Cooking'),
-        firemaking: createSkill('Firemaking'),
-        woodcutting: createSkill('Woodcutting'),
-        farming: createSkill('Farming')
-      };
-      // No default equipment
-      const equipment = {};
-      // Start bank: bronze axe, bronze pickaxe, small fishing net
-      const bank = [
-        { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 },
-        { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1 },
-        { id: 'small_net', name: 'Small Fishing Net', quantity: 1 }
-      ];
-      // Initialize stats
-      const stats = {
-        deaths: 0,
-        foodEaten: 0,
-        hitpointsGained: 0,
-        damageDone: 0,
-        damageTaken: 0,
-        coinsSpent: 0,
-        coinsEarned: 0,
-        slayerPointsSpent: 0,
-        slayerPointsEarned: 0,
-        totalActiveTime: 0,
-        totalOfflineTime: 0
-      };
-      // Create the character object
-      const character = {
-        id,
-        name,
-        lastLogin: new Date(),
-        lastAction: { type: 'none' as const, location: 'forest' },
-        skills,
-        bank,
-        equipment,
-        combatLevel: 3,
-        hitpoints: 10,
-        maxHitpoints: 10,
-        prayer: 1,
-        maxPrayer: 1,
-        specialEnergy: 100,
-        maxSpecialEnergy: 100,
-        activeEffects: [],
-        slayerPoints: 0,
-        currentSlayerTask: null,
-        slayerTaskStreak: 0,
-        stats
-      };
-      // Save to localStorage for persistence
+    createCharacter: async (name: string): Promise<Character | null> => {
       try {
-        localStorage.setItem(`character_${id}`, JSON.stringify({ ...character, lastLogin: new Date().toISOString() }));
+        const response = await fetch('http://localhost:5000/api/characters', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name }),
+        });
+
+        if (!response.ok) {
+          // You can handle different statuses here, e.g., 409 for duplicate name
+          const errorData = await response.json();
+          console.error('Failed to create character:', errorData.message);
+          // Optionally, you can throw an error or return a specific message
+          // to be displayed in the UI.
+          throw new Error(errorData.message || 'Failed to create character');
+        }
+
+        const newCharacter = await response.json();
+        
+        // The server now provides the full character object.
+        // We need to convert the lastLogin string back to a Date object.
+        const characterWithDate = {
+          ...newCharacter,
+          lastLogin: new Date(newCharacter.lastLogin),
+          // Also rename _id from mongo to id for the frontend
+          id: newCharacter._id
+        };
+        delete characterWithDate._id;
+
+
+        // Set character in the store temporarily to show it's created,
+        // then refresh the list from the server.
+        set({ character: characterWithDate });
+        await get().loadCharacters(); // Refresh the list
+        
+        // Find the newly created character in the refreshed list to return it
+        const newList = get().characters;
+        const newCharFromServer = newList.find(c => c.name === name);
+
+        return newCharFromServer || null;
+
       } catch (e) {
-        // Ignore localStorage errors
+        console.error('An error occurred during character creation:', e);
+        // We can re-throw the error to be caught by the UI component
+        // that called this function, allowing it to display a message.
+        if (e instanceof Error) {
+            throw e;
+        }
+        throw new Error('An unknown error occurred.');
       }
-      // Set in store
-      set({ character });
-      return character;
     },
     startAction: (action) => {
       // Always stop any previous action before starting a new one
@@ -200,7 +224,7 @@ const createStore = () => create<GameState>()(
           return;
         }
         const elapsed = Date.now() - startTime;
-        let progress = Math.min((elapsed / duration) * 100, 100);
+        const progress = Math.min((elapsed / duration) * 100, 100);
         set({ actionProgress: progress });
         if (progress >= 100) {
           get().completeAction();
@@ -306,6 +330,8 @@ const createStore = () => create<GameState>()(
               hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined
             }
           });
+          const finalCharacterVictory = get().character;
+          if (finalCharacterVictory) get().saveCharacter(finalCharacterVictory);
           return;
         } else if (roundResult.playerDefeated) {
           // Track death
@@ -322,6 +348,8 @@ const createStore = () => create<GameState>()(
               loot: []
             }
           });
+          const finalCharacterDefeat = get().character;
+          if (finalCharacterDefeat) get().saveCharacter(finalCharacterDefeat);
           return;
         }
 
@@ -339,6 +367,8 @@ const createStore = () => create<GameState>()(
             loot: []
           }
         });
+        const finalCharacterContinue = get().character;
+        if (finalCharacterContinue) get().saveCharacter(finalCharacterContinue);
         return;
       }
 
@@ -377,7 +407,7 @@ const createStore = () => create<GameState>()(
 
       let levelUp: { skill: string; level: number } | undefined;
       let xpGained = 0;
-      let hitpointsXpGained = 0;
+      const hitpointsXpGained = 0;
       let skillAwarded: SkillName | undefined = undefined;
 
       if ('experience' in state.currentAction && state.currentAction.experience) {
@@ -404,6 +434,12 @@ const createStore = () => create<GameState>()(
             hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined
           }
         });
+      }
+
+      // After ALL local state has been updated, save the progress.
+      const updatedCharacter = get().character;
+      if (updatedCharacter) {
+        get().saveCharacter(updatedCharacter);
       }
     },
     addItemToBank: (item: Item, quantity: number) => {
@@ -447,34 +483,39 @@ const createStore = () => create<GameState>()(
       });
     },
     sellItem: (itemId: string, quantity: number) => {
-      set((state) => {
-        if (!state.character) return {};
-        const item = getItemById(itemId);
-        if (!item || !item.sellPrice) return {}; // Item not sellable
-        const bank = [...state.character.bank];
-        const itemIndex = bank.findIndex(i => i.id === itemId);
-        if (itemIndex === -1) return {}; // Item not found
-        const bankItem = bank[itemIndex];
-        if (bankItem.quantity < quantity) return {}; // Not enough items
-        // Remove the items
-        if (bankItem.quantity === quantity) {
-          bank.splice(itemIndex, 1);
-        } else {
-          bank[itemIndex].quantity -= quantity;
-        }
-        // Add coins
-        const coinsIndex = bank.findIndex(i => i.id === 'coins');
-        const coinsToAdd = item.sellPrice * quantity;
-        if (coinsIndex !== -1) {
-          bank[coinsIndex].quantity += coinsToAdd;
-        } else {
-          bank.push({ id: 'coins', name: 'Coins', quantity: coinsToAdd });
-        }
-        const updatedCharacter = { ...state.character, bank };
-        return {
-          character: updatedCharacter
-        };
-      });
+      const { character } = get();
+      if (!character) return;
+
+      const item = getItemById(itemId);
+      if (!item || !item.sellPrice) return; // Item not sellable
+
+      const bank = [...character.bank];
+      const itemIndex = bank.findIndex(i => i.id === itemId);
+
+      if (itemIndex === -1) return; // Item not found
+
+      const bankItem = bank[itemIndex];
+      if (bankItem.quantity < quantity) return; // Not enough items
+
+      // Remove the items
+      if (bankItem.quantity === quantity) {
+        bank.splice(itemIndex, 1);
+      } else {
+        bank[itemIndex].quantity -= quantity;
+      }
+
+      // Add coins
+      const coinsIndex = bank.findIndex(i => i.id === 'coins');
+      const coinsToAdd = item.sellPrice * quantity;
+      if (coinsIndex !== -1) {
+        bank[coinsIndex].quantity += coinsToAdd;
+      } else {
+        bank.push({ id: 'coins', name: 'Coins', quantity: coinsToAdd });
+      }
+
+      const updatedCharacter = { ...character, bank };
+      set({ character: updatedCharacter });
+      get().saveCharacter(updatedCharacter);
     },
     updateBankOrder: (newBank: ItemReward[]) => {
       // Implementation needed
@@ -627,90 +668,99 @@ const createStore = () => create<GameState>()(
     ...locationSlice(set, get),
 
     buyItem: (itemId: string, quantity: number) => {
-      set((state) => {
-        if (!state.character) return {};
-        const item = getItemById(itemId);
-        if (!item || !item.buyPrice) return {}; // Item not buyable
-        const totalCost = item.buyPrice * quantity;
-        const bank = [...state.character.bank];
-        const coinsIndex = bank.findIndex(i => i.id === 'coins');
-        if (coinsIndex === -1 || bank[coinsIndex].quantity < totalCost) return {}; // Not enough coins
-        // Subtract coins
-        bank[coinsIndex].quantity -= totalCost;
-        if (bank[coinsIndex].quantity === 0) {
-          bank.splice(coinsIndex, 1);
-        }
-        // Add item
-        const itemIndex = bank.findIndex(i => i.id === itemId);
-        if (itemIndex !== -1) {
-          bank[itemIndex].quantity += quantity;
-        } else {
-          bank.push({ id: item.id, name: item.name, quantity });
-        }
-        return {
-          character: { ...state.character, bank }
-        };
-      });
+      const { character } = get();
+      if (!character) return;
+
+      const item = getItemById(itemId);
+      if (!item || !item.buyPrice) return; // Item not buyable
+
+      const totalCost = item.buyPrice * quantity;
+      const bank = [...character.bank];
+      const coinsIndex = bank.findIndex(i => i.id === 'coins');
+
+      if (coinsIndex === -1 || bank[coinsIndex].quantity < totalCost) return; // Not enough coins
+
+      // Subtract coins
+      bank[coinsIndex].quantity -= totalCost;
+      if (bank[coinsIndex].quantity === 0) {
+        bank.splice(coinsIndex, 1);
+      }
+
+      // Add item
+      const itemIndex = bank.findIndex(i => i.id === itemId);
+      if (itemIndex !== -1) {
+        bank[itemIndex].quantity += quantity;
+      } else {
+        bank.push({ id: item.id, name: item.name, quantity });
+      }
+
+      const updatedCharacter = { ...character, bank };
+      set({ character: updatedCharacter });
+      get().saveCharacter(updatedCharacter);
     },
     equipItem: (item: Item) => {
-      set((state) => {
-        if (!state.character) return {};
-        const itemData = getItemById(item.id);
-        if (!itemData || !itemData.slot) return {};
-        // Enforce equipment level requirements
-        const req = getEquipmentLevelRequirement(itemData);
-        if (req) {
-          const charLevel = state.character.skills[req.skill]?.level ?? 0;
-          if (charLevel < req.level) {
-            // Optionally: show error/notification here
-            return {};
-          }
+      const { character } = get();
+      if (!character || !item.slot) return; // Item must have a slot to be equippable
+
+      const requirement = getEquipmentLevelRequirement(item);
+      if (requirement) {
+        const skillLevel = character.skills[requirement.skill]?.level || 1;
+        if (skillLevel < requirement.level) {
+          console.log(`Level not high enough to equip ${item.name}. Required: ${requirement.skill} ${requirement.level}, You have: ${skillLevel}`);
+          // Here you might want to add a user-facing notification
+          return;
         }
-        // Use the item's defined slot (no special-casing for pickaxes)
-        const slot = itemData.slot.toLowerCase();
-        const equipment = { ...state.character.equipment };
-        const bank = [...state.character.bank];
-        // Remove one from bank
-        const bankIndex = bank.findIndex(i => i.id === item.id);
-        if (bankIndex === -1 || bank[bankIndex].quantity < 1) return {};
-        bank[bankIndex].quantity -= 1;
-        if (bank[bankIndex].quantity === 0) bank.splice(bankIndex, 1);
-        // If slot is occupied, move equipped item to bank
-        if (equipment[slot]) {
-          const equipped = equipment[slot]!;
-          const bankEquippedIndex = bank.findIndex(i => i.id === equipped.id);
-          if (bankEquippedIndex !== -1) {
-            bank[bankEquippedIndex].quantity += 1;
-          } else {
-            bank.push({ id: equipped.id, name: equipped.name, quantity: 1 });
-          }
-        }
-        // Equip the new item
-        equipment[slot] = { ...itemData, quantity: 1 };
-        return {
-          character: { ...state.character, equipment, bank }
-        };
-      });
+      }
+
+      const currentEquippedItem = character.equipment[item.slot];
+      const newBank = [...character.bank];
+      const itemIndexInBank = newBank.findIndex(i => i.id === item.id);
+
+      if (itemIndexInBank === -1) return; // Item not in bank
+
+      // Remove from bank
+      const [itemToEquip] = newBank.splice(itemIndexInBank, 1);
+
+      // Add previously equipped item back to bank, if there was one
+      if (currentEquippedItem) {
+        newBank.push({
+          id: currentEquippedItem.id,
+          name: currentEquippedItem.name,
+          quantity: currentEquippedItem.quantity || 1,
+        });
+      }
+
+      // Update character
+      const updatedCharacter = {
+        ...character,
+        bank: newBank,
+        equipment: {
+          ...character.equipment,
+          [item.slot]: { ...item, quantity: 1 },
+        },
+      };
+
+      set({ character: updatedCharacter });
+      get().saveCharacter(updatedCharacter);
     },
     unequipItem: (slot: string) => {
-      set((state) => {
-        if (!state.character) return {};
-        const equipment = { ...state.character.equipment };
-        const bank = [...state.character.bank];
-        const equipped = equipment[slot];
-        if (!equipped) return {};
-        // Add back to bank
-        const bankIndex = bank.findIndex(i => i.id === equipped.id);
-        if (bankIndex !== -1) {
-          bank[bankIndex].quantity += 1;
-        } else {
-          bank.push({ id: equipped.id, name: equipped.name, quantity: 1 });
-        }
-        equipment[slot] = undefined;
-        return {
-          character: { ...state.character, equipment, bank }
-        };
-      });
+      const { character } = get();
+      if (!character) return;
+      const equipment = { ...character.equipment };
+      const bank = [...character.bank];
+      const equipped = equipment[slot];
+      if (!equipped) return;
+      // Add back to bank
+      const bankIndex = bank.findIndex(i => i.id === equipped.id);
+      if (bankIndex !== -1) {
+        bank[bankIndex].quantity += 1;
+      } else {
+        bank.push({ id: equipped.id, name: equipped.name, quantity: 1 });
+      }
+      equipment[slot] = undefined;
+      const updatedCharacter = { ...character, equipment, bank };
+      set({ character: updatedCharacter });
+      get().saveCharacter(updatedCharacter);
     },
     useConsumable: (itemId: string, quantity: number = 1) => {
       set((state) => {
@@ -722,7 +772,7 @@ const createStore = () => create<GameState>()(
         let healed = false;
         let boosted = false;
         let newHitpoints = state.character.hitpoints;
-        let newActiveEffects = [...state.character.activeEffects];
+        const newActiveEffects = [...state.character.activeEffects];
         // Heal if healing property exists
         if (item.healing && state.character.hitpoints < state.character.maxHitpoints) {
           newHitpoints = Math.min(state.character.hitpoints + item.healing * quantity, state.character.maxHitpoints);
@@ -780,6 +830,49 @@ const createStore = () => create<GameState>()(
     // Helper to update active/offline time (call from timer or login/logout logic)
     updateActiveTime: (ms: number) => get().incrementStat('totalActiveTime', ms),
     updateOfflineTime: (ms: number) => get().incrementStat('totalOfflineTime', ms),
+
+    register: async (username: string, password: string) => {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+    },
+    login: async (username: string, password: string) => {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include', // Important for cookies
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      set({ user: data.user }); // Store user info
+      await get().loadCharacters(); // Fetch characters for this user
+    },
+    logout: async () => {
+      try {
+        await fetch('http://localhost:5000/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+      } catch (error) {
+        console.error('Logout failed:', error);
+      } finally {
+        // Clear all user and character state regardless of server response
+        set({ user: null, character: null, characters: [] });
+      }
+    },
   })
 );
 

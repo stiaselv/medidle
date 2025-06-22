@@ -81,7 +81,7 @@ export const SlayerCaveLocation = () => {
     const task = character.currentSlayerTask;
     const progress = ((task.amount - task.remaining) / task.amount) * 100;
     // Find the monster data for the current task
-    let monster = EASY_MONSTERS.find(m => m.id === task.monsterId)
+    const monster = EASY_MONSTERS.find(m => m.id === task.monsterId)
       || MEDIUM_MONSTERS.find(m => m.id === task.monsterId)
       || HARD_MONSTERS.find(m => m.id === task.monsterId)
       || NIGHTMARE_MONSTERS.find(m => m.id === task.monsterId);

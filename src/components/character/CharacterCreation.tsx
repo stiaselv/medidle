@@ -1,135 +1,84 @@
-import { Box, Button, FormControl, FormLabel, Input, VStack, useToast } from '@chakra-ui/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Heading, useToast, Text } from '@chakra-ui/react';
 import type { Character } from '../../types/game';
 
-export const CharacterCreation = () => {
+const CharacterCreation = () => {
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const { createCharacter, character } = useGameStore();
+  const [error, setError] = useState<string | null>(null);
+  const createCharacter = useGameStore((state) => state.createCharacter);
   const navigate = useNavigate();
   const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    e.stopPropagation();
-    console.log('Form submitted with name:', name);
-    
-    if (name.trim().length < 2) {
-      console.log('Name too short');
-      toast({
-        title: 'Invalid name',
-        description: 'Character name must be at least 2 characters long',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+    const trimmedName = name.trim();
+
+    if (!trimmedName || trimmedName.length < 3) {
+      setError('Character name must be at least 3 characters long.');
       return;
     }
-
+    
+    setIsCreating(true);
+    setError(null);
+    
     try {
-      console.log('Starting character creation...');
-      setIsCreating(true);
-      
-      const trimmedName = name.trim();
-      console.log('Creating character with name:', trimmedName);
-      
-      const newCharacter = createCharacter(trimmedName);
-      console.log('Character creation result:', newCharacter);
-      
-      const storeState = useGameStore.getState();
-      console.log('Store state after creation:', storeState);
-      
-      if (!storeState.character) {
-        throw new Error('Character creation failed - character is null in store');
-      }
+      // The store's createCharacter function now handles setting the character state internally.
+      // It will throw an error if the creation fails on the backend.
+      await createCharacter(trimmedName);
 
       toast({
-        title: 'Character created!',
+        title: 'Character Created',
         description: `Welcome, ${trimmedName}!`,
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
-      
-      console.log('Navigating to game screen...');
-      navigate('/game', { replace: true });
-    } catch (error) {
-      console.error('Character creation error:', error);
-      toast({
-        title: 'Creation failed',
-        description: error instanceof Error ? error.message : 'Failed to create character. Please try again.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      navigate('/game'); // Navigate to the game screen after success
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred during character creation.');
+      }
     } finally {
       setIsCreating(false);
     }
   };
 
-  const handleBackClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigate('/select', { replace: true });
-  };
-
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bgGradient="linear(to-b, gray.900, gray.800)"
-    >
-      <Box
-        bg="gray.700"
-        p={8}
-        borderRadius="lg"
-        boxShadow="xl"
-        w={{ base: '90%', md: '400px' }}
-      >
-        <form onSubmit={handleSubmit} noValidate>
-          <VStack spacing={6}>
-            <FormControl isRequired>
-              <FormLabel color="gray.200">Character Name</FormLabel>
-              <Input
+    <Box display="flex" justifyContent="center" alignItems="center" height="100vh" bg="gray.800">
+      <Box p={8} borderWidth={1} borderRadius="lg" boxShadow="lg" bg="gray.700" color="white" width="md">
+        <Heading as="h2" size="lg" textAlign="center" mb={6}>Create Your Character</Heading>
+        <form onSubmit={handleSubmit}>
+          <VStack spacing={4}>
+            <FormControl id="character-name" isRequired>
+              <FormLabel>Character Name</FormLabel>
+              <Input 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter a name..."
+                placeholder="Enter a name"
                 bg="gray.600"
-                color="white"
-                _placeholder={{ color: 'gray.400' }}
-                _hover={{ bg: 'gray.500' }}
-                _focus={{ bg: 'gray.500', borderColor: 'blue.300' }}
-                disabled={isCreating}
+                borderColor="gray.500"
               />
             </FormControl>
             <Button
               type="submit"
               colorScheme="blue"
-              size="lg"
-              w="full"
-              isDisabled={name.trim().length < 2 || isCreating}
+              width="full"
               isLoading={isCreating}
               loadingText="Creating..."
             >
               Create Character
             </Button>
-            <Button
-              variant="ghost"
-              w="full"
-              onClick={handleBackClick}
-              color="gray.400"
-              _hover={{ bg: 'gray.600' }}
-              isDisabled={isCreating}
-            >
-              Back to Selection
-            </Button>
+            {error && <Text color="red.400" mt={4} textAlign="center">{error}</Text>}
           </VStack>
         </form>
       </Box>
     </Box>
   );
-}; 
+};
+
+export default CharacterCreation; 

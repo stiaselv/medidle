@@ -35,7 +35,7 @@ function getStyleBonus(attackStyle: string): number {
 // Calculate effective strength for the new formula
 function calculateEffectiveStrength(attacker: Character | Monster, attackStyle: string): number {
   // Strength Level
-  let strengthLevel = 'skills' in attacker ? attacker.skills.strength.level : 1;
+  const strengthLevel = 'skills' in attacker ? attacker.skills.strength.level : 1;
   // Potion Bonus
   const potionBonus = getPotionBonus(attacker);
   // Prayer Bonus (multiplier)
@@ -74,7 +74,7 @@ function getRangedVoidBonus(attacker: Character | Monster): number {
 // Calculate effective ranged for the new formula
 function calculateEffectiveRanged(attacker: Character | Monster, attackStyle: string): number {
   // Ranged Level
-  let rangedLevel = 'skills' in attacker ? attacker.skills.ranged.level : 1;
+  const rangedLevel = 'skills' in attacker ? attacker.skills.ranged.level : 1;
   // Potion Bonus
   const potionBonus = getRangedPotionBonus(attacker);
   // Prayer Bonus (multiplier)

@@ -83,6 +83,7 @@ export type ItemStats = {
   defence?: number;
   woodcutting?: number;
   fishing?: number;
+  mining?: number;
   // Add other skill stats as needed
 };
 
@@ -243,7 +244,9 @@ export interface CharacterStats {
 }
 
 export interface Character {
-  id: string;
+  id: string; // Used on the client
+  _id?: any; // Comes from MongoDB
+  userId?: any; // Comes from MongoDB
   name: string;
   lastLogin: Date;
   lastAction: {
@@ -329,6 +332,13 @@ export interface CombatStats {
 export interface GameState {
   // Character state
   character: Character | null;
+  user: { id: string; username: string; } | null;
+  characters: Character[];
+  loadCharacters: (user?: { id: string; username: string; }) => Promise<void>;
+  selectCharacter: (character: Character) => void;
+  register: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => void;
   selectedMonster: Monster | null;
   currentLocation: Location | undefined;
   currentAction: SkillAction | CombatAction | CombatSelectionAction | null;
@@ -350,9 +360,14 @@ export interface GameState {
   lastCombatRound: {
     playerDamage: number;
     monsterDamage: number;
-    result: 'continue' | 'victory' | 'defeat';
+    result: 'victory' | 'defeat' | 'continue';
     loot: string[];
   } | null;
+  isLoading: boolean;
+
+  // View state
+  activeView: 'location' | 'combat_selection';
+  setView: (view: 'location' | 'combat_selection') => void;
 
   // Location state
   locations: Record<string, LocationState>;  // Non-nullable
@@ -381,7 +396,7 @@ export interface GameState {
   // Character actions
   setCharacter: (character: Character | null) => void;
   createCharacter: (name: string) => void;
-  setLocation: (location: Location) => void;
+  setLocation: (location: Location | undefined) => void;
   startAction: (action: SkillAction | CombatAction | CombatSelectionAction) => void;
   stopAction: () => void;
   completeAction: () => void;
@@ -389,6 +404,8 @@ export interface GameState {
   removeItemFromBank: (itemId: string, quantity: number) => void;
   sellItem: (itemId: string, quantity: number) => void;
   updateBankOrder: (newBank: ItemReward[]) => void;
+  equipItem: (item: Item) => void;
+  unequipItem: (slot: string) => void;
   canPerformAction: (action: SkillAction | CombatAction | CombatSelectionAction) => boolean;
   gainExperience: (skill: SkillName, amount: number) => { level: number; skill: string } | null;
 
@@ -404,6 +421,7 @@ export interface GameState {
   // Auth
   signOut: () => void;
   updateCharacter: (character: Character) => void;
+  saveCharacter: (character: Character) => Promise<void>;
 
   // Stat helpers
   incrementStat: (stat: keyof Character["stats"], amount?: number) => void;

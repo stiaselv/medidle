@@ -7,7 +7,7 @@ export const meetsLocationRequirements = (character: Character, location: Locati
   if (!character || !location) return false;
   
   // Check level requirement
-  if (location.levelRequired > character.skills.combat.level) {
+  if (location.levelRequired > character.combatLevel) {
     return false;
   }
 
@@ -114,7 +114,12 @@ export const locationActions = (set: SetState<GameState>, get: GetState<GameStat
   },
 
   // Location Discovery and Navigation
-  setLocation: (location: Location) => {
+  setLocation: (location: Location | undefined) => {
+    if (!location) {
+      set({ currentLocation: undefined });
+      return;
+    }
+
     const state = get();
     
     // Initialize location state if it doesn't exist

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, Image, Progress, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, VStack } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Progress, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip, VStack, useDisclosure } from '@chakra-ui/react';
 import type { TooltipProps } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
@@ -8,6 +8,7 @@ import { BankPanel } from '../bank/BankPanel';
 import { EquipmentPanel } from '../equipment/EquipmentPanel';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, useDragControls } from 'framer-motion';
 
 const SkillTooltip = ({ children, ...props }: TooltipProps) => (
   <Tooltip hasArrow placement="top" {...props}>
@@ -53,35 +54,37 @@ const LocationCard = ({ location, isActive, onClick }: { location: Location; isA
 );
 
 export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
-  const { isFooterExpanded } = useUIStore();
+  const { isFooterExpanded, toggleFooter } = useUIStore();
   const [tabIndex, setTabIndex] = useState(0);
+  const controls = useDragControls();
+  const navigate = useNavigate();
 
   const character = useGameStore(state => state.character);
   const currentLocation = useGameStore(state => state.currentLocation);
   const setLocation = useGameStore(state => state.setLocation);
-  const setCharacter = useGameStore(state => state.setCharacter);
+  const setView = useGameStore(state => state.setView);
 
   if (!character) return null;
 
-  // Granular selectors for top bar skills
-  const attack = useGameStore(state => state.character?.skills.attack);
-  const strength = useGameStore(state => state.character?.skills.strength);
-
-  // List of custom combat locations
-  const combatAreas = [
+  const combatLocationIds = [
     'farm',
     'lumbridge_swamp',
     'ardougne_marketplace',
     'ice_dungeon',
     'goblin_village'
   ];
-  const combatLocations = mockLocations.filter(l => combatAreas.includes(l.id));
 
-  // Instead of using the whole character object for skills, use granular selectors for each skill
+  const mainLocations = mockLocations.filter(loc => 
+    !combatLocationIds.includes(loc.id) &&
+    !['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave'].includes(loc.id)
+  );
+
+  const combatAreas = mockLocations.filter(l => l.availableSkills && l.availableSkills.includes('attack'));
+
   const skillNames: (keyof Skills)[] = [
     'attack', 'strength', 'defence', 'ranged', 'prayer', 'magic', 'runecrafting', 'construction', 'hitpoints', 'agility',
     'herblore', 'thieving', 'crafting', 'fletching', 'slayer', 'hunter', 'mining', 'smithing', 'fishing', 'cooking',
-    'firemaking', 'woodcutting', 'farming', 'none'
+    'firemaking', 'woodcutting', 'farming'
   ];
 
   const skills: Record<keyof Skills, Skill | undefined> = Object.fromEntries(
@@ -91,207 +94,197 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
     ])
   ) as Record<keyof Skills, Skill | undefined>;
 
+  function startDrag(event: React.PointerEvent<HTMLDivElement>) {
+    console.log('Footer: Pointer Down Event Triggered!');
+    controls.start(event);
+  }
+
+  const handleClick = () => {
+    console.log('Footer: Click Event Triggered!');
+    if (!isFooterExpanded) {
+      toggleFooter();
+    }
+  };
+
   return (
-    <Flex 
-      h="100%" 
-      direction="column" 
-      role="region" 
-      aria-label="Game information"
-      justify={isFooterExpanded ? "flex-start" : "center"}
-      p={4}
+    <Box
+      as="footer"
+      position="fixed"
+      bottom="0"
+      left="0"
+      right="0"
+      zIndex="docked"
     >
-      {/* Basic info bar (always visible) */}
-      <Flex
-        w="100%"
-        h={isFooterExpanded ? '60px' : '100%'}
-        minH="60px"
-        bg="gray.700"
-        borderRadius="md"
-        p={2}
-        align="center"
-        justify="center"
-        position={isFooterExpanded ? 'absolute' : 'relative'}
-        top={0}
-        left={0}
-        right={0}
-        role="status"
-        aria-label="Character status"
-      >
-        <Grid
-          templateColumns="repeat(4, 1fr)"
-          gap={4}
-          w="100%"
-          maxW="1200px"
-          px={4}
-          h="100%"
-          alignItems="center"
+      <Flex justify="center" align="center" position="relative">
+        <motion.div
+          initial={false}
+          animate={{ rotate: isFooterExpanded ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+          style={{
+            position: 'absolute',
+            top: '-24px',
+            zIndex: 10
+          }}
         >
-          <Flex justify="center" align="center">
-            <Text fontWeight="bold" aria-label="Character name">{character.name}</Text>
-          </Flex>
-          
-          <Flex justify="center" align="center">
-            <Text aria-label="Combat level">Combat Level: {character.combatLevel}</Text>
-          </Flex>
-          
-          <Flex justify="center" align="center" gap={2}>
-            <Text>HP:</Text>
-            <Progress
-              value={(character.hitpoints / character.maxHitpoints) * 100}
-              w="100px"
-              size="sm"
-              colorScheme="red"
-              aria-label={`Hitpoints: ${character.hitpoints} out of ${character.maxHitpoints}`}
-            />
-            <Text aria-hidden="true">{character.hitpoints}/{character.maxHitpoints}</Text>
-          </Flex>
-          
-          <Flex justify="center" align="center" gap={2}>
-            <Text>Prayer:</Text>
-            <Progress
-              value={(character.prayer / character.maxPrayer) * 100}
-              w="100px"
-              size="sm"
-              colorScheme="blue"
-              aria-label={`Prayer points: ${character.prayer} out of ${character.maxPrayer}`}
-            />
-            <Text aria-hidden="true">{character.prayer}/{character.maxPrayer}</Text>
-          </Flex>
-        </Grid>
+          <Button
+            onClick={toggleFooter}
+            colorScheme="blue"
+            borderRadius="full"
+            size="lg"
+            boxShadow="lg"
+          >
+            ↑
+          </Button>
+        </motion.div>
       </Flex>
 
-      {/* Expanded content */}
-      {isFooterExpanded && (
-        <Box mt="70px" w="100%" h="calc(100% - 70px)" maxH="530px" overflow="hidden">
-          <Tabs
-            variant="enclosed"
-            h="100%"
+      <Box
+        height={isFooterExpanded ? "500px" : "60px"}
+        bg="gray.900"
+        color="white"
+        transition="height 0.3s ease-in-out"
+        borderTop="1px"
+        borderColor="gray.700"
+        overflow="hidden"
+      >
+        <motion.div
+          drag="y"
+          dragControls={controls}
+          dragListener={false}
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={{ top: 0, bottom: 0.5 }}
+          onDragEnd={(_, info) => {
+            if (info.offset.y < -50) {
+              if (!isFooterExpanded) toggleFooter();
+            } else if (info.offset.y > 50) {
+              if (isFooterExpanded) toggleFooter();
+            }
+          }}
+          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+        >
+          <Box
+            onPointerDown={startDrag}
+            cursor={isFooterExpanded ? "ns-resize" : "pointer"}
+            w="100%"
+            h="60px"
+            minH="60px"
+            bg="gray.700"
+            p={2}
             display="flex"
-            flexDirection="column"
-            index={tabIndex}
-            onChange={setTabIndex}
+            alignItems="center"
+            justifyContent="center"
           >
-            <TabList display="flex" justifyContent="center" borderBottom="1px" borderColor="gray.600" role="tablist">
-              <Tab _selected={{ color: 'white', bg: 'blue.500' }} role="tab" aria-label="Locations tab">Locations</Tab>
-              <Tab _selected={{ color: 'white', bg: 'blue.500' }} role="tab" aria-label="Equipment tab">Equipment</Tab>
-              <Tab _selected={{ color: 'white', bg: 'blue.500' }} role="tab" aria-label="Skills tab">Skills</Tab>
-              <Tab _selected={{ color: 'white', bg: 'blue.500' }} role="tab" aria-label="Bank tab">Bank</Tab>
-            </TabList>
+            <Grid
+              templateColumns="repeat(4, 1fr)"
+              gap={4}
+              w="100%"
+              maxW="1200px"
+              px={4}
+              h="100%"
+              alignItems="center"
+            >
+              <Flex justify="center" align="center">
+                <Text fontWeight="bold">{character.name}</Text>
+              </Flex>
+              <Flex justify="center" align="center">
+                <Text>Combat Level: {character.combatLevel}</Text>
+              </Flex>
+              <Flex justify="center" align="center" gap={2}>
+                <Text>HP:</Text>
+                <Progress value={(character.hitpoints / character.maxHitpoints) * 100} w="100px" size="sm" colorScheme="red" />
+                <Text>{character.hitpoints}/{character.maxHitpoints}</Text>
+              </Flex>
+              <Flex justify="center" align="center" gap={2}>
+                <Text>Prayer:</Text>
+                <Progress value={(character.prayer / character.maxPrayer) * 100} w="100px" size="sm" colorScheme="blue" />
+                <Text>{character.prayer}/{character.maxPrayer}</Text>
+              </Flex>
+            </Grid>
+          </Box>
 
-            <TabPanels h="calc(100% - 40px)" overflow="auto" flex="1">
-              {/* Locations Panel */}
-              <TabPanel display="flex" flexDirection="column" alignItems="center" role="tabpanel" aria-label="Locations">
-                <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4} w="100%" maxW="1200px">
-                  {mockLocations
-                    .filter((location: Location) =>
-                      // Exclude only the four sub-caves from the grid
-                      !combatAreas.includes(location.id) &&
-                      !['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave'].includes(location.id)
-                    )
-                    .map((location: Location) => (
-                      <LocationCard
-                        key={location.id}
-                        location={location}
-                        isActive={currentLocation?.id === location.id}
-                        onClick={() => setLocation(location)}
-                      />
-                    ))}
-                  {/* Add Combat LocationCard */}
-                  <Button
-                    variant="outline"
-                    colorScheme="red"
-                    height="auto"
-                    p={4}
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    gap={2}
-                    onClick={() => {
-                      setTabIndex(0); // Ensure Locations tab is selected
-                      onCombatClick && onCombatClick();
-                    }}
-                    _hover={{ transform: 'scale(1.02)' }}
-                    transition="all 0.2s"
-                    w="100%"
-                  >
-                    <Text fontWeight="bold">Combat</Text>
-                    <Text fontSize="sm" color="gray.400" textAlign="center" w="100%">Fight monsters, explore dungeons, and challenge raids!</Text>
-                  </Button>
-                </Grid>
-              </TabPanel>
-
-              {/* Equipment Panel */}
-              <TabPanel display="flex" justifyContent="center" role="tabpanel" aria-label="Equipment">
-                <Box maxW="1200px" w="100%" display="flex" justifyContent="center">
-                  <EquipmentPanel />
-                </Box>
-              </TabPanel>
-
-              {/* Skills Panel */}
-              <TabPanel display="flex" flexDirection="column" alignItems="center" role="tabpanel" aria-label="Skills">
-                <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} w="100%" maxW="1200px">
-                  {Object.entries(skills).map(([skillName, skill]) => {
-                    if (!skill) return null;
-                    // Calculate current level XP thresholds
-                    const currentLevelExp = skill.level === 1 ? 0 : Math.floor((skill.level - 1) * (skill.level - 1) * 83);
-                    const nextLevelExp = Math.floor(skill.level * skill.level * 83);
-                    const expToNextLevel = nextLevelExp - currentLevelExp;
-                    const expIntoLevel = skill.experience - currentLevelExp;
-                    const progressPercentage = Math.min((expIntoLevel / expToNextLevel) * 100, 100);
-
-                    return (
-                      <SkillTooltip
-                        key={skillName}
-                        label={
-                          <VStack spacing={1} p={1}>
-                            <Text>Current XP: {skill.experience.toLocaleString()}</Text>
-                            <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
-                            <Text>Remaining: {Math.max(0, nextLevelExp - skill.experience).toLocaleString()}</Text>
-                          </VStack>
-                        }
+          {isFooterExpanded && (
+            <Box flex="1" overflow="hidden">
+              <Tabs variant="enclosed" h="100%" display="flex" flexDirection="column" index={tabIndex} onChange={setTabIndex}>
+                <TabList display="flex" justifyContent="center" borderBottom="1px" borderColor="gray.600">
+                  <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Locations</Tab>
+                  <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Equipment</Tab>
+                  <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Skills</Tab>
+                  <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Bank</Tab>
+                </TabList>
+                <TabPanels flex="1" overflow="auto">
+                  <TabPanel display="flex" flexDirection="column" alignItems="center">
+                    <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4} w="100%" maxW="1200px">
+                      {mainLocations.map(location => (
+                        <LocationCard
+                          key={location.id}
+                          location={location}
+                          isActive={currentLocation?.id === location.id}
+                          onClick={() => {
+                            setLocation(location);
+                            setView('location');
+                          }}
+                        />
+                      ))}
+                      <Button
+                        variant="outline"
+                        colorScheme="red"
+                        height="auto"
+                        p={4}
+                        onClick={() => setView('combat_selection')}
+                        _hover={{ transform: 'scale(1.02)' }}
+                        transition="all 0.2s"
+                        w="100%"
                       >
-                        <Box
-                          bg="gray.600"
-                          borderRadius="md"
-                          p={3}
-                          _hover={{ bg: 'gray.500' }}
-                          transition="all 0.2s"
-                          role="region"
-                          aria-label={`${skillName} skill information`}
-                        >
-                          <Flex justify="space-between" mb={2}>
-                            <Text>{skillName}</Text>
-                            <Text fontWeight="bold" aria-label={`Level ${skill.level}`}>{skill.level}</Text>
-                          </Flex>
-                          <Flex direction="column">
-                            <Progress
-                              value={progressPercentage}
-                              size="sm"
-                              colorScheme="green"
-                              mb={1}
-                              aria-label={`${skillName} progress: ${progressPercentage.toFixed(1)}%`}
-                            />
-                            <Text fontSize="xs" color="gray.400" textAlign="right" aria-hidden="true">
-                              {progressPercentage.toFixed(1)}%
-                            </Text>
-                          </Flex>
-                        </Box>
-                      </SkillTooltip>
-                    );
-                  })}
-                </Grid>
-              </TabPanel>
-
-              {/* Bank Panel */}
-              <TabPanel display="flex" justifyContent="center" role="tabpanel" aria-label="Bank">
-                <Box maxW="1200px" w="100%">
-                  <BankPanel />
-                </Box>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Box>
-      )}
-    </Flex>
+                        <Text fontWeight="bold">Combat</Text>
+                        <Text fontSize="sm" color="gray.400" mt={2} textAlign="center" w="100%">
+                          View Combat Areas
+                        </Text>
+                      </Button>
+                    </Grid>
+                  </TabPanel>
+                  <TabPanel display="flex" justifyContent="center">
+                    <Box maxW="1200px" w="100%" display="flex" justifyContent="center">
+                      <EquipmentPanel />
+                    </Box>
+                  </TabPanel>
+                  <TabPanel display="flex" flexDirection="column" alignItems="center">
+                    <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} w="100%" maxW="1200px">
+                      {Object.entries(skills).map(([skillName, skill]) => {
+                        if (!skill) return null;
+                        const currentLevelExp = skill.level === 1 ? 0 : Math.floor((skill.level - 1) * (skill.level - 1) * 83);
+                        const nextLevelExp = Math.floor(skill.level * skill.level * 83);
+                        const expToNextLevel = nextLevelExp - currentLevelExp;
+                        const expIntoLevel = skill.experience - currentLevelExp;
+                        const progressPercentage = expToNextLevel > 0 ? Math.min((expIntoLevel / expToNextLevel) * 100, 100) : 0;
+                        return (
+                          <SkillTooltip
+                            key={skillName}
+                            label={
+                              <VStack spacing={1} p={1}>
+                                <Text>Current XP: {skill.experience.toLocaleString()}</Text>
+                                <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
+                                <Text>Remaining: {Math.max(0, nextLevelExp - skill.experience).toLocaleString()}</Text>
+                              </VStack>
+                            }
+                          >
+                            <VStack spacing={1} p={2} bg="gray.700" borderRadius="md">
+                              <Text fontWeight="bold">{skillName.charAt(0).toUpperCase() + skillName.slice(1)}: {skill.level}</Text>
+                              <Progress value={progressPercentage} size="xs" colorScheme="green" w="100%" />
+                            </VStack>
+                          </SkillTooltip>
+                        );
+                      })}
+                    </Grid>
+                  </TabPanel>
+                  <TabPanel display="flex" justifyContent="center">
+                    <BankPanel />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+            </Box>
+          )}
+        </motion.div>
+      </Box>
+    </Box>
   );
 }; 

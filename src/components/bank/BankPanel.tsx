@@ -28,6 +28,7 @@ import type { KeyboardEvent } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { shallow } from 'zustand/shallow';
 
 const MotionBox = motion(Box);
 const MotionGrid = motion(Grid);
@@ -287,94 +288,77 @@ const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps)
 };
 
 export const BankPanel = () => {
-  const { character, equipItem, addItemToBank, updateBankOrder } = useGameStore() as any;
-  const [selectedItem, setSelectedItem] = useState<ItemReward | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { character, equipItem, sellItem, updateBankOrder } = useGameStore(
+    (state) => ({
+      character: state.character,
+      equipItem: state.equipItem,
+      sellItem: state.sellItem,
+      updateBankOrder: state.updateBankOrder
+    }),
+    shallow
+  );
+  
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  const moveItem = useCallback((dragIndex: number, hoverIndex: number) => {
-    if (!character?.bank) return;
-    const dragItem: ItemReward = character.bank[dragIndex];
-    const newBank: ItemReward[] = [...character.bank];
-    newBank.splice(dragIndex, 1);
-    newBank.splice(hoverIndex, 0, dragItem);
-    updateBankOrder(newBank);
-  }, [character?.bank, updateBankOrder]);
+  const [activeTab, setActiveTab] = useState(0);
 
   if (!character) return null;
 
-  const handleItemClick = (item: ItemReward) => {
-    if (!item || typeof item !== 'object' || !('id' in item)) return;
-    const itemData = getItemById(item.id);
-    if (!itemData) return;
-
-    const canEquip = isEquippable(itemData);
-    let meetsLevel = true;
-    let equipReq: { skill: SkillName, level: number } | null = null;
-    if (canEquip && character) {
-      equipReq = getEquipmentLevelRequirement(itemData);
-      if (equipReq) {
-        const charLevel = character.skills?.[equipReq.skill as SkillName]?.level ?? 0;
-        meetsLevel = charLevel >= equipReq.level;
-      }
+  const handleItemClick = useCallback((item: ItemReward) => {
+    const fullItem = getItemById(item.id);
+    if (fullItem && isEquippable(fullItem)) {
+      equipItem(fullItem);
     }
+  }, [equipItem]);
 
-    if (canEquip && meetsLevel) {
-      equipItem(itemData);
-    }
-  };
+  const isItemEquipped = useCallback((itemId: string) => {
+    if (!character) return false;
+    return Object.values(character.equipment).some(
+      (equippedItem) => equippedItem && equippedItem.id === itemId
+    );
+  }, [character.equipment]);
+  
+  const moveItem = useCallback((dragIndex: number, hoverIndex: number) => {
+    const newBank = [...(character?.bank || [])];
+    const draggedItem = newBank[dragIndex];
+    newBank.splice(dragIndex, 1);
+    newBank.splice(hoverIndex, 0, draggedItem);
+    updateBankOrder(newBank);
+  }, [character?.bank, updateBankOrder]);
 
-  // Check if an item is currently equipped
-  const isItemEquipped = (itemId: string) => {
-    return Object.values(character.equipment).some(equippedItem => equippedItem?.id === itemId);
-  };
-
-  const filteredItems = (character?.bank ?? []).filter(item => {
-    const itemData = getItemById(item.id);
-    if (!itemData) return false;
-
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || itemData.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredBank = (character.bank || [])
+    .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(item => {
+      if (activeTab === 0) return true; // 'All' tab
+      const itemData = getItemById(item.id);
+      return itemData && itemData.category === TAB_CATEGORIES[activeTab];
+    });
 
   return (
-      <Flex direction="column" h="100%" gap={4} p={4} role="region" aria-label="Bank inventory">
-        {/* Header */}
-        <Flex justify="space-between" align="center">
-          <Text fontSize="xl" fontWeight="bold" as="h2">
-            Bank
-          </Text>
-          <Text color="gray.500" aria-live="polite">
-            {character.bank.length} items
-          </Text>
-        </Flex>
-
-        {/* Search bar */}
+    <DndProvider backend={HTML5Backend}>
+      <VStack spacing={4} align="stretch" w="100%" maxW="1200px" mx="auto">
         <Input
           placeholder="Search items..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          bg="whiteAlpha.100"
-          _hover={{ bg: 'whiteAlpha.200' }}
-          _focus={{ bg: 'whiteAlpha.200', borderColor: 'blue.500' }}
-          borderRadius="md"
-          aria-label="Search bank items"
+          bg={useColorModeValue('white', 'gray.800')}
+          color={useColorModeValue('gray.800', 'white')}
         />
-
-        {/* Bank content */}
-        <Tabs variant="soft-rounded" colorScheme="blue" flex={1}>
+        
+        <Tabs 
+          variant="soft-rounded"
+          colorScheme="blue"
+          flex={1}
+        >
           <TabList overflowX="auto" overflowY="hidden" py={2} role="tablist" aria-label="Item categories">
-            {TAB_CATEGORIES.map(category => (
+            {TAB_CATEGORIES.map((category, index) => (
               <Tab
                 key={category}
-                onClick={() => setSelectedCategory(category)}
+                onClick={() => setActiveTab(index)}
                 _selected={{ bg: 'blue.500', color: 'white' }}
                 whiteSpace="nowrap"
                 minW="auto"
                 role="tab"
-                aria-selected={selectedCategory === category}
+                aria-selected={activeTab === index}
               >
                 {category}
               </Tab>
@@ -384,7 +368,7 @@ export const BankPanel = () => {
           <TabPanels flex={1} overflow="auto">
             <TabPanel p={0} role="tabpanel">
               <AnimatePresence mode="popLayout">
-                {filteredItems.length === 0 ? (
+                {filteredBank.length === 0 ? (
                   <Flex
                     direction="column"
                     align="center"
@@ -426,7 +410,7 @@ export const BankPanel = () => {
                     aria-label="Bank items"
                     layout
                   >
-                    {filteredItems.map((item, index) => (
+                    {filteredBank.map((item, index) => (
                       <motion.div
                         key={item.id}
                         layout
@@ -450,6 +434,7 @@ export const BankPanel = () => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </Flex>
+      </VStack>
+    </DndProvider>
   );
 }; 

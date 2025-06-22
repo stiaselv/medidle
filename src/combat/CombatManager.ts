@@ -49,7 +49,7 @@ export class CombatManager {
     else if (playerDefeated) result = 'defeat';
 
     // Loot (if monster defeated)
-    let loot: string[] = [];
+    const loot: string[] = [];
     if (monsterDefeated && monster.drops && monster.drops.length > 0) {
       monster.drops.forEach(drop => {
         if (Math.random() < (drop.chance ?? 1)) {

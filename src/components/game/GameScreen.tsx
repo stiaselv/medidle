@@ -16,8 +16,7 @@ import { TempleLocation } from './TempleLocation';
 const MotionBox = motion(Box);
 
 export const GameScreen = () => {
-  const { currentLocation, setLocation } = useGameStore();
-  const [selectedCombatArea, setSelectedCombatArea] = useState<string | null>(null);
+  const { currentLocation, setLocation, activeView, setView } = useGameStore();
   const [selectedMonster, setSelectedMonster] = useState<null | import('../../types/game').Monster>(null);
 
   // List of custom combat area IDs
@@ -41,7 +40,11 @@ export const GameScreen = () => {
     if (!currentLocation || autoSelectedRef.current.locationId !== currentLocation.id) {
       autoSelectedRef.current.locationId = null;
     }
-  }, [currentLocation]);
+    // If we switched away from combat selection, clear selected monster
+    if (activeView !== 'location' && currentLocation && !combatAreas.includes(currentLocation.id)) {
+      setSelectedMonster(null);
+    }
+  }, [currentLocation, activeView]);
 
   // Auto-select first monster in cave only once per cave entry
   useEffect(() => {
@@ -62,13 +65,6 @@ export const GameScreen = () => {
     }
   }, [currentLocation, selectedMonster]);
 
-  const handleCombatClick = () => {
-    console.log('Combat card clicked');
-    setSelectedCombatArea(null); // Show area selector
-    setSelectedMonster(null);
-    // Do not call setLocation here
-  };
-
   const renderCombatAreaSelector = () => (
     <Box p={6}>
       <Text fontSize="2xl" fontWeight="bold" mb={4}>Select a Combat Area</Text>
@@ -79,8 +75,8 @@ export const GameScreen = () => {
             variant="outline"
             colorScheme="red"
             onClick={() => {
-              setSelectedCombatArea(location.id);
               setLocation(location);
+              setView('location');
             }}
             w="100%"
             justifyContent="flex-start"
@@ -99,9 +95,9 @@ export const GameScreen = () => {
   const renderMonsterSelector = (location: import('../../types/game').Location) => (
     <Box p={6}>
       <Button mb={4} colorScheme="gray" onClick={() => {
-        setSelectedCombatArea(null);
+        setView('combat_selection');
         setSelectedMonster(null);
-        // Do not call setLocation here
+        setLocation(undefined); // Go back to the combat area list
       }}>Back to Area List</Button>
       <Text fontSize="2xl" fontWeight="bold" mb={4}>Select a Monster</Text>
       <VStack spacing={4} align="stretch">
@@ -133,18 +129,21 @@ export const GameScreen = () => {
   );
 
   const renderLocation = () => {
-    // If the combat area selector is active
-    if (selectedCombatArea === null && currentLocation === undefined) {
+    // If combat selection view is active, show the area selector
+    if (activeView === 'combat_selection') {
       return renderCombatAreaSelector();
     }
-    // If a combat area is selected but no monster is selected
-    if (selectedCombatArea && currentLocation && combatAreas.includes(currentLocation.id) && !selectedMonster) {
+
+    // If a combat area is selected but no monster is selected, show monster selector
+    if (currentLocation && combatAreas.includes(currentLocation.id) && !selectedMonster) {
       return renderMonsterSelector(currentLocation);
     }
-    // If a monster is selected in a combat area
-    if (selectedCombatArea && currentLocation && combatAreas.includes(currentLocation.id) && selectedMonster) {
+
+    // If a monster is selected in a combat area, show the combat screen
+    if (currentLocation && combatAreas.includes(currentLocation.id) && selectedMonster) {
       return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => setSelectedMonster(null)} />;
     }
+
     // --- CAVE FLOW ---
     // If in a cave and no monster is selected, show monster selector (only if no monsters or auto-select failed)
     if (currentLocation && caveIds.includes(currentLocation.id) && !selectedMonster) {

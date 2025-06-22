@@ -237,29 +237,15 @@ export const ARMOR_STATS: Record<string, Partial<CombatStats>> = {
 };
 
 // Helper function to combine base metal stats with weapon/armor modifiers
-export const getCombinedStats = (
-  metalType: 'bronze' | 'iron' | 'steel' | 'mithril' | 'adamant' | 'rune' | 'dragon',
-  itemType: string
-): CombatStats => {
-  // Get base stats for metal type
-  const baseStats = {
-    bronze: BRONZE_STATS,
-    iron: IRON_STATS,
-    steel: STEEL_STATS,
-    mithril: MITHRIL_STATS,
-    adamant: ADAMANT_STATS,
-    rune: RUNE_STATS,
-    dragon: DRAGON_STATS
-  }[metalType];
-
-  // Get modifiers for item type
-  const modifiers = WEAPON_STATS[itemType] || ARMOR_STATS[itemType] || {};
-
-  // Combine stats
-  return {
-    ...baseStats,
-    ...modifiers
-  };
+export const combineStats = (base: CombatStats, addition: Partial<CombatStats>): CombatStats => {
+  const combined: CombatStats = { ...base };
+  for (const key in addition) {
+    if (Object.prototype.hasOwnProperty.call(addition, key)) {
+      const statKey = key as keyof CombatStats;
+      combined[statKey] = (base[statKey] || 0) + (addition[statKey] || 0);
+    }
+  }
+  return combined;
 };
 
 // Tool stats for different metal tiers

@@ -575,7 +575,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'small_net'
+            itemId: 'small_fishing_net'
           }
         ]
       },
@@ -601,7 +601,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'small_net'
+            itemId: 'small_fishing_net'
           }
         ]
       },
@@ -627,7 +627,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'small_net'
+            itemId: 'small_fishing_net'
           }
         ]
       },
