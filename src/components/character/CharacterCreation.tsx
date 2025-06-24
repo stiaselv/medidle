@@ -49,8 +49,8 @@ const CharacterCreation = () => {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" height="100vh" bg="gray.800">
-      <Box p={8} borderWidth={1} borderRadius="lg" boxShadow="lg" bg="gray.700" color="white" width="md">
+    <Box display="flex" justifyContent="center" alignItems="center" w="100vw" height="100vh" bg="gray.800">
+      <Box p={8} borderWidth={1} borderRadius="lg" boxShadow="lg" bg="gray.700" color="white" width="100%" maxW="400px">
         <Heading as="h2" size="lg" textAlign="center" mb={6}>Create Your Character</Heading>
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>

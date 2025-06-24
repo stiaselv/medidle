@@ -273,6 +273,8 @@ const createStore = () => create<GameState>()(
         // Track combat stats
         get().incrementStat('damageDone', roundResult.playerDamage);
         get().incrementStat('damageTaken', roundResult.monsterDamage);
+        get().incrementStat('totalDamageDealt', roundResult.playerDamage);
+        get().incrementStat('totalDamageTaken', roundResult.monsterDamage);
 
         // Award XP for every hit
         const xpGained = roundResult.playerDamage * 4;
@@ -332,6 +334,8 @@ const createStore = () => create<GameState>()(
           });
           const finalCharacterVictory = get().character;
           if (finalCharacterVictory) get().saveCharacter(finalCharacterVictory);
+          get().incrementStat('monstersKilled', 1);
+          get().incrementStat('totalKills', 1);
           return;
         } else if (roundResult.playerDefeated) {
           // Track death
@@ -372,8 +376,8 @@ const createStore = () => create<GameState>()(
         return;
       }
 
-      // Non-combat actions
-      if (state.currentAction.type === 'woodcutting' || state.currentAction.type === 'mining' || state.currentAction.type === 'fishing' || state.currentAction.type === 'smithing' || state.currentAction.type === 'cooking' || state.currentAction.type === 'firemaking') {
+      // Non-combat actions (track all except combat_selection)
+      if (state.currentAction.type !== 'combat_selection') {
         // Consume required items (not tools)
         if ('requirements' in state.currentAction && state.currentAction.requirements) {
           for (const req of state.currentAction.requirements) {
@@ -390,6 +394,44 @@ const createStore = () => create<GameState>()(
           itemId: state.currentAction.itemReward.id,
           count: 1
         }]);
+
+        // --- Stat tracking for gathering/processing actions ---
+        switch (state.currentAction.type) {
+          case 'woodcutting':
+            get().incrementStat('logsChopped', 1);
+            break;
+          case 'mining':
+            get().incrementStat('oresMined', 1);
+            break;
+          case 'fishing':
+            get().incrementStat('fishCaught', 1);
+            break;
+          // TODO: Add stat tracking for thieving, hunter, farming when those action types are implemented
+          case 'crafting':
+            get().incrementStat('itemsCrafted', 1);
+            break;
+          case 'fletching':
+            get().incrementStat('arrowsFletched', 1);
+            break;
+          case 'smithing':
+            get().incrementStat('barsSmelted', 1);
+            break;
+          case 'cooking':
+            get().incrementStat('foodCooked', 1);
+            break;
+          case 'firemaking':
+            get().incrementStat('logsBurned', 1);
+            break;
+          case 'prayer':
+            get().incrementStat('bonesBuried', 1);
+            break;
+          case 'runecrafting':
+            get().incrementStat('runesCrafted', 1);
+            break;
+          default:
+            // For any other or unknown action types, do nothing or add future tracking here
+            break;
+        }
       }
 
       // Mark action as completed

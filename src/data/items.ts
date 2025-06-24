@@ -1158,6 +1158,377 @@ export const ITEMS: Record<string, Item> = {
   ...generateSmithingItems('mithril'),
   ...generateSmithingItems('adamant'),
   ...generateSmithingItems('rune'),
+
+  // --- Thieving Reward Items ---
+  potato_seed: {
+    id: 'potato_seed',
+    name: 'Potato Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 10,
+    sellPrice: 2
+  },
+  onion_seed: {
+    id: 'onion_seed',
+    name: 'Onion Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 12,
+    sellPrice: 3
+  },
+  guam_seed: {
+    id: 'guam_seed',
+    name: 'Guam Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 20,
+    sellPrice: 5
+  },
+  cabbage_seed: {
+    id: 'cabbage_seed',
+    name: 'Cabbage Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 14,
+    sellPrice: 3
+  },
+  snape_grass_seed: {
+    id: 'snape_grass_seed',
+    name: 'Snape Grass Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 30,
+    sellPrice: 7
+  },
+  marentill_seed: {
+    id: 'marentill_seed',
+    name: 'Marentill Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 25,
+    sellPrice: 6
+  },
+  tarromin_seed: {
+    id: 'tarromin_seed',
+    name: 'Tarromin Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 28,
+    sellPrice: 7
+  },
+  harralander_seed: {
+    id: 'harralander_seed',
+    name: 'Harralander Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 32,
+    sellPrice: 8
+  },
+  ranarr_seed: {
+    id: 'ranarr_seed',
+    name: 'Ranarr Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 40,
+    sellPrice: 10
+  },
+  toadflax_seed: {
+    id: 'toadflax_seed',
+    name: 'Toadflax Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 38,
+    sellPrice: 9
+  },
+  irit_seed: {
+    id: 'irit_seed',
+    name: 'Irit Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 42,
+    sellPrice: 11
+  },
+  avantoe_seed: {
+    id: 'avantoe_seed',
+    name: 'Avantoe Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 44,
+    sellPrice: 12
+  },
+  kwuarm_seed: {
+    id: 'kwuarm_seed',
+    name: 'Kwuarm Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 46,
+    sellPrice: 13
+  },
+  snapdragon_seed: {
+    id: 'snapdragon_seed',
+    name: 'Snapdragon Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 48,
+    sellPrice: 14
+  },
+  cadantine_seed: {
+    id: 'cadantine_seed',
+    name: 'Cadantine Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 50,
+    sellPrice: 15
+  },
+  lantadyme_seed: {
+    id: 'lantadyme_seed',
+    name: 'Lantadyme Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 52,
+    sellPrice: 16
+  },
+  dwarf_weed_seed: {
+    id: 'dwarf_weed_seed',
+    name: 'Dwarf Weed Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 54,
+    sellPrice: 17
+  },
+  torstol_seed: {
+    id: 'torstol_seed',
+    name: 'Torstol Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 60,
+    sellPrice: 20
+  },
+  bow_string: {
+    id: 'bow_string',
+    name: 'Bow String',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 30,
+    sellPrice: 8
+  },
+  iron_dagger: {
+    id: 'iron_dagger',
+    name: 'Iron Dagger',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 50,
+    sellPrice: 12
+  },
+  feathers: {
+    id: 'feathers',
+    name: 'Feathers',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Div/feather.png',
+    buyPrice: 2,
+    sellPrice: 1
+  },
+  iron_arrows: {
+    id: 'iron_arrows',
+    name: 'Iron Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 10,
+    sellPrice: 2
+  },
+  bronze_boots: {
+    id: 'bronze_boots',
+    name: 'Bronze Boots',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 40,
+    sellPrice: 10
+  },
+  bronze_medium_helm: {
+    id: 'bronze_medium_helm',
+    name: 'Bronze Medium Helm',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 45,
+    sellPrice: 11
+  },
+  iron_kiteshield: {
+    id: 'iron_kiteshield',
+    name: 'Iron Kiteshield',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 60,
+    sellPrice: 15
+  },
+  iron_platebody: {
+    id: 'iron_platebody',
+    name: 'Iron Platebody',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 80,
+    sellPrice: 20
+  },
+  steel_sword: {
+    id: 'steel_sword',
+    name: 'Steel Sword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 100,
+    sellPrice: 25
+  },
+  steel_platebody: {
+    id: 'steel_platebody',
+    name: 'Steel Platebody',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 120,
+    sellPrice: 30
+  },
+  steel_platelegs: {
+    id: 'steel_platelegs',
+    name: 'Steel Platelegs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 110,
+    sellPrice: 28
+  },
+  mithril_scimitar: {
+    id: 'mithril_scimitar',
+    name: 'Mithril Scimitar',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 200,
+    sellPrice: 50
+  },
+  arrow_shafts: {
+    id: 'arrow_shafts',
+    name: 'Arrow Shafts',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 5,
+    sellPrice: 1
+  },
+  mithril_full_helm: {
+    id: 'mithril_full_helm',
+    name: 'Mithril Full Helm',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 220,
+    sellPrice: 55
+  },
+  mithril_kiteshield: {
+    id: 'mithril_kiteshield',
+    name: 'Mithril Kiteshield',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 230,
+    sellPrice: 58
+  },
+  nature_rune: {
+    id: 'nature_rune',
+    name: 'Nature Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 60,
+    sellPrice: 15
+  },
+  chaos_rune: {
+    id: 'chaos_rune',
+    name: 'Chaos Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 50,
+    sellPrice: 13
+  },
+  fire_rune: {
+    id: 'fire_rune',
+    name: 'Fire Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 10,
+    sellPrice: 2
+  },
+  raw_meat: {
+    id: 'raw_meat',
+    name: 'Raw Meat',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 8,
+    sellPrice: 2
+  },
+  uncut_ruby: {
+    id: 'uncut_ruby',
+    name: 'Uncut Ruby',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 120,
+    sellPrice: 30
+  },
+  uncut_sapphire: {
+    id: 'uncut_sapphire',
+    name: 'Uncut Sapphire',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 80,
+    sellPrice: 20
+  },
+  uncut_emerald: {
+    id: 'uncut_emerald',
+    name: 'Uncut Emerald',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 100,
+    sellPrice: 25
+  },
+  uncut_diamond: {
+    id: 'uncut_diamond',
+    name: 'Uncut Diamond',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 200,
+    sellPrice: 50
+  },
 };
 
 // Helper functions

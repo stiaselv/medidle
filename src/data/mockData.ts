@@ -3333,6 +3333,341 @@ export const mockLocations: Location[] = [
       }
     ]
   },
+  {
+    id: 'rooftop_thieving',
+    name: 'Outer city',
+    description: 'The outer city is filled with rooftops for agility training and crowds for thieving.',
+    type: 'resource',
+    levelRequired: 1,
+    resources: [],
+    category: 'agility',
+    icon: '/assets/locations/rooftop_thieving.png',
+    actions: [
+      // Agility actions
+      {
+        id: 'draynor_rooftop',
+        name: 'Draynor Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 1,
+        experience: 10,
+        baseTime: 3000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 5 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'al_kharid_rooftop',
+        name: 'Al Kharid Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 10,
+        experience: 20,
+        baseTime: 3500,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 10 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'shayzien_agility',
+        name: 'Shayzien Agility',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 20,
+        experience: 30,
+        baseTime: 4000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 15 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'varrock_rooftop',
+        name: 'Varrock Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 30,
+        experience: 40,
+        baseTime: 4500,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 20 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'canifis_rooftop',
+        name: 'Canifis Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 40,
+        experience: 50,
+        baseTime: 5000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 25 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'falador_rooftop',
+        name: 'Falador Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 50,
+        experience: 60,
+        baseTime: 5500,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 30 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'seers_rooftop',
+        name: 'Seers Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 60,
+        experience: 70,
+        baseTime: 6000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 35 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'pollniveach_rooftop',
+        name: 'Pollniveach Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 70,
+        experience: 80,
+        baseTime: 6500,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 40 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'rellekka_rooftop',
+        name: 'Rellekka Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 80,
+        experience: 90,
+        baseTime: 7000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 45 },
+        requirements: [],
+        possibleLoot: []
+      },
+      {
+        id: 'ardougne_rooftop',
+        name: 'Ardougne Rooftop',
+        type: 'agility',
+        skill: 'agility',
+        levelRequired: 90,
+        experience: 100,
+        baseTime: 7500,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 50 },
+        requirements: [],
+        possibleLoot: []
+      },
+      // Thieving actions
+      {
+        id: 'pickpocket_man',
+        name: 'Pickpocket Man',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 1,
+        experience: 8,
+        baseTime: 3000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 3 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+      },
+      {
+        id: 'pickpocket_farmer',
+        name: 'Pickpocket Farmer',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 10,
+        experience: 14,
+        baseTime: 3200,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 5 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+      },
+      {
+        id: 'pickpocket_warrior',
+        name: 'Pickpocket Warrior',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 15,
+        experience: 18,
+        baseTime: 3400,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 18 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+      },
+      {
+        id: 'pickpocket_rogue',
+        name: 'Pickpocket Rogue',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 25,
+        experience: 24,
+        baseTime: 3600,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 30 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+      },
+      {
+        id: 'pickpocket_villager',
+        name: 'Pickpocket Villager',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 30,
+        experience: 28,
+        baseTime: 3800,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 32 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+      },
+      {
+        id: 'pickpocket_master_farmer',
+        name: 'Pickpocket Master Farmer',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 38,
+        experience: 43,
+        baseTime: 4000,
+        itemReward: { id: 'potato_seed', name: 'Potato Seed', quantity: 2 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'cabbage_seed', chance: 5 }, { id: 'tomato_seed', chance: 5 }, { id: 'strawberry_seed', chance: 5 }]
+      },
+      {
+        id: 'pickpocket_guard',
+        name: 'Pickpocket Guard',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 45,
+        experience: 46,
+        baseTime: 4200,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 35 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'bow_string', chance: 10 }, { id: 'feathers', chance: 10 }, { id: 'iron_arrows', chance: 10 }]
+      },
+      {
+        id: 'pickpocket_wealthy_citizen',
+        name: 'Pickpocket Wealthy Citizen',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 50,
+        experience: 54,
+        baseTime: 4400,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 45 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+      },
+      {
+        id: 'pickpocket_knight',
+        name: 'Pickpocket Knight',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 55,
+        experience: 60,
+        baseTime: 4600,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 50 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'iron_kiteshield', chance: 10 }, { id: 'bronze_boots', chance: 10 }, { id: 'bronze_medium_helm', chance: 10 }]
+      },
+      {
+        id: 'pickpocket_watchman',
+        name: 'Pickpocket Watchman',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 65,
+        experience: 66,
+        baseTime: 4800,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 60 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'iron_platebody', chance: 10 }, { id: 'steel_sword', chance: 10 }]
+      },
+      {
+        id: 'pickpocket_paladin',
+        name: 'Pickpocket Paladin',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 70,
+        experience: 74,
+        baseTime: 5000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 65 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'chaos_rune', chance: 10 }, { id: 'steel_platebody', chance: 10 }, { id: 'steel_platelegs', chance: 10 }, { id: 'mithril_scimitar', chance: 10 }]
+      },
+      {
+        id: 'pickpocket_gnome',
+        name: 'Pickpocket Gnome',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 75,
+        experience: 80,
+        baseTime: 5200,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 85 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'arrow_shafts', chance: 10 }, { id: 'gold_ore', chance: 10 }, { id: 'earth_rune', chance: 10 }, { id: 'raw_lobster', chance: 10 }]
+      },
+      {
+        id: 'pickpocket_hero',
+        name: 'Pickpocket Hero',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 80,
+        experience: 87,
+        baseTime: 5400,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 90 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'mithril_full_helm', chance: 10 }, { id: 'mithril_kiteshield', chance: 10 }, { id: 'nature_rune', chance: 10 }]
+      },
+      {
+        id: 'pickpocket_vampire',
+        name: 'Pickpocket Vampire',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 85,
+        experience: 94,
+        baseTime: 5600,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 115 },
+        requirements: [],
+        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'blood_rune', chance: 10 }, { id: 'death_rune', chance: 10 }, { id: 'chaos_rune', chance: 10 }, { id: 'fire_rune', chance: 10 }, { id: 'raw_meat', chance: 10 }, { id: 'uncut_ruby', chance: 10 }]
+      },
+      {
+        id: 'pickpocket_elf',
+        name: 'Pickpocket Elf',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 90,
+        experience: 99,
+        baseTime: 5800,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 140 },
+        requirements: [],
+        possibleLoot: ['nature_rune', 'death_rune', 'uncut_diamond']
+      },
+      {
+        id: 'pickpocket_tzhaar',
+        name: 'Pickpocket Tzhaar',
+        type: 'thieving',
+        skill: 'thieving',
+        levelRequired: 95,
+        experience: 110,
+        baseTime: 6000,
+        itemReward: { id: 'coins', name: 'Coins', quantity: 160 },
+        requirements: [],
+        possibleLoot: ['uncut_sapphire', 'uncut_emerald', 'uncut_ruby', 'uncut_diamond']
+      }
+    ].map(action => ({
+      ...action,
+      requirements:
+        action.levelRequired === 1 && action.skill === 'agility'
+          ? []
+          : (action.requirements && action.requirements.length > 0
+              ? action.requirements
+              : [{ type: 'level', skill: action.skill, level: action.levelRequired }])
+    })),
+    availableSkills: ['agility', 'thieving']
+  },
 ];
 
 export const mockCharacter: Character = {

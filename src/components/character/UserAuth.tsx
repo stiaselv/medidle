@@ -58,6 +58,7 @@ export const UserAuth: React.FC = () => {
 
   return (
     <Center 
+      w="100vw"
       h="100vh" 
       bg="gray.900" 
       color="white"
@@ -65,7 +66,7 @@ export const UserAuth: React.FC = () => {
       backgroundSize="cover"
       backgroundPosition="center"
     >
-      <Box p={8} borderWidth={1} borderRadius={8} boxShadow="lg" bg="gray.800" minW="400px">
+      <Box p={8} borderWidth={1} borderRadius={8} boxShadow="lg" bg="gray.800" width="100%" maxW="400px">
         <Tabs isFitted variant="enclosed">
           <TabList mb="1em">
             <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Login</Tab>

@@ -79,6 +79,12 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
     !['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave'].includes(loc.id)
   );
 
+  // Ensure 'rooftop_thieving' is included in mainLocations
+  if (!mainLocations.some(loc => loc.id === 'rooftop_thieving')) {
+    const rooftopLoc = mockLocations.find(loc => loc.id === 'rooftop_thieving');
+    if (rooftopLoc) mainLocations.push(rooftopLoc);
+  }
+
   const combatAreas = mockLocations.filter(l => l.availableSkills && l.availableSkills.includes('attack'));
 
   const skillNames: (keyof Skills)[] = [
@@ -197,7 +203,7 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
               <Flex justify="center" align="center" gap={2}>
                 <Text>Prayer:</Text>
                 <Progress value={(character.prayer / character.maxPrayer) * 100} w="100px" size="sm" colorScheme="blue" />
-                <Text>{character.prayer}/{character.maxPrayer}</Text>
+                <Text>{character.prayer ?? 0}/{character.maxPrayer ?? 0}</Text>
               </Flex>
             </Grid>
           </Box>

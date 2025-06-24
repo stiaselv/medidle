@@ -37,7 +37,12 @@ router.get('/', logHeaders, withAuth, (req: AuthenticatedRequest, res, next) => 
       // Map _id to id for client-side consistency
       const charactersForClient = characters.map(char => {
           const { _id, ...rest } = char;
-          return { ...rest, id: _id };
+          return {
+              ...rest,
+              id: _id,
+              prayer: typeof char.prayer === 'number' ? char.prayer : 1,
+              maxPrayer: typeof char.maxPrayer === 'number' ? char.maxPrayer : 1,
+          };
       });
 
       res.status(200).json(charactersForClient);
@@ -97,6 +102,8 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
             slayerPoints: 0,
             slayerTaskStreak: 0,
             stats: { totalPlayTime: 0, totalActiveTime: 0, totalOfflineTime: 0, damageDone: 0, damageTaken: 0, deaths: 0, monstersKilled: 0, bossesKilled: 0, slayerTasksCompleted: 0, slayerPointsEarned: 0, slayerPointsSpent: 0, cluesCompleted: 0, coinsEarned: 25, coinsSpent: 0, itemsFarmed: 0, itemsCrafted: 0, itemsConsumed: 0, foodEaten: 0, hitpointsGained: 0 },
+            prayer: 1,
+            maxPrayer: 1,
         };
 
         const result = await charactersCollection.insertOne(newCharacter as any);

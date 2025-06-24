@@ -74,12 +74,28 @@ const App = () => {
               path="/create" 
               element={user ? <CharacterCreation /> : <Navigate to="/login" />} 
             />
+            <Route
+              path="/game"
+              element={
+                user && character ? (
+                  <GameLayout>
+                    <GameScreen />
+                    <OfflineProgressPopup
+                      isOpen={showOfflineProgress}
+                      onClose={() => setShowOfflineProgress(false)}
+                      rewards={offlineRewards}
+                    />
+                  </GameLayout>
+                ) : (
+                  <Navigate to={user ? '/' : '/login'} />
+                )
+              }
+            />
             <Route 
               path="/" 
               element={user ? <CharacterSelection /> : <Navigate to="/login" />} 
             />
           </Routes>
-          {renderContent()}
           <ActionFeedback />
         </Router>
       </ChakraProvider>

@@ -7,6 +7,8 @@ import type { SkillAction, Requirement } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
 import forestBg from '../../assets/BG/forest.webp';
+import { getItemById } from '../../data/items';
+import React from 'react';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -29,16 +31,16 @@ const getActionIcon = (type: string) => {
   }
 };
 
-const ActionButton = ({ 
-  action, 
-  onClick, 
-  isDisabled,
-  isActive = false 
-}: { 
-  action: SkillAction; 
+const ActionButton: React.FC<{
+  action: SkillAction;
   onClick: () => void;
   isDisabled: boolean;
   isActive?: boolean;
+}> = ({
+  action,
+  onClick,
+  isDisabled,
+  isActive = false
 }) => {
   const icon = getActionIcon(action.type);
   const { character, completeAction, stopAction, canPerformAction, currentAction: storeCurrentAction, isActionInProgress } = useGameStore();
@@ -71,6 +73,11 @@ const ActionButton = ({
 
   // Button should be disabled if requirements are not met AND it's not currently active
   const buttonDisabled = !allRequirementsMet && !isActive;
+
+  // Type guard for possibleLoot
+  function hasPossibleLoot(a: any): a is SkillAction & { possibleLoot: { id: string; chance: number }[] } {
+    return Array.isArray(a.possibleLoot);
+  }
 
   return (
     <Tooltip
@@ -215,6 +222,31 @@ const ActionButton = ({
               </Text>
             </HStack>
             
+            {/* Possible Loot Display */}
+            {hasPossibleLoot(action) && action.possibleLoot.length > 0 ? (
+              <Box mt={3} w="100%">
+                <Text fontSize="xs" color="gray.400" fontWeight="bold" mb={1}>Possible Loot:</Text>
+                <HStack spacing={2} flexWrap="wrap">
+                  {action.possibleLoot.map(loot => {
+                    const item = getItemById(loot.id);
+                    return (
+                      <HStack key={loot.id} spacing={1} align="center">
+                        {item && (
+                          <img
+                            src={item.icon}
+                            alt={item.name}
+                            style={{ width: 20, height: 20, objectFit: 'contain', borderRadius: 3 }}
+                            onError={e => { (e.target as HTMLImageElement).src = '/assets/items/placeholder.png'; }}
+                          />
+                        )}
+                        <Text fontSize="xs" color="gray.300">{item ? item.name : loot.id} ({loot.chance}%)</Text>
+                      </HStack>
+                    );
+                  })}
+                </HStack>
+              </Box>
+            ) : null}
+            
             {!allRequirementsMet && (
               <Text 
                 fontSize="xs" 
@@ -261,7 +293,7 @@ const ActionButton = ({
   );
 };
 
-const ActionSection = ({ 
+export const ActionSection = ({ 
   title, 
   actions, 
   onActionClick, 

@@ -160,7 +160,7 @@ export interface BaseAction {
 }
 
 export interface SkillAction extends BaseAction {
-  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category' | 'crafting' | 'fletching' | 'prayer' | 'runecrafting';
+  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category' | 'crafting' | 'fletching' | 'prayer' | 'runecrafting' | 'agility' | 'thieving';
 }
 
 export interface StoreAction extends BaseAction {
@@ -230,6 +230,7 @@ export interface SlayerTask {
 
 // Tracks all persistent character statistics for the statistics modal
 export interface CharacterStats {
+  // --- General ---
   deaths: number;
   foodEaten: number;
   hitpointsGained: number;
@@ -241,6 +242,32 @@ export interface CharacterStats {
   slayerPointsEarned: number;
   totalActiveTime: number; // ms
   totalOfflineTime: number; // ms
+
+  // --- Gathering ---
+  logsChopped: number;
+  oresMined: number;
+  fishCaught: number;
+  itemsPickpocketed: number;
+  creaturesHunted: number;
+  cropsHarvested: number;
+
+  // --- Processing ---
+  itemsCrafted: number;
+  arrowsFletched: number;
+  barsSmelted: number;
+  foodCooked: number;
+  logsBurned: number;
+  bonesBuried: number;
+  runesCrafted: number;
+
+  // --- Combat ---
+  monstersKilled: number;
+  totalKills: number;
+  totalDamageDealt: number;
+  totalDamageTaken: number;
+  favouriteFoodEaten: number;
+  totalHealthHealed: number;
+  // Add more as needed
 }
 
 export interface Character {

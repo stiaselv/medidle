@@ -12,6 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 import { mockLocations } from '../../data/mockData';
 import { WorkbenchLocation } from './WorkbenchLocation';
 import { TempleLocation } from './TempleLocation';
+import AgilityThievingLocation from './AgilityThievingLocation';
 
 const MotionBox = motion(Box);
 
@@ -171,6 +172,8 @@ export const GameScreen = () => {
         return <WorkbenchLocation />;
       case 'temple':
         return <TempleLocation />;
+      case 'rooftop_thieving':
+        return <AgilityThievingLocation />;
       default:
         return <ForestLocation />;
     }
