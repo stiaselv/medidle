@@ -101,7 +101,30 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
             currentSlayerTask: null,
             slayerPoints: 0,
             slayerTaskStreak: 0,
-            stats: { totalPlayTime: 0, totalActiveTime: 0, totalOfflineTime: 0, damageDone: 0, damageTaken: 0, deaths: 0, monstersKilled: 0, bossesKilled: 0, slayerTasksCompleted: 0, slayerPointsEarned: 0, slayerPointsSpent: 0, cluesCompleted: 0, coinsEarned: 25, coinsSpent: 0, itemsFarmed: 0, itemsCrafted: 0, itemsConsumed: 0, foodEaten: 0, hitpointsGained: 0 },
+            stats: {
+                totalPlayTime: 0,
+                totalActiveTime: 0,
+                totalOfflineTime: 0,
+                damageDone: 0,
+                damageTaken: 0,
+                deaths: 0,
+                monstersKilled: 0,
+                bossesKilled: 0,
+                slayerTasksCompleted: 0,
+                slayerPointsEarned: 0,
+                slayerPointsSpent: 0,
+                cluesCompleted: 0,
+                coinsEarned: 25,
+                coinsSpent: 0,
+                itemsFarmed: 0,
+                itemsCrafted: 0,
+                itemsConsumed: 0,
+                foodEaten: 0,
+                hitpointsGained: 0,
+                resourcesGathered: {},
+                actionsPerformed: {},
+                monstersKilledByType: {},
+            },
             prayer: 1,
             maxPrayer: 1,
         };
@@ -137,8 +160,15 @@ router.put('/:id', withAuth, (req: AuthenticatedRequest, res, next) => {
             return res.status(400).json({ message: 'Invalid character ID format.' });
         }
         
+        // Log the incoming request body for debugging
+        console.log('PUT /api/characters/:id - Incoming body:', req.body);
+
         const characterId = new ObjectId(id);
-        const { id: reqBodyId, _id, userId, ...characterDataToUpdate } = req.body; // Exclude client 'id', db '_id', and 'userId'
+        // Accept both 'id' and '_id' from the frontend, but do not update them
+        const { id: reqBodyId, _id, userId, ...characterDataToUpdate } = req.body;
+
+        // Log the update payload
+        console.log('Updating character:', characterId, characterDataToUpdate);
 
         const charactersCollection = await getCharactersCollection();
         
@@ -148,6 +178,7 @@ router.put('/:id', withAuth, (req: AuthenticatedRequest, res, next) => {
             return res.status(404).json({ message: 'Character not found or you do not have permission to edit it.' });
         }
 
+        // Update the entire character document except for _id and userId
         const result = await charactersCollection.updateOne(
             { _id: characterId },
             { $set: characterDataToUpdate }

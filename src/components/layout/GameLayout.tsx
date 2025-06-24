@@ -1,19 +1,46 @@
 import { Box, Flex, useBreakpointValue, Button, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, VStack, SimpleGrid, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, Tabs, TabList, TabPanels, Tab, TabPanel, Stat, StatLabel, StatNumber, StatGroup, Divider, Icon, MenuDivider } from '@chakra-ui/react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FaCog, FaSignOutAlt, FaUserFriends, FaChartBar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
 import { Footer } from './Footer';
 import { getItemsByCategory } from '../../data/items';
+import debounce from 'lodash.debounce';
+import type { Character } from '../../types/game';
 
 export const GameLayout = ({ children }: { children: React.ReactNode }) => {
-  const { character, signOut, stopAction } = useGameStore();
+  const { character, signOut, stopAction, saveCharacter } = useGameStore();
   const { isFooterExpanded, toggleFooter } = useUIStore();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
   const locations = useGameStore(state => state.locations);
+
+  // Debounced auto-save logic
+  const prevCharacterRef = useRef<Character | null>(null);
+  const debouncedSave = useRef(
+    debounce((char: Character) => {
+      console.log('Auto-saving character:', char);
+      saveCharacter(char);
+    }, 500)
+  );
+
+  useEffect(() => {
+    if (!character) return;
+    if (prevCharacterRef.current !== character) {
+      console.log('Character changed, scheduling save:', character);
+      debouncedSave.current(character);
+      prevCharacterRef.current = character;
+    }
+  }, [character]);
+
+  // Cleanup: flush any pending saves on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSave.current.flush?.();
+    };
+  }, []);
 
   const handleSignOut = () => {
     signOut();
@@ -104,6 +131,15 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
         <Flex align="center">
           <Button onClick={onOpen} leftIcon={<Icon as={FaChartBar} />} colorScheme="blue" size="sm" mr={4}>
             Stats
+          </Button>
+          <Button
+            colorScheme="green"
+            size="sm"
+            onClick={() => character && saveCharacter(character)}
+            ml={2}
+            isDisabled={!character}
+          >
+            Force Save to Cloud
           </Button>
         </Flex>
         

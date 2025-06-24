@@ -93,11 +93,15 @@ const createStore = () => create<GameState>()(
           throw new Error('Failed to fetch characters.');
         }
         const characters = await response.json();
-        const charactersWithDates = characters.map((char: any) => ({
-          ...char,
-          lastLogin: new Date(char.lastLogin),
-          id: char._id,
-        }));
+        const charactersWithDates = characters.map((char: any) => {
+          const id = char._id || char.id;
+          const { _id, ...rest } = char;
+          return {
+            ...rest,
+            id,
+            lastLogin: new Date(char.lastLogin),
+          };
+        });
         set({ characters: charactersWithDates });
       } catch (error) {
         console.error('Error loading characters:', error);
@@ -108,8 +112,12 @@ const createStore = () => create<GameState>()(
     
     // Function to save character progress to the backend
     saveCharacter: async (character: Character) => {
-      if (!character || !character.id) return;
+      if (!character || !character.id) {
+        console.warn('saveCharacter: No character or missing id', character);
+        return;
+      }
       try {
+        console.log('saveCharacter: Sending PUT to', `http://localhost:5000/api/characters/${character.id}`, 'with data:', character);
         await fetch(`http://localhost:5000/api/characters/${character.id}`, {
           method: 'PUT',
           credentials: 'include',
@@ -120,19 +128,27 @@ const createStore = () => create<GameState>()(
         });
       } catch (error) {
         console.error('Failed to save character progress:', error);
-        // Optionally, you could add a visual indicator in the UI that saving has failed
       }
     },
 
     // Character actions
     selectCharacter: (character: Character) => {
-      set({ character });
+      const id = (character as any)._id || character.id;
+      const { _id, ...rest } = character as any;
+      set({ character: { ...rest, id } });
       // Here you might want to save the ID of the last selected character
       // to local storage or the user's profile on the server, so you can
       // auto-select it on next login.
     },
     setCharacter: (character: Character | null) => {
-      set({ character });
+      if (!character) {
+        set({ character: null });
+        return;
+      }
+      const id = (character as any)._id || character.id;
+      const { _id, ...rest } = character as any;
+      set({ character: { ...rest, id } });
+      if (id) get().saveCharacter({ ...rest, id });
     },
     createCharacter: async (name: string): Promise<Character | null> => {
       try {
@@ -314,9 +330,17 @@ const createStore = () => create<GameState>()(
             // No loot, but still show monster killed
             rewardItem = { id: monster.id, name: `Defeated ${monster.name}`, quantity: 1 };
           }
-          // End combat: reset currentAction, optionally show victory UI
+          // Track per-monster stats
+          const monsterId = monster.id;
+          const updatedStats = {
+            ...latestCharacter!.stats,
+            monstersKilledByType: {
+              ...latestCharacter!.stats.monstersKilledByType,
+              [monsterId]: (latestCharacter!.stats.monstersKilledByType[monsterId] || 0) + 1
+            }
+          };
           set({
-            character: { ...latestCharacter, hitpoints: newPlayerHp },
+            character: { ...latestCharacter!, stats: updatedStats, hitpoints: newPlayerHp },
             currentAction: null,
             isActionInProgress: false,
             lastCombatRound: {
@@ -332,8 +356,8 @@ const createStore = () => create<GameState>()(
               hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined
             }
           });
-          const finalCharacterVictory = get().character;
-          if (finalCharacterVictory) get().saveCharacter(finalCharacterVictory);
+          const updatedCharacter = get().character;
+          if (updatedCharacter) get().saveCharacter(updatedCharacter);
           get().incrementStat('monstersKilled', 1);
           get().incrementStat('totalKills', 1);
           return;
@@ -394,6 +418,87 @@ const createStore = () => create<GameState>()(
           itemId: state.currentAction.itemReward.id,
           count: 1
         }]);
+
+        // Track per-action and per-resource stats
+        const actionId = state.currentAction.id;
+        const resourceId = state.currentAction.itemReward?.id;
+        const character = get().character;
+        if (character) {
+          // Ensure stats object exists with all required fields
+          if (!character.stats) {
+            character.stats = {
+              // General
+              deaths: 0,
+              foodEaten: 0,
+              hitpointsGained: 0,
+              damageDone: 0,
+              damageTaken: 0,
+              coinsSpent: 0,
+              coinsEarned: 0,
+              slayerPointsSpent: 0,
+              slayerPointsEarned: 0,
+              totalActiveTime: 0,
+              totalOfflineTime: 0,
+
+              // Gathering
+              logsChopped: 0,
+              oresMined: 0,
+              fishCaught: 0,
+              itemsPickpocketed: 0,
+              creaturesHunted: 0,
+              cropsHarvested: 0,
+
+              // Processing
+              itemsCrafted: 0,
+              arrowsFletched: 0,
+              barsSmelted: 0,
+              foodCooked: 0,
+              logsBurned: 0,
+              bonesBuried: 0,
+              runesCrafted: 0,
+
+              // Combat
+              monstersKilled: 0,
+              totalKills: 0,
+              totalDamageDealt: 0,
+              totalDamageTaken: 0,
+              favouriteFoodEaten: 0,
+              totalHealthHealed: 0,
+
+              // Detailed tracking
+              resourcesGathered: {} as import('../types/game').StrictResourceMap,
+              actionsPerformed: {} as Record<string, number>,
+              monstersKilledByType: {} as Record<string, number>
+            };
+          }
+
+          // Ensure nested objects exist with proper types
+          if (!character.stats.resourcesGathered) {
+            character.stats.resourcesGathered = {} as import('../types/game').StrictResourceMap;
+          }
+          if (!character.stats.actionsPerformed) {
+            character.stats.actionsPerformed = {} as Record<string, number>;
+          }
+          if (!character.stats.monstersKilledByType) {
+            character.stats.monstersKilledByType = {} as Record<string, number>;
+          }
+
+          // Update action count
+          const actionsPerformed = character.stats.actionsPerformed as Record<string, number>;
+          actionsPerformed[actionId] = (actionsPerformed[actionId] || 0) + 1;
+          character.stats.actionsPerformed = actionsPerformed;
+
+          // Update resource count if there's a resource reward
+          if (resourceId) {
+            const resourcesGathered = character.stats.resourcesGathered as import('../types/game').StrictResourceMap;
+            const currentCount = Number(resourcesGathered[resourceId]) || 0;
+            resourcesGathered[resourceId] = (currentCount + 1) as import('../types/game').ResourceCount;
+            character.stats.resourcesGathered = resourcesGathered;
+          }
+
+          // Save the updated character
+          get().saveCharacter(character);
+        }
 
         // --- Stat tracking for gathering/processing actions ---
         switch (state.currentAction.type) {
@@ -499,6 +604,7 @@ const createStore = () => create<GameState>()(
           get().incrementStat('coinsEarned', quantity);
         }
         const updatedCharacter = { ...state.character, bank };
+        if (updatedCharacter) get().saveCharacter(updatedCharacter);
         return {
           character: updatedCharacter
         };
@@ -519,6 +625,7 @@ const createStore = () => create<GameState>()(
           get().incrementStat('coinsSpent', quantity);
         }
         const updatedCharacter = { ...state.character, bank };
+        if (updatedCharacter) get().saveCharacter(updatedCharacter);
         return {
           character: updatedCharacter
         };
@@ -629,6 +736,7 @@ const createStore = () => create<GameState>()(
       set({
         character: updatedCharacter
       });
+      if (updatedCharacter) get().saveCharacter(updatedCharacter);
       if (newLevel > oldLevel) {
         return { skill, level: newLevel };
       }
@@ -704,7 +812,10 @@ const createStore = () => create<GameState>()(
 
     // Auth
     signOut: () => set({ character: null }),
-    updateCharacter: (character: Character) => set({ character }),
+    updateCharacter: (character: Character) => {
+      set({ character });
+      if (character) get().saveCharacter(character);
+    },
 
     // Add location slice (includes state and actions)
     ...locationSlice(set, get),
@@ -857,14 +968,16 @@ const createStore = () => create<GameState>()(
       set((state) => {
         if (!state.character || !state.character.stats) return {};
         if (!(stat in state.character.stats)) return {}; // Prevent undefined stat error
-        return {
-          character: {
-            ...state.character,
-            stats: {
-              ...state.character.stats,
-              [stat]: (state.character.stats[stat] || 0) + amount
-            }
+        const updatedCharacter = {
+          ...state.character,
+          stats: {
+            ...state.character.stats,
+            [stat]: (state.character.stats[stat] || 0) + amount
           }
+        };
+        if (updatedCharacter) get().saveCharacter(updatedCharacter);
+        return {
+          character: updatedCharacter
         };
       });
     },
@@ -1053,4 +1166,12 @@ function getSlayerPointsForStreak(streak: number): number {
   if (streak % 50 === 0) return 150;
   if (streak % 10 === 0) return 50;
   return 10;
+}
+
+// Helper to safely get a resource count as a number
+function getResourceCount(obj: Record<string, number>, key: string): number {
+  const val = obj[key];
+  if (typeof val === 'number') return val;
+  if (val !== undefined && typeof val !== 'number') console.warn('Non-number value in resourcesGathered:', val);
+  return 0;
 }

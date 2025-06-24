@@ -158,6 +158,11 @@ export interface CharacterStats {
     itemsConsumed: number;
     foodEaten: number;
     hitpointsGained: number;
+
+    // --- Detailed tracking ---
+    resourcesGathered: Record<string, number>;
+    actionsPerformed: Record<string, number>;
+    monstersKilledByType: Record<string, number>;
 }
 
 export interface CombatStats {

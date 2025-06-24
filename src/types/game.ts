@@ -228,6 +228,10 @@ export interface SlayerTask {
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Nightmare';
 }
 
+// Branded type for resource counts
+export type ResourceCount = number & { __resourceCountBrand: true };
+export type StrictResourceMap = { [key: string]: ResourceCount };
+
 // Tracks all persistent character statistics for the statistics modal
 export interface CharacterStats {
   // --- General ---
@@ -267,7 +271,11 @@ export interface CharacterStats {
   totalDamageTaken: number;
   favouriteFoodEaten: number;
   totalHealthHealed: number;
-  // Add more as needed
+
+  // --- Detailed tracking ---
+  resourcesGathered: StrictResourceMap;
+  actionsPerformed: Record<string, number>;
+  monstersKilledByType: Record<string, number>;
 }
 
 export interface Character {
