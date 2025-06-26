@@ -1,6 +1,8 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "deploy": {
+    "buildCommand": "npm run backend:build",
+    "startCommand": "npm run backend:start",
     "healthcheckPath": "/",
     "healthcheckTimeout": 100,
     "restartPolicyType": "on_failure",
