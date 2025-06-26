@@ -1,0 +1,16 @@
+# Ignore frontend files for Railway backend deployment
+src/
+public/
+dist/
+node_modules/
+*.log
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Keep only server directory and config files
+!server/
+!railway.json
+!Procfile 

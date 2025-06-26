@@ -7,7 +7,7 @@ import characterRoutes from './routes/characters';
 import authRoutes from './routes/auth';
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = parseInt(process.env.PORT || '5000', 10);
 
 // Production and development origins
 const allowedOrigins = [
@@ -61,7 +61,7 @@ app.use('/api/characters', characterRoutes);
 app.use('/api/auth', authRoutes);
 
 // Start server immediately (don't wait for DB)
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`FRONTEND_URL: ${process.env.FRONTEND_URL || 'not set'}`);
