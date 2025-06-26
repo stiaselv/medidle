@@ -9,7 +9,14 @@ import authRoutes from './routes/auth';
 const app = express();
 const port = process.env.PORT || 5000;
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+// Production and development origins
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'http://localhost:5174', 
+  'http://localhost:5175',
+  // Add your production frontend URL here
+  process.env.FRONTEND_URL || 'https://your-app-name.vercel.app'
+];
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {

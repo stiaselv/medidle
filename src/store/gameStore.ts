@@ -14,6 +14,7 @@ import { CombatCalculator } from '../combat/CombatCalculator';
 import { CombatManager } from '../combat/CombatManager';
 import type { CombatRoundResult } from '../combat/CombatManager';
 import { getEquipmentLevelRequirement } from '../data/items';
+import { createApiUrl, API_ENDPOINTS } from '../config/api';
 
 // Helper functions for experience and level calculations
 export const calculateLevel = (experience: number): number => {
@@ -92,7 +93,7 @@ const createStore = () => create<GameState>()(
     // Function to load characters for the logged-in user
     loadCharacters: async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/characters', {
+        const response = await fetch(createApiUrl(API_ENDPOINTS.characters), {
           credentials: 'include', // Important: sends cookies
         });
         if (!response.ok) {
@@ -129,8 +130,8 @@ const createStore = () => create<GameState>()(
         return;
       }
       try {
-        console.log('saveCharacter: Sending PUT to', `http://localhost:5000/api/characters/${character.id}`, 'with data:', character);
-        await fetch(`http://localhost:5000/api/characters/${character.id}`, {
+        console.log('saveCharacter: Sending PUT to', createApiUrl(`${API_ENDPOINTS.characters}/${character.id}`), 'with data:', character);
+        await fetch(createApiUrl(`${API_ENDPOINTS.characters}/${character.id}`), {
           method: 'PUT',
           credentials: 'include',
           headers: {
@@ -175,7 +176,7 @@ const createStore = () => create<GameState>()(
     },
     createCharacter: async (name: string): Promise<Character | null> => {
       try {
-        const response = await fetch('http://localhost:5000/api/characters', {
+        const response = await fetch(createApiUrl(API_ENDPOINTS.characters), {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -1038,7 +1039,7 @@ const createStore = () => create<GameState>()(
     updateOfflineTime: (ms: number) => get().incrementStat('totalOfflineTime', ms),
 
     register: async (username: string, password: string) => {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(createApiUrl(API_ENDPOINTS.auth.register), {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -1050,7 +1051,7 @@ const createStore = () => create<GameState>()(
       }
     },
     login: async (username: string, password: string) => {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(createApiUrl(API_ENDPOINTS.auth.login), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -1068,7 +1069,7 @@ const createStore = () => create<GameState>()(
     },
     logout: async () => {
       try {
-        await fetch('http://localhost:5000/api/auth/logout', {
+        await fetch(createApiUrl(API_ENDPOINTS.auth.logout), {
           method: 'POST',
           credentials: 'include',
         });

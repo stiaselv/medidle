@@ -54,7 +54,7 @@ export interface Requirement {
 export interface SkillAction {
   id: string;
   name: string;
-  type: 'woodcutting' | 'mining' | 'fishing' | 'smithing' | 'cooking' | 'firemaking';
+  type: 'woodcutting' | 'mining' | 'fishing' | 'smithing' | 'cooking' | 'firemaking' | 'farming' | 'prayer' | 'runecrafting' | 'agility' | 'thieving' | 'crafting' | 'fletching' | 'smithing_category' | 'store';
   description: string;
   requirements: Requirement[];
   experience: number;
@@ -96,8 +96,13 @@ export interface StoreItem {
   price: number;
 }
 
-export interface StoreAction extends SkillAction {
+export interface StoreAction {
+    id: string;
+    name: string;
     type: 'store';
+    description: string;
+    price: number;
+    itemId: string;
 }
 
 export interface Monster {
