@@ -69,11 +69,16 @@ export type ActionType =
   | 'smithing_category'  // For metal categories in smithing
   | 'cooking'
   | 'firemaking'
+  | 'farming'
   | 'combat'
   | 'combat_selection'  // For selecting combat difficulty
   | 'store'
   | 'crafting'
   | 'fletching'
+  | 'agility'
+  | 'thieving'
+  | 'prayer'
+  | 'runecrafting'
   | 'none'
   | 'death';
 
@@ -156,11 +161,35 @@ export interface BaseAction {
     itemId?: string;
     quantity?: number;
     category?: string;
+    description?: string;
   }>;
 }
 
 export interface SkillAction extends BaseAction {
-  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category' | 'crafting' | 'fletching' | 'prayer' | 'runecrafting' | 'agility' | 'thieving';
+  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category' | 'crafting' | 'fletching' | 'prayer' | 'runecrafting' | 'agility' | 'thieving' | 'farming';
+  skill: SkillName;
+  levelRequired: number;
+  experience: number;
+  baseTime: number;
+  itemReward: ItemReward;
+  possibleLoot?: {
+    id: string;
+    name?: string;
+    quantity?: number;
+    chance: number;
+  }[];
+  requirements: {
+    type: 'level' | 'item' | 'equipment';
+    skill?: SkillName;
+    level?: number;
+    itemId?: string;
+    quantity?: number;
+    category?: string;
+    description?: string;
+  }[];
+  // Farming-specific properties
+  harvestTime?: number; // Time in minutes to harvest after planting
+  category?: string; // Category for farming (allotment, herbs, trees)
 }
 
 export interface StoreAction extends BaseAction {
@@ -203,7 +232,7 @@ export interface Location {
   icon: string | IconType;
   actions: (SkillAction | StoreAction | CombatAction | CombatSelectionAction)[];
   availableSkills?: SkillName[];
-  group?: 'World' | 'Dungeons' | 'Raids'; // Optional grouping for combat locations
+  group?: 'World' | 'Dungeons' | 'Raids';
 }
 
 export interface Equipment {

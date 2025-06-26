@@ -106,11 +106,26 @@ const LocationButton: React.FC<LocationButtonProps> = ({
       </Text>
       
       {location.availableSkills && (
-        <HStack spacing={2} mt={2} flexWrap="wrap" justify="center">
+        <HStack spacing={1} mt={2} flexWrap="wrap" justify="center">
           {location.availableSkills.map((skill: SkillName) => (
-            <Text key={skill} fontSize="xs" color="gray.500">
-              {skill}
-            </Text>
+            <Tooltip key={skill} label={skill.charAt(0).toUpperCase() + skill.slice(1)} placement="top">
+              <Box>
+                <img
+                  src={`/assets/ItemThumbnail/skillicons/${skill}.png`}
+                  alt={`${skill} icon`}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    filter: 'brightness(1.1)',
+                    opacity: 0.8
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = '/assets/items/placeholder.png';
+                  }}
+                />
+              </Box>
+            </Tooltip>
           ))}
         </HStack>
       )}

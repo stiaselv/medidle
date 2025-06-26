@@ -32,6 +32,12 @@ export const getNextLevelExperience = (level: number): number => {
   return cappedLevel * cappedLevel * 83;
 };
 
+// Helper function to calculate max hitpoints based on hitpoints skill level
+export const calculateMaxHitpoints = (hitpointsLevel: number): number => {
+  // Max hitpoints equals the hitpoints skill level
+  return hitpointsLevel;
+};
+
 type SetState = (
   partial: GameState | Partial<GameState> | ((state: GameState) => GameState | Partial<GameState>),
   replace?: boolean
@@ -96,10 +102,16 @@ const createStore = () => create<GameState>()(
         const charactersWithDates = characters.map((char: any) => {
           const id = char._id || char.id;
           const { _id, ...rest } = char;
+          
+          // Calculate max hitpoints based on hitpoints skill level
+          const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
+          const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
+          
           return {
             ...rest,
             id,
             lastLogin: new Date(char.lastLogin),
+            maxHitpoints,
           };
         });
         set({ characters: charactersWithDates });
@@ -135,7 +147,12 @@ const createStore = () => create<GameState>()(
     selectCharacter: (character: Character) => {
       const id = (character as any)._id || character.id;
       const { _id, ...rest } = character as any;
-      set({ character: { ...rest, id } });
+      
+      // Calculate max hitpoints based on hitpoints skill level
+      const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
+      const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
+      
+      set({ character: { ...rest, id, maxHitpoints } });
       // Here you might want to save the ID of the last selected character
       // to local storage or the user's profile on the server, so you can
       // auto-select it on next login.
@@ -147,8 +164,14 @@ const createStore = () => create<GameState>()(
       }
       const id = (character as any)._id || character.id;
       const { _id, ...rest } = character as any;
-      set({ character: { ...rest, id } });
-      if (id) get().saveCharacter({ ...rest, id });
+      
+      // Calculate max hitpoints based on hitpoints skill level
+      const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
+      const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
+      
+      const updatedCharacter = { ...rest, id, maxHitpoints };
+      set({ character: updatedCharacter });
+      if (id) get().saveCharacter(updatedCharacter);
     },
     createCharacter: async (name: string): Promise<Character | null> => {
       try {
@@ -511,7 +534,10 @@ const createStore = () => create<GameState>()(
           case 'fishing':
             get().incrementStat('fishCaught', 1);
             break;
-          // TODO: Add stat tracking for thieving, hunter, farming when those action types are implemented
+          case 'farming':
+            get().incrementStat('cropsHarvested', 1);
+            break;
+          // TODO: Add stat tracking for thieving, hunter when those action types are implemented
           case 'crafting':
             get().incrementStat('itemsCrafted', 1);
             break;
@@ -732,7 +758,20 @@ const createStore = () => create<GameState>()(
           nextLevelExperience: getNextLevelExperience(newLevel)
         }
       };
-      const updatedCharacter = { ...state.character, skills };
+      
+      // Calculate new max hitpoints if hitpoints skill was leveled
+      let maxHitpoints = state.character.maxHitpoints;
+      let hitpoints = state.character.hitpoints;
+      if (skill === 'hitpoints') {
+        maxHitpoints = calculateMaxHitpoints(newLevel);
+        // If we gained hitpoints levels, heal the player proportionally
+        if (newLevel > oldLevel) {
+          const hitpointsGained = maxHitpoints - state.character.maxHitpoints;
+          hitpoints = Math.min(hitpoints + hitpointsGained, maxHitpoints);
+        }
+      }
+      
+      const updatedCharacter = { ...state.character, skills, maxHitpoints, hitpoints };
       set({
         character: updatedCharacter
       });
@@ -813,8 +852,13 @@ const createStore = () => create<GameState>()(
     // Auth
     signOut: () => set({ character: null }),
     updateCharacter: (character: Character) => {
-      set({ character });
-      if (character) get().saveCharacter(character);
+      // Calculate max hitpoints based on hitpoints skill level
+      const hitpointsLevel = calculateLevel(character.skills.hitpoints.experience);
+      const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
+      
+      const updatedCharacter = { ...character, maxHitpoints };
+      set({ character: updatedCharacter });
+      if (updatedCharacter) get().saveCharacter(updatedCharacter);
     },
 
     // Add location slice (includes state and actions)
@@ -925,7 +969,7 @@ const createStore = () => create<GameState>()(
         let healed = false;
         let boosted = false;
         let newHitpoints = state.character.hitpoints;
-        const newActiveEffects = [...state.character.activeEffects];
+        const newActiveEffects = [...(state.character.activeEffects || [])];
         // Heal if healing property exists
         if (item.healing && state.character.hitpoints < state.character.maxHitpoints) {
           newHitpoints = Math.min(state.character.hitpoints + item.healing * quantity, state.character.maxHitpoints);
@@ -951,13 +995,18 @@ const createStore = () => create<GameState>()(
         if (newBank[bankIndex].quantity <= 0) newBank.splice(bankIndex, 1);
         // Only update if something happened
         if (!healed && !boosted) return {};
+        const updatedCharacter = {
+          ...state.character,
+          hitpoints: newHitpoints,
+          activeEffects: newActiveEffects,
+          bank: newBank
+        };
+        
+        // Save the character after using consumable
+        get().saveCharacter(updatedCharacter);
+        
         return {
-          character: {
-            ...state.character,
-            hitpoints: newHitpoints,
-            activeEffects: newActiveEffects,
-            bank: newBank
-          }
+          character: updatedCharacter
         };
       });
     },
@@ -968,11 +1017,13 @@ const createStore = () => create<GameState>()(
       set((state) => {
         if (!state.character || !state.character.stats) return {};
         if (!(stat in state.character.stats)) return {}; // Prevent undefined stat error
+        const currentValue = state.character.stats[stat];
+        if (typeof currentValue !== 'number') return {}; // Only increment numeric stats
         const updatedCharacter = {
           ...state.character,
           stats: {
             ...state.character.stats,
-            [stat]: (state.character.stats[stat] || 0) + amount
+            [stat]: currentValue + amount
           }
         };
         if (updatedCharacter) get().saveCharacter(updatedCharacter);

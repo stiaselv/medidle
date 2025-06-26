@@ -43,11 +43,23 @@ const LocationCard = ({ location, isActive, onClick }: { location: Location; isA
     >
       {location.description}
     </Text>
-    <Flex gap={2} mt={2} flexWrap="wrap" justify="center">
+    <Flex gap={1} mt={2} flexWrap="wrap" justify="center">
       {(location.availableSkills ?? []).map((skill) => (
-        <Text key={skill} fontSize="xs" color="gray.500">
-          {skill}
-        </Text>
+        <img
+          key={skill}
+          src={`/assets/ItemThumbnail/skillicons/${skill}.png`}
+          alt={`${skill} icon`}
+          style={{
+            width: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            filter: 'brightness(1.1)',
+            opacity: 0.8
+          }}
+          onError={(e) => {
+            e.currentTarget.src = '/assets/items/placeholder.png';
+          }}
+        />
       ))}
     </Flex>
   </Button>
@@ -253,8 +265,8 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                       <EquipmentPanel />
                     </Box>
                   </TabPanel>
-                  <TabPanel display="flex" flexDirection="column" alignItems="center">
-                    <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} w="100%" maxW="1200px">
+                  <TabPanel display="flex" flexDirection="column" alignItems="center" p={6}>
+                    <Grid templateColumns="repeat(auto-fit, minmax(140px, 1fr))" gap={3} w="100%" maxW="1200px">
                       {Object.entries(skills).map(([skillName, skill]) => {
                         if (!skill) return null;
                         const currentLevelExp = skill.level === 1 ? 0 : Math.floor((skill.level - 1) * (skill.level - 1) * 83);
@@ -262,21 +274,141 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                         const expToNextLevel = nextLevelExp - currentLevelExp;
                         const expIntoLevel = skill.experience - currentLevelExp;
                         const progressPercentage = expToNextLevel > 0 ? Math.min((expIntoLevel / expToNextLevel) * 100, 100) : 0;
+                        
+                        // Get skill color scheme
+                        const getSkillColor = (skill: string) => {
+                          const colorMap: Record<string, string> = {
+                            attack: 'red', strength: 'orange', defence: 'blue', ranged: 'green',
+                            prayer: 'purple', magic: 'cyan', runecrafting: 'yellow', construction: 'orange',
+                            hitpoints: 'red', agility: 'blue', herblore: 'green', thieving: 'purple',
+                            crafting: 'orange', fletching: 'yellow', slayer: 'red', hunter: 'green',
+                            mining: 'gray', smithing: 'orange', fishing: 'blue', cooking: 'red',
+                            firemaking: 'orange', woodcutting: 'green', farming: 'green'
+                          };
+                          return colorMap[skill] || 'gray';
+                        };
+                        
+                        const skillColor = getSkillColor(skillName);
+                        const skillIconPath = `/assets/ItemThumbnail/skillicons/${skillName}.png`;
+                        
                         return (
                           <SkillTooltip
                             key={skillName}
                             label={
-                              <VStack spacing={1} p={1}>
+                              <VStack spacing={1} p={2}>
+                                <Text fontWeight="bold" color="white">{skillName.charAt(0).toUpperCase() + skillName.slice(1)}</Text>
+                                <Text>Level: {skill.level}</Text>
                                 <Text>Current XP: {skill.experience.toLocaleString()}</Text>
                                 <Text>Next Level: {nextLevelExp.toLocaleString()}</Text>
                                 <Text>Remaining: {Math.max(0, nextLevelExp - skill.experience).toLocaleString()}</Text>
+                                <Text fontSize="sm" color="gray.300">
+                                  Progress: {progressPercentage.toFixed(1)}%
+                                </Text>
                               </VStack>
                             }
                           >
-                            <VStack spacing={1} p={2} bg="gray.700" borderRadius="md">
-                              <Text fontWeight="bold">{skillName.charAt(0).toUpperCase() + skillName.slice(1)}: {skill.level}</Text>
-                              <Progress value={progressPercentage} size="xs" colorScheme="green" w="100%" />
-                            </VStack>
+                            <Box
+                              position="relative"
+                              p={3}
+                              bg="gray.800"
+                              borderRadius="lg"
+                              borderWidth="2px"
+                              borderColor={`${skillColor}.500`}
+                              _hover={{
+                                bg: "gray.700",
+                                borderColor: `${skillColor}.400`,
+                                transform: "translateY(-2px)",
+                                boxShadow: `0 4px 12px rgba(0,0,0,0.3), 0 0 20px var(--chakra-colors-${skillColor}-500)`
+                              }}
+                              transition="all 0.2s ease-in-out"
+                              cursor="pointer"
+                              minH="120px"
+                              display="flex"
+                              flexDirection="column"
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              {/* Skill Icon */}
+                              <Box
+                                position="relative"
+                                mb={2}
+                                borderRadius="full"
+                                p={1}
+                                bg={`${skillColor}.600`}
+                                boxShadow={`0 0 10px var(--chakra-colors-${skillColor}-500)`}
+                              >
+                                <img
+                                  src={skillIconPath}
+                                  alt={`${skillName} icon`}
+                                  style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '50%',
+                                    filter: 'brightness(1.1)'
+                                  }}
+                                  onError={(e) => {
+                                    // Fallback to placeholder if icon doesn't exist
+                                    e.currentTarget.src = '/assets/items/placeholder.png';
+                                  }}
+                                />
+                              </Box>
+                              
+                              {/* Skill Name and Level */}
+                              <VStack spacing={0.5} align="center">
+                                <Text
+                                  fontWeight="bold"
+                                  fontSize="sm"
+                                  color="white"
+                                  textAlign="center"
+                                  lineHeight="1.2"
+                                >
+                                  {skillName.charAt(0).toUpperCase() + skillName.slice(1)}
+                                </Text>
+                                <Text
+                                  fontSize="lg"
+                                  fontWeight="bold"
+                                  color={`${skillColor}.300`}
+                                  textShadow={`0 0 8px var(--chakra-colors-${skillColor}-500)`}
+                                >
+                                  {skill.level}
+                                </Text>
+                              </VStack>
+                              
+                              {/* Progress Bar */}
+                              <Box w="100%" mt={2} px={1}>
+                                <Progress
+                                  value={progressPercentage}
+                                  size="xs"
+                                  colorScheme={skillColor}
+                                  borderRadius="full"
+                                  bg="gray.600"
+                                  hasStripe={progressPercentage > 0}
+                                  isAnimated={progressPercentage > 0}
+                                />
+                              </Box>
+                              
+                              {/* Level Badge for 99s */}
+                              {skill.level === 99 && (
+                                <Box
+                                  position="absolute"
+                                  top="-6px"
+                                  right="-6px"
+                                  bg="yellow.400"
+                                  color="black"
+                                  borderRadius="full"
+                                  w="20px"
+                                  h="20px"
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                  fontSize="xs"
+                                  fontWeight="bold"
+                                  boxShadow="0 0 8px var(--chakra-colors-yellow-400)"
+                                >
+                                  ★
+                                </Box>
+                              )}
+                            </Box>
                           </SkillTooltip>
                         );
                       })}

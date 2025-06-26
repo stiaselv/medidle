@@ -543,7 +543,7 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
                                       aria-label={`Use ${item.name}`}
                                       icon={
                                         <Image 
-                                          src={`/assets/items/${item.id}.png`}
+                                          src={itemDetails?.icon || `/assets/items/${item.id}.png`}
                                           fallbackSrc="/assets/items/placeholder.png"
                                           boxSize="28px"
                                           objectFit="contain"

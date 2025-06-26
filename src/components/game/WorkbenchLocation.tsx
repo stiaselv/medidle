@@ -34,10 +34,28 @@ function SkillProgressBar({ skillName }: { skillName: 'fletching' | 'crafting' }
   const nextLevelExp = getNextLevelExperience(currentLevel);
   const prevLevelExp = getNextLevelExperience(currentLevel - 1);
   const expProgress = ((currentExp - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
+  
+  const skillIconPath = `/assets/ItemThumbnail/skillicons/${skillName}.png`;
+  
   return (
     <Box mb={1}>
       <Flex justify="space-between" align="center" mb={0.5}>
-        <Text fontWeight="bold" fontSize="md">{skillName.charAt(0).toUpperCase() + skillName.slice(1)} Lv {currentLevel}</Text>
+        <Flex align="center" gap={2}>
+          <img
+            src={skillIconPath}
+            alt={`${skillName} icon`}
+            style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              filter: 'brightness(1.1)'
+            }}
+            onError={(e) => {
+              e.currentTarget.src = '/assets/items/placeholder.png';
+            }}
+          />
+          <Text fontWeight="bold" fontSize="md">{skillName.charAt(0).toUpperCase() + skillName.slice(1)} Lv {currentLevel}</Text>
+        </Flex>
         <Text fontSize="xs" color="gray.400">{currentExp.toLocaleString()} XP</Text>
       </Flex>
       <Progress value={expProgress} size="xs" colorScheme={skillName === 'fletching' ? 'orange' : 'blue'} borderRadius="md" />

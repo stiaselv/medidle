@@ -65,19 +65,23 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [stopAction, isFooterExpanded, toggleFooter]);
 
-  // Helper to aggregate per-resource stats
-  const aggregateResourceStats = (resourceIds: string[]) => {
-    let total: Record<string, number> = {};
-    Object.values(locations).forEach(loc => {
-      if (loc && loc.progress && loc.progress.resourcesGathered) {
-        for (const id of resourceIds) {
-          if (loc.progress.resourcesGathered[id]) {
-            total[id] = (total[id] || 0) + loc.progress.resourcesGathered[id];
-          }
+  // Helper to safely get stat values with fallback to 0
+  const getSafeStat = (statName: keyof Character['stats']): number => {
+    return character?.stats?.[statName] as number || 0;
+  };
+
+  // Helper to get resource stats from character's resourcesGathered
+  const getResourceStats = (resourceIds: string[]) => {
+    const stats: Record<string, number> = {};
+    if (character?.stats?.resourcesGathered) {
+      for (const id of resourceIds) {
+        const count = character.stats.resourcesGathered[id];
+        if (count && typeof count === 'number') {
+          stats[id] = count;
         }
       }
-    });
-    return total;
+    }
+    return stats;
   };
 
   // Define resource groups by skill
@@ -88,11 +92,11 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const smithingBars = getItemsByCategory('Resources').filter(item => item.name.toLowerCase().includes('bar'));
   const cookingRaw = fishingFish; // For simplicity, use fish for cooking too
 
-  // Aggregate stats
-  const logsStats = aggregateResourceStats(woodcuttingLogs.map(i => i.id));
-  const oresStats = aggregateResourceStats(miningOres.map(i => i.id));
-  const fishStats = aggregateResourceStats(fishingFish.map(i => i.id));
-  const barsStats = aggregateResourceStats(smithingBars.map(i => i.id));
+  // Get stats from character
+  const logsStats = getResourceStats(woodcuttingLogs.map(i => i.id));
+  const oresStats = getResourceStats(miningOres.map(i => i.id));
+  const fishStats = getResourceStats(fishingFish.map(i => i.id));
+  const barsStats = getResourceStats(smithingBars.map(i => i.id));
   // ... add more as needed
 
   if (!character) {
@@ -188,37 +192,58 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                   <StatGroup>
                     <Stat>
                       <StatLabel>Total Active Time</StatLabel>
-                      <StatNumber>{(character.stats.totalActiveTime / 3600000).toFixed(2)} hrs</StatNumber>
+                      <StatNumber>{(getSafeStat('totalActiveTime') / 3600000).toFixed(2)} hrs</StatNumber>
                     </Stat>
                     <Stat>
                       <StatLabel>Total Offline Time</StatLabel>
-                      <StatNumber>{(character.stats.totalOfflineTime / 3600000).toFixed(2)} hrs</StatNumber>
+                      <StatNumber>{(getSafeStat('totalOfflineTime') / 3600000).toFixed(2)} hrs</StatNumber>
                     </Stat>
                   </StatGroup>
                   <Divider my={4} />
                   <StatGroup>
                     <Stat>
                       <StatLabel>Coins Earned</StatLabel>
-                      <StatNumber>{character.stats.coinsEarned.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('coinsEarned').toLocaleString()}</StatNumber>
                     </Stat>
                     <Stat>
                       <StatLabel>Coins Spent</StatLabel>
-                      <StatNumber>{character.stats.coinsSpent.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('coinsSpent').toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
                   <Divider my={4} />
                   <StatGroup>
                     <Stat>
                       <StatLabel>Slayer Points Earned</StatLabel>
-                      <StatNumber>{character.stats.slayerPointsEarned.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('slayerPointsEarned').toLocaleString()}</StatNumber>
                     </Stat>
                     <Stat>
                       <StatLabel>Slayer Points Spent</StatLabel>
-                      <StatNumber>{character.stats.slayerPointsSpent.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('slayerPointsSpent').toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
                 </TabPanel>
                 <TabPanel>
+                  <StatGroup mb={4}>
+                    <Stat>
+                      <StatLabel>Logs Chopped</StatLabel>
+                      <StatNumber>{getSafeStat('logsChopped').toLocaleString()}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Ores Mined</StatLabel>
+                      <StatNumber>{getSafeStat('oresMined').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <StatGroup mb={4}>
+                    <Stat>
+                      <StatLabel>Fish Caught</StatLabel>
+                      <StatNumber>{getSafeStat('fishCaught').toLocaleString()}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Crops Harvested</StatLabel>
+                      <StatNumber>{getSafeStat('cropsHarvested').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <Divider my={4} />
                   <Box mb={4}>
                     <Text fontWeight="bold" fontSize="lg">Woodcutting</Text>
                     <VStack align="start" spacing={1} ml={4}>
@@ -245,6 +270,43 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                   </Box>
                 </TabPanel>
                 <TabPanel>
+                  <StatGroup mb={4}>
+                    <Stat>
+                      <StatLabel>Items Crafted</StatLabel>
+                      <StatNumber>{getSafeStat('itemsCrafted').toLocaleString()}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Arrows Fletched</StatLabel>
+                      <StatNumber>{getSafeStat('arrowsFletched').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <StatGroup mb={4}>
+                    <Stat>
+                      <StatLabel>Bars Smelted</StatLabel>
+                      <StatNumber>{getSafeStat('barsSmelted').toLocaleString()}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Food Cooked</StatLabel>
+                      <StatNumber>{getSafeStat('foodCooked').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <StatGroup mb={4}>
+                    <Stat>
+                      <StatLabel>Logs Burned</StatLabel>
+                      <StatNumber>{getSafeStat('logsBurned').toLocaleString()}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Bones Buried</StatLabel>
+                      <StatNumber>{getSafeStat('bonesBuried').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <StatGroup mb={4}>
+                    <Stat>
+                      <StatLabel>Runes Crafted</StatLabel>
+                      <StatNumber>{getSafeStat('runesCrafted').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <Divider my={4} />
                   <Box mb={4}>
                     <Text fontWeight="bold" fontSize="lg">Smithing</Text>
                     <VStack align="start" spacing={1} ml={4}>
@@ -259,33 +321,33 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                   <StatGroup>
                     <Stat>
                       <StatLabel>Damage Done</StatLabel>
-                      <StatNumber>{character.stats.damageDone.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('damageDone').toLocaleString()}</StatNumber>
                     </Stat>
                     <Stat>
                       <StatLabel>Damage Taken</StatLabel>
-                      <StatNumber>{character.stats.damageTaken.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('damageTaken').toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
                   <Divider my={4} />
                   <StatGroup>
                     <Stat>
                       <StatLabel>Deaths</StatLabel>
-                      <StatNumber>{character.stats.deaths}</StatNumber>
+                      <StatNumber>{getSafeStat('deaths')}</StatNumber>
                     </Stat>
                     <Stat>
                       <StatLabel>Food Eaten</StatLabel>
-                      <StatNumber>{character.stats.foodEaten.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('foodEaten').toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
                   <Divider my={4} />
                   <StatGroup>
                     <Stat>
                       <StatLabel>HP Gained</StatLabel>
-                      <StatNumber>{character.stats.hitpointsGained.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('hitpointsGained').toLocaleString()}</StatNumber>
                     </Stat>
                     <Stat>
                       <StatLabel>Slayer Points Earned</StatLabel>
-                      <StatNumber>{character.stats.slayerPointsEarned.toLocaleString()}</StatNumber>
+                      <StatNumber>{getSafeStat('slayerPointsEarned').toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
                 </TabPanel>

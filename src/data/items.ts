@@ -707,28 +707,28 @@ export const ITEMS: Record<string, Item> = {
     name: 'Raw Shrimp',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/raw_shrimp.png',
+    icon: '/assets/ItemThumbnail/Fishing/raw_shrimp.png',
   },
   raw_anchovy: {
     id: 'raw_anchovy',
     name: 'Raw Anchovy',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/raw_anchovy.png',
+    icon: '/assets/items/placeholder.png',
   },
   raw_trout: {
     id: 'raw_trout',
     name: 'Raw Trout',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Trout.png',
+    icon: '/assets/ItemThumbnail/Fishing/raw_trout.png',
   },
   raw_herring: {
     id: 'raw_herring',
     name: 'Raw Herring',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Herring.png',
+    icon: '/assets/ItemThumbnail/Fishing/raw_herring.png',
   },
   raw_pike: {
     id: 'raw_pike',
@@ -770,7 +770,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Raw Swordfish',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Swordfish.png',
+    icon: '/assets/ItemThumbnail/Fishing/raw swordfish.png',
   },
   raw_monkfish: {
     id: 'raw_monkfish',
@@ -798,7 +798,14 @@ export const ITEMS: Record<string, Item> = {
     name: 'Raw Dark Crab',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Fishing/Raw_Dark_Crab.png',
+    icon: '/assets/ItemThumbnail/Fishing/raw_dark_carb.png',
+  },
+  raw_sardine: {
+    id: 'raw_sardine',
+    name: 'Raw Sardine',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fishing/raw_sardine.png',
   },
 
   // Cooked Food
@@ -823,7 +830,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Shrimp',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Shrimp.png',
+    icon: '/assets/ItemThumbnail/Cooking/shrimp.png',
     healing: 3,
   },
   cooked_sardine: {
@@ -831,7 +838,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Sardine',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Sardine.png',
+    icon: '/assets/ItemThumbnail/Cooking/sardine.png',
     healing: 4,
   },
   cooked_herring: {
@@ -839,7 +846,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Herring',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Herring.png',
+    icon: '/assets/ItemThumbnail/Cooking/herring.png',
     healing: 5,
   },
   cooked_trout: {
@@ -847,7 +854,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Trout',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Trout.png',
+    icon: '/assets/ItemThumbnail/Cooking/trout.png',
     healing: 7,
   },
   cooked_pike: {
@@ -855,7 +862,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Pike',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Pike.png',
+    icon: '/assets/ItemThumbnail/Cooking/pike.png',
     healing: 8,
   },
   cooked_salmon: {
@@ -863,7 +870,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Salmon',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Salmon.png',
+    icon: '/assets/ItemThumbnail/Cooking/salmon.png',
     healing: 9,
   },
   cooked_tuna: {
@@ -871,7 +878,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Tuna',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Tuna.png',
+    icon: '/assets/ItemThumbnail/Cooking/tuna.png',
     healing: 10,
   },
   cooked_lobster: {
@@ -879,7 +886,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Lobster',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Lobster.png',
+    icon: '/assets/ItemThumbnail/Cooking/lobster.png',
     healing: 12,
   },
   cooked_bass: {
@@ -887,7 +894,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Bass',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Bass.png',
+    icon: '/assets/ItemThumbnail/Cooking/bass.png',
     healing: 13,
   },
   cooked_swordfish: {
@@ -895,7 +902,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Swordfish',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Swordfish.png',
+    icon: '/assets/ItemThumbnail/Cooking/swordfish.png',
     healing: 14,
   },
   cooked_monkfish: {
@@ -903,7 +910,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Monkfish',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Monkfish.png',
+    icon: '/assets/ItemThumbnail/Cooking/monkfish.png',
     healing: 16,
   },
   cooked_shark: {
@@ -911,7 +918,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Shark',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Shark.png',
+    icon: '/assets/ItemThumbnail/Cooking/shark.png',
     healing: 20,
   },
   cooked_anglerfish: {
@@ -919,7 +926,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Anglerfish',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Anglerfish.png',
+    icon: '/assets/ItemThumbnail/Cooking/anglerfish.png',
     healing: 21,
   },
   cooked_dark_crab: {
@@ -927,7 +934,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Cooked Dark Crab',
     type: 'consumable',
     category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Cooking/Cooked_Dark_Crab.png',
+    icon: '/assets/ItemThumbnail/Cooking/dark_crab.png',
     healing: 22,
   },
 
@@ -1322,6 +1329,154 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 60,
     sellPrice: 20
   },
+
+  // Tree seeds
+  acorn: {
+    id: 'acorn',
+    name: 'Acorn',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 100,
+    sellPrice: 25
+  },
+  willow_seed: {
+    id: 'willow_seed',
+    name: 'Willow Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 200,
+    sellPrice: 50
+  },
+  teak_seed: {
+    id: 'teak_seed',
+    name: 'Teak Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 300,
+    sellPrice: 75
+  },
+  maple_seed: {
+    id: 'maple_seed',
+    name: 'Maple Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 500,
+    sellPrice: 125
+  },
+  mahogany_seed: {
+    id: 'mahogany_seed',
+    name: 'Mahogany Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 800,
+    sellPrice: 200
+  },
+  yew_seed: {
+    id: 'yew_seed',
+    name: 'Yew Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 1200,
+    sellPrice: 300
+  },
+  magic_seed: {
+    id: 'magic_seed',
+    name: 'Magic Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 2000,
+    sellPrice: 500
+  },
+  redwood_seed: {
+    id: 'redwood_seed',
+    name: 'Redwood Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 5000,
+    sellPrice: 1250
+  },
+  // Harvested crops
+  potato: {
+    id: 'potato',
+    name: 'Potato',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 8,
+    sellPrice: 2
+  },
+  onion: {
+    id: 'onion',
+    name: 'Onion',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 10,
+    sellPrice: 2
+  },
+  cabbage: {
+    id: 'cabbage',
+    name: 'Cabbage',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 12,
+    sellPrice: 3
+  },
+  tomato: {
+    id: 'tomato',
+    name: 'Tomato',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 15,
+    sellPrice: 4
+  },
+  sweetcorn: {
+    id: 'sweetcorn',
+    name: 'Sweetcorn',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 20,
+    sellPrice: 5
+  },
+  strawberry: {
+    id: 'strawberry',
+    name: 'Strawberry',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 30,
+    sellPrice: 7
+  },
+  watermelon: {
+    id: 'watermelon',
+    name: 'Watermelon',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 40,
+    sellPrice: 10
+  },
+  snape_grass: {
+    id: 'snape_grass',
+    name: 'Snape Grass',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 35,
+    sellPrice: 8
+  },
+
   bow_string: {
     id: 'bow_string',
     name: 'Bow String',

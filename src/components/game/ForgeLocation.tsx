@@ -268,7 +268,19 @@ const ActionSection = ({
         <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
           <Flex width="100%" justify="center" align="center" gap={4}>
             <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
-              <Icon as={GiAnvil} />
+              <img
+                src={`/assets/ItemThumbnail/skillicons/${skillType}.png`}
+                alt={`${skillType} icon`}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  filter: 'brightness(1.1)'
+                }}
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/items/placeholder.png';
+                }}
+              />
               {title}
             </Heading>
             <Box maxW="600px" minW="500px">

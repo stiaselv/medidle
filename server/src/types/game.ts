@@ -127,10 +127,26 @@ export interface Character {
   combatLevel: number;
   hitpoints: number;
   maxHitpoints: number;
+  prayer: number;
+  maxPrayer: number;
+  specialEnergy: number;
+  maxSpecialEnergy: number;
+  activeEffects: {
+    type: 'stun' | 'drain' | 'boost';
+    remainingDuration: number;
+    value: number;
+    affectedStats?: string[];
+  }[];
   skills: Record<SkillName, Skill>;
   bank: ItemReward[];
   equipment: Record<EquipmentSlot, Item | undefined>;
   lastLogin: Date;
+  lastAction: {
+    type: string;
+    location: string;
+    target?: string;
+    id?: string;
+  };
   lastActionTime: number;
   currentSlayerTask: SlayerTask | null;
   slayerPoints: number;

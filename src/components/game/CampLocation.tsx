@@ -310,7 +310,19 @@ const ActionSection = ({
       <VStack spacing={4} align="stretch" width="100%">
         <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
           <Heading size="md" color="white" display="flex" alignItems="center" gap={2}>
-            <Icon as={getActionIcon(actions[0]?.type || '')} />
+            <img
+              src={`/assets/ItemThumbnail/skillicons/${skillType}.png`}
+              alt={`${skillType} icon`}
+              style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                filter: 'brightness(1.1)'
+              }}
+              onError={(e) => {
+                e.currentTarget.src = '/assets/items/placeholder.png';
+              }}
+            />
             {title}
           </Heading>
           <Box flex={1} maxW="300px">

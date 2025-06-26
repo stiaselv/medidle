@@ -17,6 +17,23 @@ const logHeaders = (req: express.Request, res: express.Response, next: express.N
     next();
 };
 
+// Helper function to calculate max hitpoints based on hitpoints skill level
+const calculateMaxHitpoints = (hitpointsLevel: number): number => {
+  // Max hitpoints equals the hitpoints skill level
+  return hitpointsLevel;
+};
+
+// Helper functions for experience and level calculations
+const calculateLevel = (experience: number): number => {
+  // Find the highest level where the experience requirement is met
+  let level = 1;
+  while (experience >= Math.floor(level * level * 83)) {
+    level++;
+    if (level > 99) return 99; // Cap level at 99
+  }
+  return level;
+};
+
 // Helper to get the characters collection
 async function getCharactersCollection(): Promise<Collection<Character>> {
   const client = await clientPromise;
@@ -87,7 +104,12 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
             name,
             combatLevel: 3,
             hitpoints: 10,
-            maxHitpoints: 10,
+            maxHitpoints: calculateMaxHitpoints(initialSkills['hitpoints'].level),
+            prayer: 1,
+            maxPrayer: 1,
+            specialEnergy: 100,
+            maxSpecialEnergy: 100,
+            activeEffects: [],
             skills: initialSkills,
             bank: [
                 { id: 'coins', name: 'Coins', quantity: 25 },
@@ -97,6 +119,12 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
             ],
             equipment: { head: undefined, cape: undefined, neck: undefined, ammo: undefined, weapon: undefined, body: undefined, shield: undefined, legs: undefined, hands: undefined, feet: undefined, ring: undefined },
             lastLogin: new Date(),
+            lastAction: {
+                type: 'none',
+                location: '',
+                target: undefined,
+                id: undefined
+            },
             lastActionTime: Date.now(),
             currentSlayerTask: null,
             slayerPoints: 0,
@@ -125,8 +153,6 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
                 actionsPerformed: {},
                 monstersKilledByType: {},
             },
-            prayer: 1,
-            maxPrayer: 1,
         };
 
         const result = await charactersCollection.insertOne(newCharacter as any);

@@ -1,4 +1,4 @@
-import type { Location, Character, StoreAction, SkillAction, CombatStats, Monster } from '../types/game';
+import type { Location, Character, StoreAction, SkillAction, CombatStats, Monster, ActionType, SkillName, ItemReward, CombatAction, CombatSelectionAction } from '../types/game';
 import { createSkill } from '../types/game';
 import { SMITHING_BASE_LEVELS } from './items';
 import { EASY_MONSTERS, MEDIUM_MONSTERS, HARD_MONSTERS, NIGHTMARE_MONSTERS } from './monsters';
@@ -2317,7 +2317,11 @@ export const mockLocations: Location[] = [
         experience: 12,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
-        monster: { id: 'chicken', name: 'Chicken', level: 3, hitpoints: 5, maxHitpoints: 5, combatStyle: 'melee', stats: { attackStab: 1, attackSlash: 1, attackCrush: 1, attackMagic: 0, attackRanged: 0, defenceStab: 1, defenceSlash: 1, defenceCrush: 1, defenceMagic: 1, defenceRanged: 1, strengthMelee: 1, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        monster: { id: 'chicken', name: 'Chicken', level: 3, hitpoints: 5, maxHitpoints: 5, combatStyle: 'melee', stats: { attackStab: 1, attackSlash: 1, attackCrush: 1, attackMagic: 0, attackRanged: 0, defenceStab: 1, defenceSlash: 1, defenceCrush: 1, defenceMagic: 1, defenceRanged: 1, strengthMelee: 1, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
+  { itemId: 'bones', quantity: 1, chance: 100.0 },
+  { itemId: 'feather', quantity: 3, chance: 100.0 },
+  { itemId: 'egg', quantity: 1, chance: 20.0 }
+], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
       {
@@ -2329,7 +2333,10 @@ export const mockLocations: Location[] = [
         experience: 20,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
-        monster: { id: 'cow', name: 'Cow', level: 7, hitpoints: 12, maxHitpoints: 12, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        monster: { id: 'cow', name: 'Cow', level: 7, hitpoints: 12, maxHitpoints: 12, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
+  { itemId: 'bones', quantity: 1, chance: 100.0 },
+  { itemId: 'cowhide', quantity: 1, chance: 100.0 }
+], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
       {
@@ -2341,7 +2348,12 @@ export const mockLocations: Location[] = [
         experience: 30,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
-        monster: { id: 'farmer', name: 'Farmer', level: 9, hitpoints: 15, maxHitpoints: 15, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        monster: { id: 'farmer', name: 'Farmer', level: 9, hitpoints: 15, maxHitpoints: 15, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
+  { itemId: 'bones', quantity: 1, chance: 100.0 },
+  { itemId: 'coins', quantity: 5, chance: 20.0 },
+  { itemId: 'potato_seed', quantity: 1, chance: 5.0 },
+  { itemId: 'guam_seed', quantity: 1, chance: 5.0 }
+], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       }
     ]
@@ -2366,7 +2378,11 @@ export const mockLocations: Location[] = [
         experience: 15,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
-        monster: { id: 'giant_rat', name: 'Giant rat', level: 5, hitpoints: 8, maxHitpoints: 8, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        monster: { id: 'giant_rat', name: 'Giant rat', level: 5, hitpoints: 8, maxHitpoints: 8, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
+  { itemId: 'bones', quantity: 1, chance: 100.0 },
+  { itemId: 'raw_meat', quantity: 1, chance: 100.0 },
+  { itemId: 'coins', quantity: 3, chance: 50.0 }
+], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
       {
@@ -2378,7 +2394,12 @@ export const mockLocations: Location[] = [
         experience: 22,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
-        monster: { id: 'slug', name: 'Slug', level: 9, hitpoints: 10, maxHitpoints: 10, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        monster: { id: 'slug', name: 'Slug', level: 9, hitpoints: 10, maxHitpoints: 10, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
+  { itemId: 'coins', quantity: 3, chance: 50.0 },
+  { itemId: 'copper_ore', quantity: 1, chance: 20.0 },
+  { itemId: 'tin_ore', quantity: 1, chance: 20.0 },
+  { itemId: 'iron_dagger', quantity: 1, chance: 10.0 }
+], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
       {
@@ -2390,7 +2411,12 @@ export const mockLocations: Location[] = [
         experience: 30,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
-        monster: { id: 'cave_slime', name: 'Cave slime', level: 13, hitpoints: 16, maxHitpoints: 16, combatStyle: 'melee', stats: { attackStab: 4, attackSlash: 4, attackCrush: 4, attackMagic: 0, attackRanged: 0, defenceStab: 4, defenceSlash: 4, defenceCrush: 4, defenceMagic: 2, defenceRanged: 2, strengthMelee: 4, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        monster: { id: 'cave_slime', name: 'Cave slime', level: 13, hitpoints: 16, maxHitpoints: 16, combatStyle: 'melee', stats: { attackStab: 4, attackSlash: 4, attackCrush: 4, attackMagic: 0, attackRanged: 0, defenceStab: 4, defenceSlash: 4, defenceCrush: 4, defenceMagic: 2, defenceRanged: 2, strengthMelee: 4, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
+  { itemId: 'coins', quantity: 10, chance: 40.0 },
+  { itemId: 'iron_sword', quantity: 1, chance: 20.0 },
+  { itemId: 'water_rune', quantity: 5, chance: 20.0 },
+  { itemId: 'earth_rune', quantity: 4, chance: 20.0 }
+], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
       {
@@ -2402,7 +2428,14 @@ export const mockLocations: Location[] = [
         experience: 45,
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
-        monster: { id: 'big_frog', name: 'Big frog', level: 23, hitpoints: 30, maxHitpoints: 30, combatStyle: 'melee', stats: { attackStab: 6, attackSlash: 6, attackCrush: 6, attackMagic: 0, attackRanged: 0, defenceStab: 6, defenceSlash: 6, defenceCrush: 6, defenceMagic: 3, defenceRanged: 3, strengthMelee: 6, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [], thumbnail: '/assets/monsters/placeholder.png' },
+        monster: { id: 'big_frog', name: 'Big frog', level: 23, hitpoints: 30, maxHitpoints: 30, combatStyle: 'melee', stats: { attackStab: 6, attackSlash: 6, attackCrush: 6, attackMagic: 0, attackRanged: 0, defenceStab: 6, defenceSlash: 6, defenceCrush: 6, defenceMagic: 3, defenceRanged: 3, strengthMelee: 6, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
+  { itemId: 'bones', quantity: 1, chance: 100.0 },
+  { itemId: 'coins', quantity: 5, chance: 25.0 },
+  { itemId: 'water_rune', quantity: 10, chance: 10.0 },
+  { itemId: 'earth_rune', quantity: 10, chance: 10.0 },
+  { itemId: 'nature_rune', quantity: 2, chance: 2.5 },
+  { itemId: 'cosmic_rune', quantity: 2, chance: 2.5 }
+], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       }
     ]
@@ -3347,7 +3380,7 @@ export const mockLocations: Location[] = [
       {
         id: 'draynor_rooftop',
         name: 'Draynor Rooftop',
-        type: 'agility',
+        type: 'agility' as ActionType,
         skill: 'agility',
         levelRequired: 1,
         experience: 10,
@@ -3668,6 +3701,483 @@ export const mockLocations: Location[] = [
     })),
     availableSkills: ['agility', 'thieving']
   },
+  {
+    id: 'fields',
+    name: 'Fields',
+    description: 'A peaceful farming area where you can plant and harvest crops.',
+    thumbnail: '/assets/BG/fields.webp',
+    actions: [
+      // Allotment farming actions
+      {
+        id: 'plant_potato',
+        name: 'Plant Potato',
+        type: 'farming' as ActionType,
+        skill: 'farming' as SkillName,
+        levelRequired: 1,
+        experience: 8,
+        baseTime: 1,
+        itemReward: { id: 'potato', name: 'Potato', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'potato_seed', quantity: 3, description: 'Potato seeds to plant' }
+        ],
+        harvestTime: 40, // 40 minutes to harvest
+        category: 'allotment'
+      },
+      {
+        id: 'plant_onion',
+        name: 'Plant Onion', 
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 5,
+        experience: 10,
+        baseTime: 1,
+        itemReward: { id: 'onion', name: 'Onion', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'onion_seed', quantity: 3, description: 'Onion seeds to plant' }
+        ],
+        harvestTime: 40,
+        category: 'allotment'
+      },
+      {
+        id: 'plant_cabbage',
+        name: 'Plant Cabbage',
+        type: 'farming',
+        skill: 'farming', 
+        levelRequired: 7,
+        experience: 12,
+        baseTime: 1,
+        itemReward: { id: 'cabbage', name: 'Cabbage', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'cabbage_seed', quantity: 3, description: 'Cabbage seeds to plant' }
+        ],
+        harvestTime: 40,
+        category: 'allotment'
+      },
+      {
+        id: 'plant_tomato',
+        name: 'Plant Tomato',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 12,
+        experience: 15,
+        baseTime: 1,
+        itemReward: { id: 'tomato', name: 'Tomato', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'tomato_seed', quantity: 1, description: 'Tomato seed to plant' }
+        ],
+        harvestTime: 40,
+        category: 'allotment'
+      },
+      {
+        id: 'plant_sweetcorn',
+        name: 'Plant Sweetcorn',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 20,
+        experience: 20,
+        baseTime: 1,
+        itemReward: { id: 'sweetcorn', name: 'Sweetcorn', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'sweetcorn_seed', quantity: 1, description: 'Sweetcorn seed to plant' }
+        ],
+        harvestTime: 60,
+        category: 'allotment'
+      },
+      {
+        id: 'plant_strawberry',
+        name: 'Plant Strawberry',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 31,
+        experience: 26,
+        baseTime: 1,
+        itemReward: { id: 'strawberry', name: 'Strawberry', quantity: 4 },
+        requirements: [
+          { type: 'item', itemId: 'strawberry_seed', quantity: 1, description: 'Strawberry seed to plant' }
+        ],
+        harvestTime: 60,
+        category: 'allotment'
+      },
+      {
+        id: 'plant_watermelon',
+        name: 'Plant Watermelon',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 47,
+        experience: 50,
+        baseTime: 1,
+        itemReward: { id: 'watermelon', name: 'Watermelon', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'watermelon_seed', quantity: 1, description: 'Watermelon seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'allotment'
+      },
+      {
+        id: 'plant_snape_grass',
+        name: 'Plant Snape Grass',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 61,
+        experience: 82,
+        baseTime: 1,
+        itemReward: { id: 'snape_grass', name: 'Snape Grass', quantity: 4 },
+        requirements: [
+          { type: 'item', itemId: 'snape_grass_seed', quantity: 1, description: 'Snape grass seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'allotment'
+      },
+      
+      // Herb farming actions
+      {
+        id: 'plant_guam',
+        name: 'Plant Guam',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 9,
+        experience: 11,
+        baseTime: 1,
+        itemReward: { id: 'guam_leaf', name: 'Guam Leaf', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'guam_seed', quantity: 1, description: 'Guam seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_marrentill',
+        name: 'Plant Marrentill',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 14,
+        experience: 14,
+        baseTime: 1,
+        itemReward: { id: 'marrentill', name: 'Marrentill', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'marentill_seed', quantity: 1, description: 'Marrentill seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_tarromin',
+        name: 'Plant Tarromin',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 19,
+        experience: 18,
+        baseTime: 1,
+        itemReward: { id: 'tarromin', name: 'Tarromin', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'tarromin_seed', quantity: 1, description: 'Tarromin seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_harralander',
+        name: 'Plant Harralander',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 26,
+        experience: 22,
+        baseTime: 1,
+        itemReward: { id: 'harralander', name: 'Harralander', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'harralander_seed', quantity: 1, description: 'Harralander seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_ranarr',
+        name: 'Plant Ranarr',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 32,
+        experience: 27,
+        baseTime: 1,
+        itemReward: { id: 'ranarr', name: 'Ranarr', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'ranarr_seed', quantity: 1, description: 'Ranarr seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_toadflax',
+        name: 'Plant Toadflax',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 38,
+        experience: 33,
+        baseTime: 1,
+        itemReward: { id: 'toadflax', name: 'Toadflax', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'toadflax_seed', quantity: 1, description: 'Toadflax seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_irit',
+        name: 'Plant Irit',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 44,
+        experience: 43,
+        baseTime: 1,
+        itemReward: { id: 'irit', name: 'Irit', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'irit_seed', quantity: 1, description: 'Irit seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_avantoe',
+        name: 'Plant Avantoe',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 50,
+        experience: 55,
+        baseTime: 1,
+        itemReward: { id: 'avantoe', name: 'Avantoe', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'avantoe_seed', quantity: 1, description: 'Avantoe seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_kwuarm',
+        name: 'Plant Kwuarm',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 56,
+        experience: 70,
+        baseTime: 1,
+        itemReward: { id: 'kwuarm', name: 'Kwuarm', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'kwuarm_seed', quantity: 1, description: 'Kwuarm seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_snapdragon',
+        name: 'Plant Snapdragon',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 62,
+        experience: 88,
+        baseTime: 1,
+        itemReward: { id: 'snapdragon', name: 'Snapdragon', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'snapdragon_seed', quantity: 1, description: 'Snapdragon seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_cadantine',
+        name: 'Plant Cadantine',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 67,
+        experience: 107,
+        baseTime: 1,
+        itemReward: { id: 'cadantine', name: 'Cadantine', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'cadantine_seed', quantity: 1, description: 'Cadantine seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_lantadyme',
+        name: 'Plant Lantadyme',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 73,
+        experience: 135,
+        baseTime: 1,
+        itemReward: { id: 'lantadyme', name: 'Lantadyme', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'lantadyme_seed', quantity: 1, description: 'Lantadyme seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_dwarf_weed',
+        name: 'Plant Dwarf Weed',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 79,
+        experience: 173,
+        baseTime: 1,
+        itemReward: { id: 'dwarf_weed', name: 'Dwarf Weed', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'dwarf_weed_seed', quantity: 1, description: 'Dwarf weed seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      {
+        id: 'plant_torstol',
+        name: 'Plant Torstol',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 85,
+        experience: 200,
+        baseTime: 1,
+        itemReward: { id: 'torstol', name: 'Torstol', quantity: 3 },
+        requirements: [
+          { type: 'item', itemId: 'torstol_seed', quantity: 1, description: 'Torstol seed to plant' }
+        ],
+        harvestTime: 80,
+        category: 'herbs'
+      },
+      
+      // Tree farming actions
+      {
+        id: 'plant_oak',
+        name: 'Plant Oak Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 15,
+        experience: 14,
+        baseTime: 1,
+        itemReward: { id: 'oak_logs', name: 'Oak Logs', quantity: 8 },
+        requirements: [
+          { type: 'item', itemId: 'acorn', quantity: 1, description: 'Acorn to plant' }
+        ],
+        harvestTime: 200,
+        category: 'trees'
+      },
+      {
+        id: 'plant_willow',
+        name: 'Plant Willow Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 30,
+        experience: 25,
+        baseTime: 1,
+        itemReward: { id: 'willow_logs', name: 'Willow Logs', quantity: 12 },
+        requirements: [
+          { type: 'item', itemId: 'willow_seed', quantity: 1, description: 'Willow seed to plant' }
+        ],
+        harvestTime: 240,
+        category: 'trees'
+      },
+      {
+        id: 'plant_teak',
+        name: 'Plant Teak Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 35,
+        experience: 35,
+        baseTime: 1,
+        itemReward: { id: 'teak_logs', name: 'Teak Logs', quantity: 10 },
+        requirements: [
+          { type: 'item', itemId: 'teak_seed', quantity: 1, description: 'Teak seed to plant' }
+        ],
+        harvestTime: 280,
+        category: 'trees'
+      },
+      {
+        id: 'plant_maple',
+        name: 'Plant Maple Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 45,
+        experience: 45,
+        baseTime: 1,
+        itemReward: { id: 'maple_logs', name: 'Maple Logs', quantity: 15 },
+        requirements: [
+          { type: 'item', itemId: 'maple_seed', quantity: 1, description: 'Maple seed to plant' }
+        ],
+        harvestTime: 320,
+        category: 'trees'
+      },
+      {
+        id: 'plant_mahogany',
+        name: 'Plant Mahogany Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 55,
+        experience: 63,
+        baseTime: 1,
+        itemReward: { id: 'mahogany_logs', name: 'Mahogany Logs', quantity: 12 },
+        requirements: [
+          { type: 'item', itemId: 'mahogany_seed', quantity: 1, description: 'Mahogany seed to plant' }
+        ],
+        harvestTime: 360,
+        category: 'trees'
+      },
+      {
+        id: 'plant_yew',
+        name: 'Plant Yew Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 60,
+        experience: 81,
+        baseTime: 1,
+        itemReward: { id: 'yew_logs', name: 'Yew Logs', quantity: 20 },
+        requirements: [
+          { type: 'item', itemId: 'yew_seed', quantity: 1, description: 'Yew seed to plant' }
+        ],
+        harvestTime: 400,
+        category: 'trees'
+      },
+      {
+        id: 'plant_magic',
+        name: 'Plant Magic Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 75,
+        experience: 145,
+        baseTime: 1,
+        itemReward: { id: 'magic_logs', name: 'Magic Logs', quantity: 25 },
+        requirements: [
+          { type: 'item', itemId: 'magic_seed', quantity: 1, description: 'Magic seed to plant' }
+        ],
+        harvestTime: 480,
+        category: 'trees'
+      },
+      {
+        id: 'plant_redwood',
+        name: 'Plant Redwood Tree',
+        type: 'farming',
+        skill: 'farming',
+        levelRequired: 90,
+        experience: 230,
+        baseTime: 1,
+        itemReward: { id: 'redwood_logs', name: 'Redwood Logs', quantity: 30 },
+        requirements: [
+          { type: 'item', itemId: 'redwood_seed', quantity: 1, description: 'Redwood seed to plant' }
+        ],
+        harvestTime: 640,
+        category: 'trees'
+      }
+    ].map(action => ({
+      ...action,
+      requirements:
+        action.levelRequired === 1 && action.skill === 'farming'
+          ? action.requirements
+          : (action.requirements && action.requirements.length > 0
+              ? action.requirements
+              : [{ type: 'level', skill: action.skill, level: action.levelRequired }])
+    })),
+    availableSkills: ['farming'],
+    type: 'resource' as const,
+    levelRequired: 1,
+    resources: [],
+    category: 'farming',
+    icon: '/assets/BG/fields.webp'
+  },
 ];
 
 export const mockCharacter: Character = {
@@ -3711,7 +4221,7 @@ export const mockCharacter: Character = {
   },
   combatLevel: 3,
   hitpoints: 10,
-  maxHitpoints: 10,
+  maxHitpoints: 10, // Max hitpoints equals hitpoints skill level (10)
   prayer: 1,
   maxPrayer: 1,
   specialEnergy: 100,
@@ -3721,6 +4231,7 @@ export const mockCharacter: Character = {
   currentSlayerTask: null,
   slayerTaskStreak: 0,
   stats: {
+    // General
     deaths: 0,
     foodEaten: 0,
     hitpointsGained: 0,
@@ -3731,6 +4242,36 @@ export const mockCharacter: Character = {
     slayerPointsSpent: 0,
     slayerPointsEarned: 0,
     totalActiveTime: 0,
-    totalOfflineTime: 0
+    totalOfflineTime: 0,
+
+    // Gathering
+    logsChopped: 0,
+    oresMined: 0,
+    fishCaught: 0,
+    itemsPickpocketed: 0,
+    creaturesHunted: 0,
+    cropsHarvested: 0,
+
+    // Processing
+    itemsCrafted: 0,
+    arrowsFletched: 0,
+    barsSmelted: 0,
+    foodCooked: 0,
+    logsBurned: 0,
+    bonesBuried: 0,
+    runesCrafted: 0,
+
+    // Combat
+    monstersKilled: 0,
+    totalKills: 0,
+    totalDamageDealt: 0,
+    totalDamageTaken: 0,
+    favouriteFoodEaten: 0,
+    totalHealthHealed: 0,
+
+    // Detailed tracking
+    resourcesGathered: {},
+    actionsPerformed: {},
+    monstersKilledByType: {}
   }
 }; 
