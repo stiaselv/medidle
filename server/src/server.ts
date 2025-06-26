@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import clientPromise from './db';
@@ -23,9 +23,41 @@ const allowedOrigins = [
 
 console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
+// Custom CORS middleware that Railway can't override
+const customCors = (req: Request, res: Response, next: NextFunction): void => {
+  const origin = req.headers.origin;
+  console.log('🔍 Request from origin:', origin);
+  
+  // Set CORS headers manually to prevent Railway override
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    console.log('✅ Setting Access-Control-Allow-Origin to:', origin || '*');
+  } else {
+    console.log('❌ Origin not allowed:', origin);
+    res.header('Access-Control-Allow-Origin', 'null');
+  }
+  
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    console.log('📋 Handling OPTIONS preflight request');
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+};
+
+// Apply custom CORS first (before express-cors)
+app.use(customCors);
+
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    console.log('🔍 CORS check for origin:', origin);
+    console.log('🔍 Express CORS check for origin:', origin);
     
     // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin) {
@@ -71,6 +103,33 @@ app.get('/api/db-status', async (req: Request, res: Response) => {
     console.error('Database connection error:', e);
     res.status(500).json({ status: 'error', message: 'Failed to connect to MongoDB', error: String(e) });
   }
+});
+
+// Test CORS endpoint
+app.get('/api/cors-test', (req: Request, res: Response) => {
+  const origin = req.headers.origin;
+  console.log('🧪 CORS test endpoint called from origin:', origin);
+  res.status(200).json({ 
+    message: 'CORS test successful!',
+    origin: origin,
+    headers: {
+      'access-control-allow-origin': res.getHeader('Access-Control-Allow-Origin'),
+      'access-control-allow-credentials': res.getHeader('Access-Control-Allow-Credentials'),
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Test POST endpoint for CORS preflight
+app.post('/api/cors-test', (req: Request, res: Response) => {
+  const origin = req.headers.origin;
+  console.log('🧪 CORS POST test endpoint called from origin:', origin);
+  res.status(200).json({ 
+    message: 'CORS POST test successful!',
+    origin: origin,
+    body: req.body,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Use the character routes
