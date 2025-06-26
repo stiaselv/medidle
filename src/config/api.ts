@@ -1,6 +1,6 @@
   // API configuration for different environments
   export const API_BASE_URL = import.meta.env.VITE_API_URL || 
-    (import.meta.env.DEV ? 'http://localhost:5000' : 'https://your-backend-app.railway.app');
+    (import.meta.env.DEV ? 'http://localhost:5000' : 'https://medidle.railway.app');
 
 // Helper function to create API URLs
 export const createApiUrl = (path: string): string => {
