@@ -14,21 +14,38 @@ const allowedOrigins = [
   'http://localhost:5173', 
   'http://localhost:5174', 
   'http://localhost:5175',
-  // Add your production frontend URL here
-  process.env.FRONTEND_URL || 'https://medidle.vercel.app'
-];
+  'https://medidle.vercel.app',
+  'https://medidle-git-main-stiaselv.vercel.app',
+  'https://medidle-stiaselv.vercel.app',
+  // Add environment variable override
+  process.env.FRONTEND_URL
+].filter(Boolean); // Remove any undefined values
+
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // allow requests with no origin (like mobile apps, curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    console.log('🔍 CORS check for origin:', origin);
+    
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) {
+      console.log('✅ Allowing request with no origin');
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.includes(origin)) {
+      console.log('✅ Origin allowed:', origin);
+      return callback(null, true);
+    } else {
+      console.log('❌ Origin blocked:', origin);
+      console.log('📋 Allowed origins:', allowedOrigins);
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
       return callback(new Error(msg), false);
     }
-    return callback(null, true);
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 };
 
 app.use(cors(corsOptions));
@@ -62,10 +79,11 @@ app.use('/api/auth', authRoutes);
 
 // Start server immediately (don't wait for DB)
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`FRONTEND_URL: ${process.env.FRONTEND_URL || 'not set'}`);
-  console.log(`MONGODB_URI: ${process.env.MONGODB_URI ? 'set' : 'not set'}`);
+  console.log(`🚀 Server is running on port ${port}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 FRONTEND_URL: ${process.env.FRONTEND_URL || 'not set'}`);
+  console.log(`🗄️  MONGODB_URI: ${process.env.MONGODB_URI ? 'set' : 'not set'}`);
+  console.log(`🌐 CORS origins configured:`, allowedOrigins);
 });
 
 // Test database connection (but don't block server startup)

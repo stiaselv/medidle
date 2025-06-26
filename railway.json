@@ -12,7 +12,8 @@
     "production": {
       "variables": {
         "NODE_ENV": "production",
-        "PORT": "${{RAILWAY_PUBLIC_PORT}}"
+        "PORT": "${{RAILWAY_PUBLIC_PORT}}",
+        "FRONTEND_URL": "https://medidle.vercel.app"
       }
     }
   }
