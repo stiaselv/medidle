@@ -35,8 +35,13 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
+// Health check endpoint for Railway
 app.get('/', (req: Request, res: Response) => {
-  res.send('MedIdle server is running!');
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'MedIdle server is running!',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // A test route to check DB connection
@@ -44,9 +49,10 @@ app.get('/api/db-status', async (req: Request, res: Response) => {
   try {
     const client = await clientPromise;
     await client.db('admin').command({ ping: 1 });
-    res.status(200).send({ status: 'success', message: 'Successfully connected to MongoDB!' });
+    res.status(200).json({ status: 'success', message: 'Successfully connected to MongoDB!' });
   } catch (e) {
-    res.status(500).send({ status: 'error', message: 'Failed to connect to MongoDB', error: e });
+    console.error('Database connection error:', e);
+    res.status(500).json({ status: 'error', message: 'Failed to connect to MongoDB', error: String(e) });
   }
 });
 
@@ -54,10 +60,20 @@ app.get('/api/db-status', async (req: Request, res: Response) => {
 app.use('/api/characters', characterRoutes);
 app.use('/api/auth', authRoutes);
 
-clientPromise.then(() => {
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-  });
-}).catch(err => {
-  console.error("Failed to connect to the database. Server not started.", err);
+// Start server immediately (don't wait for DB)
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`FRONTEND_URL: ${process.env.FRONTEND_URL || 'not set'}`);
+  console.log(`MONGODB_URI: ${process.env.MONGODB_URI ? 'set' : 'not set'}`);
 });
+
+// Test database connection (but don't block server startup)
+clientPromise
+  .then(() => {
+    console.log('✅ Successfully connected to MongoDB');
+  })
+  .catch(err => {
+    console.error('❌ Failed to connect to MongoDB:', err);
+    console.error('Server will continue running, but database operations will fail');
+  });
