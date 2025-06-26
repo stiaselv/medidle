@@ -15,7 +15,7 @@ const allowedOrigins = [
   'http://localhost:5174', 
   'http://localhost:5175',
   // Add your production frontend URL here
-  process.env.FRONTEND_URL || 'https://your-app-name.vercel.app'
+  process.env.FRONTEND_URL || 'https://medidle.vercel.app'
 ];
 
 const corsOptions = {
