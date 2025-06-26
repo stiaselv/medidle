@@ -1,1 +1,1 @@
-web: npm run backend:start 
+web: chmod +x start.sh && ./start.sh 

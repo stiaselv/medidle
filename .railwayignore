@@ -1,16 +1,27 @@
-# Ignore frontend files for Railway backend deployment
-src/
-public/
-dist/
-node_modules/
+# Ignore all frontend files for Railway backend deployment
+/src/
+/public/
+/dist/
+/.vite/
+/node_modules/
 *.log
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+/vite.config.ts
+/tsconfig.json
+/tsconfig.app.json
+/tsconfig.node.json
+/index.html
+/eslint.config.js
 
-# Keep only server directory and config files
-!server/
-!railway.json
-!Procfile 
+# Only include backend and configuration files
+!/server/
+!/railway.json
+!/railway.toml
+!/Procfile
+!/package.json
+!/build.sh
+!/start.sh 

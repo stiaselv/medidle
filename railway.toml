@@ -1,0 +1,8 @@
+[build]
+buildCommand = "chmod +x build.sh && ./build.sh"
+
+[deploy]
+startCommand = "chmod +x start.sh && ./start.sh"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure" 

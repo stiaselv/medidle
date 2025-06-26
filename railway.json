@@ -1,11 +1,19 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "deploy": {
-    "buildCommand": "npm run backend:build",
-    "startCommand": "npm run backend:start",
+    "buildCommand": "chmod +x build.sh && ./build.sh",
+    "startCommand": "chmod +x start.sh && ./start.sh",
     "healthcheckPath": "/",
     "healthcheckTimeout": 100,
     "restartPolicyType": "on_failure",
     "restartPolicyMaxRetries": 3
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "${{RAILWAY_PUBLIC_PORT}}"
+      }
+    }
   }
 } 
