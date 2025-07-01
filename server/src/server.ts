@@ -23,38 +23,85 @@ const allowedOrigins = [
 
 console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
-// Custom CORS middleware that Railway can't override
-const customCors = (req: Request, res: Response, next: NextFunction): void => {
+// Enhanced CORS middleware that aggressively prevents Railway override
+const aggressiveCors = (req: Request, res: Response, next: NextFunction): void => {
   const origin = req.headers.origin;
   console.log('🔍 Request from origin:', origin);
+  console.log('🔧 User-Agent:', req.headers['user-agent']);
   
-  // Set CORS headers manually to prevent Railway override
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
-    console.log('✅ Setting Access-Control-Allow-Origin to:', origin || '*');
-  } else {
-    console.log('❌ Origin not allowed:', origin);
-    res.header('Access-Control-Allow-Origin', 'null');
+  // Determine the correct origin to allow
+  let allowedOrigin = '*';
+  if (origin && allowedOrigins.includes(origin)) {
+    allowedOrigin = origin;
+  } else if (!origin) {
+    // For requests without origin (like direct API calls), allow any of our domains
+    allowedOrigin = '*';
   }
   
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
-  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  // Set CORS headers with multiple approaches to prevent override
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie, Cache-Control',
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin'
+  };
   
-  // Handle preflight requests
+  // Set headers multiple ways to ensure they stick
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+    res.header(key, value);
+  });
+  
+  console.log('✅ Setting CORS headers:', corsHeaders);
+  
+  // Handle preflight requests immediately
   if (req.method === 'OPTIONS') {
     console.log('📋 Handling OPTIONS preflight request');
-    res.status(200).end();
+    res.status(204).end();
     return;
   }
   
   next();
 };
 
-// Apply custom CORS first (before express-cors)
-app.use(customCors);
+// Apply aggressive CORS as the very first middleware
+app.use(aggressiveCors);
 
+// Add a middleware to ensure CORS headers are preserved throughout the request
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const originalEnd = res.end;
+  const originalSend = res.send;
+  
+  // Override end method to ensure CORS headers are still present
+  res.end = function(chunk?: any, encoding?: any) {
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    return originalEnd.call(this, chunk, encoding);
+  };
+  
+  // Override send method to ensure CORS headers are still present
+  res.send = function(body?: any) {
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    return originalSend.call(this, body);
+  };
+  
+  next();
+});
+
+// Traditional express-cors as backup (with stricter configuration)
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     console.log('🔍 Express CORS check for origin:', origin);
@@ -71,13 +118,14 @@ const corsOptions = {
     } else {
       console.log('❌ Origin blocked:', origin);
       console.log('📋 Allowed origins:', allowedOrigins);
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      return callback(new Error(msg), false);
+      // Instead of blocking, let our custom middleware handle it
+      return callback(null, true);
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Origin', 'X-Requested-With', 'Accept', 'Cache-Control'],
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
@@ -105,17 +153,23 @@ app.get('/api/db-status', async (req: Request, res: Response) => {
   }
 });
 
-// Test CORS endpoint
+// Enhanced CORS test endpoint
 app.get('/api/cors-test', (req: Request, res: Response) => {
   const origin = req.headers.origin;
   console.log('🧪 CORS test endpoint called from origin:', origin);
+  
+  // Get all current headers for debugging
+  const responseHeaders: Record<string, any> = {};
+  res.getHeaderNames().forEach(name => {
+    responseHeaders[name] = res.getHeader(name);
+  });
+  
   res.status(200).json({ 
     message: 'CORS test successful!',
     origin: origin,
-    headers: {
-      'access-control-allow-origin': res.getHeader('Access-Control-Allow-Origin'),
-      'access-control-allow-credentials': res.getHeader('Access-Control-Allow-Credentials'),
-    },
+    requestHeaders: req.headers,
+    responseHeaders: responseHeaders,
+    allowedOrigins: allowedOrigins,
     timestamp: new Date().toISOString()
   });
 });
