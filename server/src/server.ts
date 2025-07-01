@@ -3,11 +3,11 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import clientPromise from './db';
-import characterRoutes from './routes/characters';
-import authRoutes from './routes/auth';
 
 const app = express();
 const port = parseInt(process.env.PORT || '5000', 10);
+
+console.log('🚀 Starting server initialization...');
 
 // Production and development origins
 const allowedOrigins = [
@@ -132,6 +132,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
+console.log('⚙️ Basic middleware setup complete');
+
 // Health check endpoint for Railway
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({ 
@@ -140,6 +142,8 @@ app.get('/', (req: Request, res: Response) => {
     timestamp: new Date().toISOString()
   });
 });
+
+console.log('✅ Health check endpoint registered');
 
 // A test route to check DB connection
 app.get('/api/db-status', async (req: Request, res: Response) => {
@@ -152,6 +156,8 @@ app.get('/api/db-status', async (req: Request, res: Response) => {
     res.status(500).json({ status: 'error', message: 'Failed to connect to MongoDB', error: String(e) });
   }
 });
+
+console.log('✅ DB status endpoint registered');
 
 // Enhanced CORS test endpoint
 app.get('/api/cors-test', (req: Request, res: Response) => {
@@ -174,6 +180,8 @@ app.get('/api/cors-test', (req: Request, res: Response) => {
   });
 });
 
+console.log('✅ CORS test endpoint registered');
+
 // Test POST endpoint for CORS preflight
 app.post('/api/cors-test', (req: Request, res: Response) => {
   const origin = req.headers.origin;
@@ -186,9 +194,55 @@ app.post('/api/cors-test', (req: Request, res: Response) => {
   });
 });
 
-// Use the character routes
-app.use('/api/characters', characterRoutes);
-app.use('/api/auth', authRoutes);
+console.log('✅ CORS POST test endpoint registered');
+
+// Safely import and register routes with error handling
+try {
+  console.log('📦 Attempting to import character routes...');
+  const characterRoutes = require('./routes/characters');
+  if (characterRoutes && characterRoutes.default) {
+    app.use('/api/characters', characterRoutes.default);
+    console.log('✅ Character routes imported and registered successfully');
+  } else {
+    console.error('❌ Character routes import failed - no default export');
+  }
+} catch (error) {
+  console.error('❌ Error importing character routes:', error);
+  console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+}
+
+try {
+  console.log('📦 Attempting to import auth routes...');
+  const authRoutes = require('./routes/auth');
+  if (authRoutes && authRoutes.default) {
+    app.use('/api/auth', authRoutes.default);
+    console.log('✅ Auth routes imported and registered successfully');
+  } else {
+    console.error('❌ Auth routes import failed - no default export');
+  }
+} catch (error) {
+  console.error('❌ Error importing auth routes:', error);
+  console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+}
+
+// Add a catch-all route for debugging
+app.use('*', (req: Request, res: Response) => {
+  console.log('🚫 Route not found:', req.method, req.originalUrl);
+  console.log('🗂️ Available routes:');
+  console.log('- GET /')
+  console.log('- GET /api/db-status');
+  console.log('- GET /api/cors-test');
+  console.log('- POST /api/cors-test');
+  console.log('- /api/characters/* (if routes loaded)');
+  console.log('- /api/auth/* (if routes loaded)');
+  
+  res.status(404).json({ 
+    error: 'Route not found',
+    method: req.method,
+    path: req.originalUrl,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Start server immediately (don't wait for DB)
 app.listen(port, '0.0.0.0', () => {
