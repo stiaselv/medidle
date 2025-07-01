@@ -3,6 +3,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import clientPromise from './db';
+import characterRoutes from './routes/characters';
+import authRoutes from './routes/auth';
 
 const app = express();
 const port = parseInt(process.env.PORT || '5000', 10);
@@ -196,46 +198,18 @@ app.post('/api/cors-test', (req: Request, res: Response) => {
 
 console.log('✅ CORS POST test endpoint registered');
 
-// Safely import and register routes with error handling
-try {
-  console.log('📦 Attempting to import character routes...');
-  const characterRoutes = require('./routes/characters');
-  if (characterRoutes && characterRoutes.default) {
-    app.use('/api/characters', characterRoutes.default);
-    console.log('✅ Character routes imported and registered successfully');
-  } else {
-    console.error('❌ Character routes import failed - no default export');
-  }
-} catch (error) {
-  console.error('❌ Error importing character routes:', error);
-  console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-}
+// Register routes with enhanced logging
+console.log('📦 Registering character routes...');
+app.use('/api/characters', characterRoutes);
+console.log('✅ Character routes registered');
 
-try {
-  console.log('📦 Attempting to import auth routes...');
-  const authRoutes = require('./routes/auth');
-  if (authRoutes && authRoutes.default) {
-    app.use('/api/auth', authRoutes.default);
-    console.log('✅ Auth routes imported and registered successfully');
-  } else {
-    console.error('❌ Auth routes import failed - no default export');
-  }
-} catch (error) {
-  console.error('❌ Error importing auth routes:', error);
-  console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-}
+console.log('📦 Registering auth routes...');
+app.use('/api/auth', authRoutes);
+console.log('✅ Auth routes registered');
 
 // Add a catch-all route for debugging
 app.use('*', (req: Request, res: Response) => {
   console.log('🚫 Route not found:', req.method, req.originalUrl);
-  console.log('🗂️ Available routes:');
-  console.log('- GET /')
-  console.log('- GET /api/db-status');
-  console.log('- GET /api/cors-test');
-  console.log('- POST /api/cors-test');
-  console.log('- /api/characters/* (if routes loaded)');
-  console.log('- /api/auth/* (if routes loaded)');
-  
   res.status(404).json({ 
     error: 'Route not found',
     method: req.method,
