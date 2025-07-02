@@ -24,19 +24,23 @@ export const UserAuth: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { login } = useGameStore();
+  const { login, register } = useGameStore();
   const toast = useToast();
 
   const handleRegister = async () => {
-    // This is a placeholder. The actual registration logic is now in gameStore.
-    // We can adapt this to call a register function if one is added to the store.
-    toast({
-      title: 'Registration not implemented.',
-      description: 'Please use the login form.',
-      status: 'info',
-      duration: 5000,
-      isClosable: true,
-    });
+    setError(null);
+    try {
+      await register(username, password);
+      toast({
+        title: 'Registration successful!',
+        description: 'Your account has been created. You can now log in.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error: any) {
+      setError(error.message || 'Registration failed. Please try again.');
+    }
   };
 
   const handleLogin = async () => {
@@ -127,6 +131,7 @@ export const UserAuth: React.FC = () => {
                     borderColor="gray.600"
                   />
                 </FormControl>
+                {error && <Text color="red.400">{error}</Text>}
                 <Button type="submit" colorScheme="green" width="full">Register</Button>
               </VStack>
             </TabPanel>
