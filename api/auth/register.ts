@@ -2,8 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { Collection } from 'mongodb';
-import clientPromise from '../lib/db';
-import { User } from '../lib/types';
+import clientPromise from '../../src/lib/api/db';
+import { User } from '../../src/lib/api/types';
 
 // Helper to get the users collection
 async function getUsersCollection(): Promise<Collection<User>> {
