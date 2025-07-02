@@ -3,8 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { Collection } from 'mongodb';
-import clientPromise from '../../src/lib/api/db';
-import { User } from '../../src/lib/api/types';
+import clientPromise from '../src/lib/api/db';
+import { User } from '../src/lib/api/types';
 
 // Helper to get the users collection
 async function getUsersCollection(): Promise<Collection<User>> {
