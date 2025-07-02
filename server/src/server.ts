@@ -1,8 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authRoutes from './routes/auth';
-import charactersRoutes from './routes/characters';
+import 'dotenv/config';
 
 const app = express();
 
@@ -14,6 +13,18 @@ console.log('  - RAILWAY_PUBLIC_PORT:', process.env.RAILWAY_PUBLIC_PORT);
 console.log('  - NODE_ENV:', process.env.NODE_ENV);
 console.log('  - JWT_SECRET:', process.env.JWT_SECRET ? '✅ Set' : '❌ Missing');
 console.log('  - MONGODB_URI:', process.env.MONGODB_URI ? '✅ Set' : '❌ Missing');
+
+// Validate critical environment variables
+const missingVars = [];
+if (!process.env.JWT_SECRET) missingVars.push('JWT_SECRET');
+if (!process.env.MONGODB_URI) missingVars.push('MONGODB_URI');
+
+if (missingVars.length > 0) {
+  console.error('❌ Critical environment variables missing:', missingVars);
+  console.error('🚨 Server cannot start without these variables!');
+  console.error('Please set them in your Railway environment variables.');
+  process.exit(1);
+}
 
 const port = parseInt(process.env.PORT || process.env.RAILWAY_PUBLIC_PORT || '3000', 10);
 
@@ -47,11 +58,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/characters', charactersRoutes);
-
-// Health check
+// Health check (before loading heavy dependencies)
 app.get('/', (req, res) => {
   console.log('🏥 Health check hit');
   res.json({ 
@@ -80,6 +87,33 @@ app.get('/test', (req, res) => {
   console.log('🧪 Test endpoint hit');
   res.json({ message: 'Test successful', timestamp: new Date().toISOString() });
 });
+
+// Load routes only after basic endpoints are set up
+console.log('📚 Loading API routes...');
+
+try {
+  // Import routes dynamically to catch import errors
+  const authRoutes = require('./routes/auth').default;
+  const charactersRoutes = require('./routes/characters').default;
+  
+  // Routes
+  app.use('/api/auth', authRoutes);
+  app.use('/api/characters', charactersRoutes);
+  
+  console.log('✅ API routes loaded successfully');
+} catch (error) {
+  console.error('❌ Error loading API routes:', error);
+  console.error('🚨 Server will continue without API routes for debugging');
+  
+  // Add a debug route to show the error
+  app.get('/api-error', (req, res) => {
+    res.status(500).json({
+      message: 'API routes failed to load',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+  });
+}
 
 // 404 handler
 app.use('*', (req, res) => {
