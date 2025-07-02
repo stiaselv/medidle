@@ -42,11 +42,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Test 3: Import our custom modules
       console.log('11. Testing db import...');
-      const clientPromise = await import('../src/lib/api/db');
+      const clientPromise = await import('./_lib/db');
       console.log('12. db imported successfully');
 
       console.log('13. Testing types import...');
-      const types = await import('../src/lib/api/types');
+      const types = await import('./_lib/types');
       console.log('14. types imported successfully');
 
       // Test 4: MongoDB connection

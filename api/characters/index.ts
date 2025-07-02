@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Collection, ObjectId } from 'mongodb';
-import clientPromise from '../src/lib/api/db';
-import { withAuth, AuthenticatedRequest } from '../src/lib/api/auth';
-import { Character, SkillName, createSkill } from '../src/lib/api/types';
+import clientPromise from '../_lib/db';
+import { withAuth, AuthenticatedRequest } from '../_lib/auth';
+import { Character, SkillName, createSkill } from '../_lib/types';
 
 // Helper to get the characters collection
 async function getCharactersCollection(): Promise<Collection<Character>> {
