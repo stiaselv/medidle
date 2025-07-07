@@ -1,4 +1,8 @@
 import express from 'express';
+import cors from 'cors';
+import authRouter from './routes/auth';
+import charactersRouter from './routes/characters';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -17,6 +21,13 @@ console.log(`📍 Using port: ${port}`);
 
 // Ultra simple middleware
 app.use(express.json());
+app.use(cookieParser());
+
+// Add this line before your routes:
+app.use(cors({
+  origin: 'http://localhost:5174',
+  credentials: true
+}));
 
 // Health check - absolute minimal
 app.get('/', (req, res) => {
@@ -58,8 +69,12 @@ app.get('/env', (req, res) => {
   });
 });
 
-// Catch all
-app.use('*', (req, res) => {
+// Mount routers before catch-all
+app.use('/api/auth', authRouter);
+app.use('/api/characters', charactersRouter);
+
+// Express 5 requires a named wildcard for catch-all routes. See: https://expressjs.com/en/guide/migrating-5.html#path-syntax
+app.all('/*splat', (req, res) => {
   console.log(`❌ Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     message: 'Route not found',
