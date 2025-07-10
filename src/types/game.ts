@@ -192,6 +192,40 @@ export interface SkillAction extends BaseAction {
   category?: string; // Category for farming (allotment, herbs, trees)
 }
 
+// Patch-based farming system types
+export type PatchType = 'allotment' | 'herbs' | 'trees';
+
+export type PatchStatus = 'empty' | 'growing' | 'ready' | 'diseased';
+
+export interface FarmingPatch {
+  id: string;
+  type: PatchType;
+  status: PatchStatus;
+  levelRequired: number; // Level required to unlock this patch
+  plantedCrop?: {
+    cropId: string;
+    cropName: string;
+    plantedAt: number; // Timestamp when planted
+    harvestTime: number; // Growth time in minutes
+    experience: number; // XP rewarded on harvest
+    itemReward: ItemReward;
+  };
+}
+
+export interface FarmingCrop {
+  id: string;
+  name: string;
+  type: PatchType;
+  levelRequired: number;
+  experience: number;
+  harvestTime: number; // Growth time in minutes
+  itemReward: ItemReward;
+  seedRequirement: {
+    itemId: string;
+    quantity: number;
+  };
+}
+
 export interface StoreAction extends BaseAction {
   type: 'store';
   storeItems: StoreItem[];
@@ -428,6 +462,13 @@ export interface GameState {
     loot: string[];
   } | null;
   isLoading: boolean;
+
+  // Farming state
+  farmingPatches: FarmingPatch[];
+  initializeFarmingPatches: () => void;
+  plantCrop: (patchId: string, cropId: string) => boolean;
+  harvestPatch: (patchId: string) => void;
+  updatePatchStatuses: () => void;
 
   // View state
   activeView: 'location' | 'combat_selection';

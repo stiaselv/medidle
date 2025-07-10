@@ -13,7 +13,7 @@ import { mockLocations } from '../../data/mockData';
 import { WorkbenchLocation } from './WorkbenchLocation';
 import { TempleLocation } from './TempleLocation';
 import AgilityThievingLocation from './AgilityThievingLocation';
-import { FarmingLocation } from './FarmingLocation';
+import { FieldsLocation } from '../farming/FieldsLocation';
 
 const MotionBox = motion(Box);
 
@@ -176,7 +176,7 @@ export const GameScreen = () => {
       case 'rooftop_thieving':
         return <AgilityThievingLocation />;
       case 'fields':
-        return <FarmingLocation />;
+        return <FieldsLocation />;
       default:
         return <ForestLocation />;
     }

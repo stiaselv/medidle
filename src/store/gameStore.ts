@@ -15,6 +15,7 @@ import { CombatManager } from '../combat/CombatManager';
 import type { CombatRoundResult } from '../combat/CombatManager';
 import { getEquipmentLevelRequirement } from '../data/items';
 import { createApiUrl, API_ENDPOINTS } from '../config/api';
+import { getCropById } from '../data/farmingCrops';
 
 // Helper functions for experience and level calculations
 export const calculateLevel = (experience: number): number => {
@@ -85,6 +86,10 @@ const createStore = () => create<GameState>()(
     lastActionReward: null,
     lastCombatRound: null,
     isLoading: false,
+
+    // Farming state
+    farmingPatches: [],
+
     activeView: 'location',
 
     // Function to set the active view
@@ -1114,6 +1119,148 @@ const createStore = () => create<GameState>()(
     // Helper to update active/offline time (call from timer or login/logout logic)
     updateActiveTime: (ms: number) => get().incrementStat('totalActiveTime', ms),
     updateOfflineTime: (ms: number) => get().incrementStat('totalOfflineTime', ms),
+
+    // Farming system
+    initializeFarmingPatches: () => {
+      const patches: import('../types/game').FarmingPatch[] = [];
+      
+      // Create 12 allotment patches
+      for (let i = 1; i <= 12; i++) {
+        patches.push({
+          id: `allotment_${i}`,
+          type: 'allotment',
+          status: 'empty',
+          levelRequired: i === 1 ? 1 : Math.ceil(i * 3.5) // Progressive unlock
+        });
+      }
+      
+      // Create 8 herb patches
+      for (let i = 1; i <= 8; i++) {
+        patches.push({
+          id: `herbs_${i}`,
+          type: 'herbs',
+          status: 'empty',
+          levelRequired: i === 1 ? 5 : 5 + Math.ceil(i * 7) // First at level 5, then progressive
+        });
+      }
+      
+      // Create 4 tree patches
+      for (let i = 1; i <= 4; i++) {
+        patches.push({
+          id: `trees_${i}`,
+          type: 'trees',
+          status: 'empty',
+          levelRequired: i === 1 ? 15 : 15 + Math.ceil(i * 15) // First at level 15, then progressive
+        });
+      }
+      
+      set({ farmingPatches: patches });
+    },
+
+    plantCrop: (patchId: string, cropId: string): boolean => {
+      const state = get();
+      if (!state.character) return false;
+      
+      const farmingCrop = getCropById(cropId);
+      if (!farmingCrop) return false;
+      
+      // Check if player has required farming level
+      const farmingLevel = calculateLevel(state.character.skills.farming.experience);
+      if (farmingLevel < farmingCrop.levelRequired) return false;
+      
+      // Check if player has required seeds
+      const bankItem = state.character.bank.find(item => item.id === farmingCrop.seedRequirement.itemId);
+      if (!bankItem || bankItem.quantity < farmingCrop.seedRequirement.quantity) return false;
+      
+      // Find the patch
+      const patchIndex = state.farmingPatches.findIndex(p => p.id === patchId);
+      if (patchIndex === -1) return false;
+      
+      const patch = state.farmingPatches[patchIndex];
+      if (patch.status !== 'empty') return false;
+      
+      // Remove seeds from bank
+      const newBank = [...state.character.bank];
+      const seedIndex = newBank.findIndex(item => item.id === farmingCrop.seedRequirement.itemId);
+      newBank[seedIndex].quantity -= farmingCrop.seedRequirement.quantity;
+      if (newBank[seedIndex].quantity <= 0) {
+        newBank.splice(seedIndex, 1);
+      }
+      
+      // Update patch
+      const newPatches = [...state.farmingPatches];
+      newPatches[patchIndex] = {
+        ...patch,
+        status: 'growing',
+        plantedCrop: {
+          cropId: farmingCrop.id,
+          cropName: farmingCrop.name,
+          plantedAt: Date.now(),
+          harvestTime: farmingCrop.harvestTime,
+          experience: farmingCrop.experience,
+          itemReward: farmingCrop.itemReward
+        }
+      };
+      
+      // Update character
+      const updatedCharacter = { ...state.character, bank: newBank };
+      get().setCharacter(updatedCharacter);
+      set({ farmingPatches: newPatches });
+      
+      return true;
+    },
+
+    harvestPatch: (patchId: string) => {
+      const state = get();
+      if (!state.character) return;
+      
+      const patchIndex = state.farmingPatches.findIndex(p => p.id === patchId);
+      if (patchIndex === -1) return;
+      
+      const patch = state.farmingPatches[patchIndex];
+      if (patch.status !== 'ready' || !patch.plantedCrop) return;
+      
+      // Add experience
+      state.gainExperience('farming', patch.plantedCrop.experience);
+      
+      // Add item to bank
+      const item = getItemById(patch.plantedCrop.itemReward.id);
+      if (item) {
+        state.addItemToBank(item, patch.plantedCrop.itemReward.quantity || 1);
+      }
+      
+      // Update patch to empty
+      const newPatches = [...state.farmingPatches];
+      newPatches[patchIndex] = {
+        ...patch,
+        status: 'empty',
+        plantedCrop: undefined
+      };
+      
+      set({ farmingPatches: newPatches });
+      
+      // Track farming stats
+      get().incrementStat('cropsHarvested', 1);
+    },
+
+    updatePatchStatuses: () => {
+      const state = get();
+      const currentTime = Date.now();
+      
+      const updatedPatches = state.farmingPatches.map(patch => {
+        if (patch.status === 'growing' && patch.plantedCrop) {
+          const growthTime = patch.plantedCrop.harvestTime * 60 * 1000; // Convert minutes to milliseconds
+          const elapsedTime = currentTime - patch.plantedCrop.plantedAt;
+          
+          if (elapsedTime >= growthTime) {
+            return { ...patch, status: 'ready' as const };
+          }
+        }
+        return patch;
+      });
+      
+      set({ farmingPatches: updatedPatches });
+    },
 
     register: async (username: string, password: string) => {
       const response = await fetch(createApiUrl(API_ENDPOINTS.auth.register), {
