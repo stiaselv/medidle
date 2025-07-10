@@ -1,4 +1,12 @@
 import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import authRoutes from './routes/auth';
+import charactersRoutes from './routes/characters';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 
@@ -15,8 +23,40 @@ console.log('  process.env.RAILWAY_PUBLIC_PORT:', process.env.RAILWAY_PUBLIC_POR
 const port = parseInt(process.env.PORT || process.env.RAILWAY_PUBLIC_PORT || '3000', 10);
 console.log(`📍 Using port: ${port}`);
 
-// Ultra simple middleware
-app.use(express.json());
+// CORS configuration - CRITICAL FOR FRONTEND CONNECTION
+const allowedOrigins = [
+  'http://localhost:5173',    // Vite dev server
+  'http://localhost:3000',    // Alternative dev port
+  'https://medidle.vercel.app', // Production domain (update with your actual domain)
+  process.env.FRONTEND_URL,   // Environment variable for frontend URL
+].filter((origin): origin is string => Boolean(origin));
+
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,             // Allow cookies/auth headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  optionsSuccessStatus: 200      // Support legacy browsers
+};
+
+// Apply CORS middleware FIRST
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
+// Cookie parser middleware
+app.use(cookieParser());
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Mount auth routes
+app.use('/api/auth', authRoutes);
+
+// Mount characters routes
+app.use('/api/characters', charactersRoutes);
 
 // Health check - absolute minimal
 app.get('/', (req, res) => {
@@ -26,10 +66,24 @@ app.get('/', (req, res) => {
     message: 'Ultra minimal server working',
     port: port,
     timestamp: new Date().toISOString(),
+    cors: 'enabled',
+    routes: {
+      auth: '/api/auth',
+      characters: '/api/characters',
+      available: [
+        'POST /api/auth/register', 
+        'POST /api/auth/login', 
+        'POST /api/auth/logout',
+        'GET /api/characters',
+        'POST /api/characters',
+        'PUT /api/characters/:id'
+      ]
+    },
     env: {
       PORT: process.env.PORT || 'not set',
       RAILWAY_PUBLIC_PORT: process.env.RAILWAY_PUBLIC_PORT || 'not set',
-      NODE_ENV: process.env.NODE_ENV || 'not set'
+      NODE_ENV: process.env.NODE_ENV || 'not set',
+      FRONTEND_URL: process.env.FRONTEND_URL || 'not set'
     }
   };
   console.log('✅ Sending health check response');
@@ -41,6 +95,18 @@ app.get('/test', (req, res) => {
   console.log('🧪 Test endpoint hit');
   res.json({ 
     message: 'Test successful!',
+    timestamp: new Date().toISOString(),
+    cors: 'working'
+  });
+});
+
+// CORS test endpoint
+app.get('/cors-test', (req, res) => {
+  console.log('🔄 CORS test endpoint hit');
+  console.log('Origin:', req.headers.origin);
+  res.json({
+    message: 'CORS is working!',
+    origin: req.headers.origin,
     timestamp: new Date().toISOString()
   });
 });
@@ -54,7 +120,7 @@ app.get('/env', (req, res) => {
     NODE_ENV: process.env.NODE_ENV,
     JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT SET',
     MONGODB_URI: process.env.MONGODB_URI ? 'SET' : 'NOT SET',
-    FRONTEND_URL: process.env.FRONTEND_URL
+    FRONTEND_URL: process.env.FRONTEND_URL || 'not set'
   });
 });
 
@@ -63,14 +129,27 @@ app.use('*', (req, res) => {
   console.log(`❌ Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     message: 'Route not found',
-    available: ['GET /', 'GET /test', 'GET /env']
+    available: [
+      'GET /', 
+      'GET /test', 
+      'GET /cors-test', 
+      'GET /env', 
+      'POST /api/auth/*',
+      'GET /api/characters',
+      'POST /api/characters',
+      'PUT /api/characters/:id'
+    ]
   });
 });
 
-// Error handler
+// Error handler - Express v5 compatible
 app.use((err: any, req: any, res: any, next: any) => {
   console.error('❌ ERROR:', err);
-  res.status(500).json({ error: 'Server error', message: err.message });
+  res.status(500).json({ 
+    error: 'Server error', 
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Start server with maximum error handling
@@ -83,7 +162,10 @@ try {
     console.log(`✅ ✅ ✅ SERVER STARTED SUCCESSFULLY! ✅ ✅ ✅`);
     console.log(`🏥 Health check: http://0.0.0.0:${port}/`);
     console.log(`🧪 Test: http://0.0.0.0:${port}/test`);
+    console.log(`🔄 CORS test: http://0.0.0.0:${port}/cors-test`);
     console.log(`🔍 Env: http://0.0.0.0:${port}/env`);
+    console.log(`🔐 Auth routes: http://0.0.0.0:${port}/api/auth/*`);
+    console.log(`👤 Characters routes: http://0.0.0.0:${port}/api/characters/*`);
     console.log('='.repeat(50));
     console.log('🎉 SERVER IS READY FOR RAILWAY HEALTH CHECK!');
     console.log('='.repeat(50));
