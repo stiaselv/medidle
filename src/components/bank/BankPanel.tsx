@@ -209,38 +209,32 @@ const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps)
       color="white"
     >
       <MotionBox
-        ref={(node: HTMLDivElement | null) => drag(drop(node))}
-        bg={bgColor}
-        borderRadius="md"
-        border="1px"
-        borderColor={borderColor}
-        p={2}
-        cursor={isDragging ? 'grabbing' : 'grab'}
-        position="relative"
-        opacity={isDragging ? 0.5 : canEquip && !meetsLevel ? 0.6 : 1}
-        role={canEquip ? 'button' : 'listitem'}
-        tabIndex={canEquip ? 0 : -1}
-        aria-label={ariaLabel}
-        data-item-id={item.id}
-        onClick={!isEquipped ? onClick : undefined}
-        onKeyDown={handleKeyDown}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ 
-          opacity: 1, 
-          scale: 1,
-          backgroundColor: bgColor,
+        as="button"
+        role="button"
+        tabIndex={0}
+        onClick={() => {
+          onClick?.();
         }}
-        exit={{ opacity: 0, scale: 0.8 }}
-        whileHover={
-          !isDragging && canEquip && meetsLevel && !isEquipped 
-            ? { scale: 1.05, backgroundColor: hoverBgColor }
-            : {}
-        }
-        whileTap={
-          !isDragging && canEquip && meetsLevel && !isEquipped
-            ? { scale: 0.95 }
-            : {}
-        }
+        onKeyDown={handleKeyDown}
+        ref={drag}
+        bg={useColorModeValue('white', 'gray.800')}
+        border="2px solid"
+        borderColor={isEquipped ? 'blue.400' : useColorModeValue('gray.200', 'gray.600')}
+        borderRadius="md"
+        p={2}
+        cursor="pointer"
+        position="relative"
+        _hover={{
+          borderColor: isEquipped ? 'blue.500' : 'blue.400',
+          transform: 'translateY(-2px)',
+          shadow: 'md'
+        }}
+        _active={{ transform: 'translateY(0)' }}
+        _focus={{
+          outline: 'none',
+          ring: 2,
+          ringColor: 'blue.500'
+        }}
         transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 25 }}
         layout
       >

@@ -113,7 +113,7 @@ export const TOOL_TIERS = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.WEAPON,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/iron_pickaxe.png',
-    stats: { woodcutting: 2 }
+    stats: { mining: 2 }
   },
   steel_pickaxe: {
     name: 'Steel Pickaxe',
@@ -121,7 +121,7 @@ export const TOOL_TIERS = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.WEAPON,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/steel_pickaxe.png',
-    stats: { woodcutting: 3 }
+    stats: { mining: 3 }
   },
   mithril_pickaxe: {
     name: 'Mithril Pickaxe',
@@ -129,7 +129,7 @@ export const TOOL_TIERS = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.WEAPON,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/mithril_pickaxe.png',
-    stats: { woodcutting: 4 }
+    stats: { mining: 4 }
   },
   adamant_pickaxe: {
     name: 'Adamant Pickaxe',
@@ -137,7 +137,7 @@ export const TOOL_TIERS = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.WEAPON,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/adamant_pickaxe.png',
-    stats: { woodcutting: 5 }
+    stats: { mining: 5 }
   },
   rune_pickaxe: {
     name: 'Rune Pickaxe',
@@ -145,7 +145,7 @@ export const TOOL_TIERS = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.WEAPON,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/rune_pickaxe.png',
-    stats: { woodcutting: 6 }
+    stats: { mining: 6 }
   }
 } as const;
 
@@ -263,14 +263,14 @@ const createDefaultCombatStats = (): CombatStats => ({
   prayerBonus: 0
 });
 
-export const getEquipmentSlot = (template: SmithingTemplate): keyof typeof EQUIPMENT_SLOTS => {
+export const getEquipmentSlot = (template: SmithingTemplate): string => {
   if (template.armorType) {
-    if (template.armorType.includes('helm')) return 'HEAD';
-    if (template.armorType.includes('body')) return 'BODY';
-    if (template.armorType.includes('legs') || template.armorType.includes('skirt')) return 'LEGS';
-    if (template.armorType.includes('shield')) return 'SHIELD';
+    if (template.armorType.includes('helm')) return EQUIPMENT_SLOTS.HEAD;
+    if (template.armorType.includes('body')) return EQUIPMENT_SLOTS.BODY;
+    if (template.armorType.includes('legs') || template.armorType.includes('skirt')) return EQUIPMENT_SLOTS.LEGS;
+    if (template.armorType.includes('shield')) return EQUIPMENT_SLOTS.SHIELD;
   }
-  return 'WEAPON';
+  return EQUIPMENT_SLOTS.WEAPON;
 };
 
 const generateSmithingItems = (metalType: string) => {
@@ -474,7 +474,8 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/iron_pickaxe.png',
     level: 10,
-    slot: EQUIPMENT_SLOTS.WEAPON
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { mining: 2 }
   },
   steel_pickaxe: {
     id: 'steel_pickaxe',
@@ -483,7 +484,8 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/steel_pickaxe.png',
     level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { mining: 3 }
   },
   mithril_pickaxe: {
     id: 'mithril_pickaxe',
@@ -492,7 +494,8 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/mithril_pickaxe.png',
     level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { mining: 4 }
   },
   adamant_pickaxe: {
     id: 'adamant_pickaxe',
@@ -501,7 +504,8 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/adamant_pickaxe.png',
     level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { mining: 5 }
   },
   rune_pickaxe: {
     id: 'rune_pickaxe',
@@ -510,7 +514,8 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/rune_pickaxe.png',
     level: 50,
-    slot: EQUIPMENT_SLOTS.WEAPON
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { mining: 6 }
   },
 
   // Resources - Ores
@@ -1699,7 +1704,7 @@ export const getToolTier = (itemId: string): number => {
 };
 
 export const isEquippable = (item: Item): boolean => {
-  return item.type === 'tool';
+  return item.type === 'tool' || item.type === 'weapon' || item.type === 'armor';
 };
 
 export const meetsLevelRequirement = (item: Item, playerLevel: number): boolean => {
@@ -1714,29 +1719,9 @@ export function getEquipmentLevelRequirement(item: Item): { skill: SkillName, le
 
   const name = item.id.toLowerCase();
 
-  // Handle Tools first, as they might share the 'weapon' slot
-  if (item.category === ITEM_CATEGORIES.TOOLS) {
-    if (name.includes('_axe')) {
-      if (name.includes('bronze')) return { skill: 'woodcutting', level: 1 };
-      if (name.includes('iron')) return { skill: 'woodcutting', level: 10 };
-      if (name.includes('steel')) return { skill: 'woodcutting', level: 20 };
-      if (name.includes('mithril')) return { skill: 'woodcutting', level: 30 };
-      if (name.includes('adamant')) return { skill: 'woodcutting', level: 40 };
-      if (name.includes('rune')) return { skill: 'woodcutting', level: 50 };
-    }
-    if (name.includes('_pickaxe')) {
-      if (name.includes('bronze')) return { skill: 'mining', level: 1 };
-      if (name.includes('iron')) return { skill: 'mining', level: 10 };
-      if (name.includes('steel')) return { skill: 'mining', level: 20 };
-      if (name.includes('mithril')) return { skill: 'mining', level: 30 };
-      if (name.includes('adamant')) return { skill: 'mining', level: 40 };
-      if (name.includes('rune')) return { skill: 'mining', level: 50 };
-    }
-  }
-
-  // Melee weapons
+  // For tools in weapon slot (axes, pickaxes), treat them as weapons requiring attack level
   if (item.slot === 'weapon') {
-    if (name.includes('sword') || name.includes('scimitar') || name.includes('mace') || name.includes('warhammer') || name.includes('longsword') || name.includes('battleaxe')) {
+    if (name.includes('sword') || name.includes('scimitar') || name.includes('mace') || name.includes('warhammer') || name.includes('longsword') || name.includes('battleaxe') || name.includes('_axe') || name.includes('_pickaxe')) {
       if (name.includes('bronze') || name.includes('iron')) return { skill: 'attack', level: 1 };
       if (name.includes('steel')) return { skill: 'attack', level: 5 };
       if (name.includes('mithril')) return { skill: 'attack', level: 20 };
@@ -1757,6 +1742,27 @@ export function getEquipmentLevelRequirement(item: Item): { skill: SkillName, le
     // Magic staves: no requirement
     if (name.includes('staff')) return null;
   }
+
+  // Handle Tools that are NOT in weapon slot (fishing nets, etc.)
+  if (item.category === ITEM_CATEGORIES.TOOLS && item.slot !== 'weapon') {
+    if (name.includes('_axe')) {
+      if (name.includes('bronze')) return { skill: 'woodcutting', level: 1 };
+      if (name.includes('iron')) return { skill: 'woodcutting', level: 10 };
+      if (name.includes('steel')) return { skill: 'woodcutting', level: 20 };
+      if (name.includes('mithril')) return { skill: 'woodcutting', level: 30 };
+      if (name.includes('adamant')) return { skill: 'woodcutting', level: 40 };
+      if (name.includes('rune')) return { skill: 'woodcutting', level: 50 };
+    }
+    if (name.includes('_pickaxe')) {
+      if (name.includes('bronze')) return { skill: 'mining', level: 1 };
+      if (name.includes('iron')) return { skill: 'mining', level: 10 };
+      if (name.includes('steel')) return { skill: 'mining', level: 20 };
+      if (name.includes('mithril')) return { skill: 'mining', level: 30 };
+      if (name.includes('adamant')) return { skill: 'mining', level: 40 };
+      if (name.includes('rune')) return { skill: 'mining', level: 50 };
+    }
+  }
+
   // Melee armor
   if (item.slot === 'head' || item.slot === 'body' || item.slot === 'legs' || item.slot === 'shield' || item.slot === 'feet' || item.slot === 'hands') {
     if (name.includes('bronze') || name.includes('iron')) return { skill: 'defence', level: 1 };

@@ -82,7 +82,7 @@ export type ActionType =
   | 'none'
   | 'death';
 
-export type ItemType = 'tool' | 'resource' | 'consumable' | 'currency';
+export type ItemType = 'tool' | 'resource' | 'consumable' | 'currency' | 'weapon' | 'armor' | 'ammo';
 
 export type ItemStats = {
   defence?: number;
