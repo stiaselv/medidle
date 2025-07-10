@@ -25,7 +25,14 @@ export const CharacterSelection = () => {
     }
 
     if (characters.length === 0) {
-      return <Text>No characters found. Please create one!</Text>;
+      return (
+        <VStack spacing={4} width="full">
+          <Text>No characters found. Please create one!</Text>
+          <Button colorScheme="green" onClick={() => navigate('/create')} width="full">
+            Create New Character
+          </Button>
+        </VStack>
+      );
     }
 
     // Helper to get top 3 skills by level
