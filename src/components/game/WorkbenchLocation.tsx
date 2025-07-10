@@ -1,11 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import { Box, VStack, Text, Button, Grid, Tabs, TabList, TabPanels, TabPanel, Tab, Progress, Flex, Card, CardBody, CardHeader, Divider } from '@chakra-ui/react';
+import { Box, VStack, Text, Button, Grid, Tabs, TabList, TabPanels, TabPanel, Tab, Progress, Flex, Card, CardBody, CardHeader, Divider, Heading, Icon, HStack, Tooltip, keyframes } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { GiWoodAxe, GiHammerNails } from 'react-icons/gi';
 import { useGameStore, calculateLevel, getNextLevelExperience } from '../../store/gameStore';
 import type { SkillAction, Requirement } from '../../types/game';
+import { ProgressBar } from './ProgressBar';
+import { RequirementStatus } from '../ui/RequirementStatus';
 import workbenchBg from '../../assets/BG/workbench.webp';
 
 const FLETCHING_TABS = ['Arrows', 'Bows', 'Javelins', 'Bolts'];
 const CRAFTING_TABS = ['Staves', 'Armor', 'Jewelry', 'Tan'];
+
+const bounce = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+`;
+
+const shine = keyframes`
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+`;
 
 function getFletchingTab(action: SkillAction): string {
   const name = action.name.toLowerCase();
@@ -24,6 +38,235 @@ function getCraftingTab(action: SkillAction): string {
   if (name.includes('tan')) return 'Tan';
   return 'Other';
 }
+
+const getActionIcon = (type: string) => {
+  switch (type) {
+    case 'fletching':
+      return GiWoodAxe;
+    case 'crafting':
+      return GiHammerNails;
+    default:
+      return GiWoodAxe;
+  }
+};
+
+const ActionButton: React.FC<{
+  action: SkillAction;
+  onClick: () => void;
+  isDisabled: boolean;
+  isActive?: boolean;
+  colorScheme: string;
+}> = ({
+  action,
+  onClick,
+  isDisabled,
+  isActive = false,
+  colorScheme
+}) => {
+  const icon = getActionIcon(action.type);
+  const { character, stopAction, canPerformAction, currentAction: storeCurrentAction } = useGameStore();
+  
+  const allRequirementsMet = canPerformAction(action);
+  
+  const requirementsMet = (action.requirements ?? []).map(req => ({
+    requirement: req,
+    isMet: allRequirementsMet
+  }));
+  
+  const handleClick = () => {
+    if (isActive) {
+      stopAction();
+    } else if (allRequirementsMet) {
+      onClick();
+    }
+  };
+
+  const buttonDisabled = !allRequirementsMet && !isActive;
+
+  return (
+    <Tooltip
+      label={
+        <VStack align="start" spacing={1} p={2}>
+          {requirementsMet.map(({ requirement, isMet }, index) => (
+            <RequirementStatus key={index} requirement={requirement} isMet={isMet} />
+          ))}
+        </VStack>
+      }
+      placement="top"
+      hasArrow
+      isDisabled={isActive}
+    >
+      <Box
+        position="relative"
+        width="100%"
+        transition="all 0.2s"
+        transform={isActive ? 'scale(1.02)' : 'scale(1)'}
+      >
+        <motion.div
+          style={{
+            width: '100%',
+            position: 'relative',
+          }}
+          whileHover={!isActive && allRequirementsMet ? { scale: 1.02 } : undefined}
+          whileTap={!isActive && allRequirementsMet ? { scale: 0.98 } : undefined}
+          animate={isActive ? {
+            boxShadow: [
+              `0 0 0 rgba(${colorScheme === 'orange' ? '237, 137, 54' : '66, 153, 225'}, 0)`,
+              `0 0 20px rgba(${colorScheme === 'orange' ? '237, 137, 54' : '66, 153, 225'}, 0.6)`,
+              `0 0 0 rgba(${colorScheme === 'orange' ? '237, 137, 54' : '66, 153, 225'}, 0)`,
+            ]
+          } : undefined}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <Button
+            variant="outline"
+            colorScheme={!allRequirementsMet ? "red" : isActive ? colorScheme : "green"}
+            height="auto"
+            p={4}
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            gap={2}
+            onClick={handleClick}
+            isDisabled={buttonDisabled}
+            _hover={{ 
+              bg: !allRequirementsMet ? 'blackAlpha.400' : isActive ? `${colorScheme}.900` : 'whiteAlpha.100',
+            }}
+            transition="all 0.2s"
+            bg={!allRequirementsMet ? 'blackAlpha.300' : isActive ? `${colorScheme}.800` : 'blackAlpha.400'}
+            borderColor={!allRequirementsMet ? 'red.500' : isActive ? `${colorScheme}.400` : 'green.500'}
+            borderWidth={isActive ? '2px' : '1px'}
+            _disabled={{
+              opacity: 0.7,
+              cursor: 'not-allowed',
+              _hover: { bg: 'blackAlpha.300' }
+            }}
+            position="relative"
+            overflow="hidden"
+            boxShadow={isActive ? 'lg' : 'md'}
+            _before={{
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '60%',
+              bgGradient: 'linear(to-b, whiteAlpha.100, transparent)',
+              pointerEvents: 'none',
+            }}
+            width="100%"
+          >
+            <VStack spacing={2} align="center" width="100%">
+              <Icon
+                as={icon} 
+                boxSize={6} 
+                color={!allRequirementsMet ? "red.300" : isActive ? `${colorScheme}.300` : "green.300"}
+                sx={{
+                  animation: isActive ? `${bounce} 1s infinite` : 'none',
+                  filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none',
+                }}
+              />
+              
+              <Heading
+                size="sm" 
+                color="white"
+                textShadow="0 2px 4px rgba(0,0,0,0.4)"
+                textAlign="center"
+              >
+                {action.name}
+              </Heading>
+              
+              <Text 
+                fontSize="sm" 
+                color={!allRequirementsMet ? "red.300" : isActive ? `${colorScheme}.300` : "green.300"}
+                fontWeight="medium"
+                sx={isActive ? {
+                  background: `linear-gradient(90deg, ${colorScheme === 'orange' ? '#ED8936, #F6AD55, #ED8936' : '#63B3ED, #4299E1, #63B3ED'})`,
+                  backgroundSize: '400% auto',
+                  animation: `${shine} 3s linear infinite`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                } : {}}
+              >
+                Level {action.levelRequired} {action.skill}
+              </Text>
+              
+              <HStack spacing={2} mt={1}>
+                <Text 
+                  fontSize="xs" 
+                  color="gray.300"
+                  fontWeight="medium"
+                  px={2}
+                  py={1}
+                  bg="whiteAlpha.100"
+                  borderRadius="md"
+                >
+                  +{action.experience}xp
+                </Text>
+                <Text 
+                  fontSize="xs" 
+                  color="gray.300"
+                  fontWeight="medium"
+                  px={2}
+                  py={1}
+                  bg="whiteAlpha.100"
+                  borderRadius="md"
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                >
+                  <Icon as={icon} boxSize={3} />
+                  {(action.baseTime / 1000).toFixed(1)}s
+                </Text>
+              </HStack>
+              
+              {!allRequirementsMet && (
+                <Text 
+                  fontSize="xs" 
+                  color="red.300"
+                  fontWeight="bold"
+                  mt={1}
+                >
+                  Missing requirements
+                </Text>
+              )}
+
+              {isActive && (
+                <Text 
+                  fontSize="xs" 
+                  color="red.300"
+                  fontWeight="bold"
+                  mt={1}
+                  sx={{
+                    animation: `${shine} 3s linear infinite`,
+                    background: 'linear-gradient(90deg, #FF6B6B, #FF8787, #FF6B6B)',
+                    backgroundSize: '400% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  Click to stop
+                </Text>
+              )}
+
+              {/* Progress Bar */}
+              {isActive && (
+                <ProgressBar
+                  progress={storeCurrentAction && storeCurrentAction.id === action.id ? (useGameStore.getState().actionProgress) : 0}
+                  isActive={isActive}
+                />
+              )}
+            </VStack>
+          </Button>
+        </motion.div>
+      </Box>
+    </Tooltip>
+  );
+};
 
 function SkillProgressBar({ skillName }: { skillName: 'fletching' | 'crafting' }) {
   const character = useGameStore(state => state.character);
@@ -66,8 +309,6 @@ function SkillProgressBar({ skillName }: { skillName: 'fletching' | 'crafting' }
 
 const cardGradientFletching = 'linear(to-br, orange.900 0%, gray.900 100%)';
 const cardGradientCrafting = 'linear(to-br, blue.900 0%, gray.900 100%)';
-const actionBgFletching = 'linear(to-r, orange.800 0%, gray.800 100%)';
-const actionBgCrafting = 'linear(to-r, blue.800 0%, gray.800 100%)';
 
 export const WorkbenchLocation = () => {
   const { currentLocation, startAction, currentAction, canPerformAction } = useGameStore();
@@ -202,55 +443,14 @@ export const WorkbenchLocation = () => {
                             <Text color="gray.400" p={2} fontSize="sm">No actions available.</Text>
                           ) : (
                             fletchingByTab[tab].map((action: SkillAction) => (
-                              <Box
+                              <ActionButton
                                 key={action.id}
-                                p={2}
-                                pl={3}
-                                borderLeftWidth={4}
-                                borderLeftColor="orange.400"
-                                borderWidth={1}
-                                borderColor="orange.700"
-                                borderRadius="lg"
-                                bgGradient={actionBgFletching}
-                                fontSize="sm"
-                                transition="box-shadow 0.15s, background 0.15s"
-                                _hover={{ boxShadow: '0 0 0 2px #ED8936', bg: 'orange.900' }}
-                                display="flex"
-                                flexDirection="column"
-                                gap={1}
-                              >
-                                <Text fontWeight="bold" fontSize="md" mb={0.5}>{action.name}</Text>
-                                <Text fontSize="xs" color="gray.400">
-                                  Level {action.levelRequired} | XP: {action.experience}
-                                </Text>
-                                {action.requirements && action.requirements.length > 0 && (
-                                  <Box>
-                                    <Text fontSize="xs" color="gray.300">Requirements:</Text>
-                                    <ul style={{ margin: 0, paddingLeft: 16 }}>
-                                      {action.requirements.map((req: Requirement, i: number) => (
-                                        <li key={i} style={{ fontSize: '0.85em', color: '#bbb' }}>
-                                          {req.type === 'item' && req.itemId ? `${req.quantity || 1} x ${req.itemId}` : null}
-                                          {req.type === 'level' && req.skill ? `${req.skill} lvl ${req.level}` : null}
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </Box>
-                                )}
-                                <Button
-                                  colorScheme="orange"
-                                  size="xs"
-                                  isDisabled={!canPerformAction(action)}
-                                  isLoading={currentAction?.id === action.id}
-                                  onClick={() => startAction(action)}
-                                  w="100%"
-                                  fontSize="sm"
-                                  py={1}
-                                  mt={1}
-                                  borderRadius="md"
-                                >
-                                  Start
-                                </Button>
-                              </Box>
+                                action={action}
+                                onClick={() => startAction(action)}
+                                isDisabled={!canPerformAction(action)}
+                                isActive={currentAction?.id === action.id}
+                                colorScheme="orange"
+                              />
                             ))
                           )}
                         </Grid>
@@ -325,55 +525,14 @@ export const WorkbenchLocation = () => {
                             <Text color="gray.400" p={2} fontSize="sm">No actions available.</Text>
                           ) : (
                             craftingByTab[tab].map((action: SkillAction) => (
-                              <Box
+                              <ActionButton
                                 key={action.id}
-                                p={2}
-                                pl={3}
-                                borderLeftWidth={4}
-                                borderLeftColor="blue.400"
-                                borderWidth={1}
-                                borderColor="blue.700"
-                                borderRadius="lg"
-                                bgGradient={actionBgCrafting}
-                                fontSize="sm"
-                                transition="box-shadow 0.15s, background 0.15s"
-                                _hover={{ boxShadow: '0 0 0 2px #4299E1', bg: 'blue.900' }}
-                                display="flex"
-                                flexDirection="column"
-                                gap={1}
-                              >
-                                <Text fontWeight="bold" fontSize="md" mb={0.5}>{action.name}</Text>
-                                <Text fontSize="xs" color="gray.400">
-                                  Level {action.levelRequired} | XP: {action.experience}
-                                </Text>
-                                {action.requirements && action.requirements.length > 0 && (
-                                  <Box>
-                                    <Text fontSize="xs" color="gray.300">Requirements:</Text>
-                                    <ul style={{ margin: 0, paddingLeft: 16 }}>
-                                      {action.requirements.map((req: Requirement, i: number) => (
-                                        <li key={i} style={{ fontSize: '0.85em', color: '#bbb' }}>
-                                          {req.type === 'item' && req.itemId ? `${req.quantity || 1} x ${req.itemId}` : null}
-                                          {req.type === 'level' && req.skill ? `${req.skill} lvl ${req.level}` : null}
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </Box>
-                                )}
-                                <Button
-                                  colorScheme="blue"
-                                  size="xs"
-                                  isDisabled={!canPerformAction(action)}
-                                  isLoading={currentAction?.id === action.id}
-                                  onClick={() => startAction(action)}
-                                  w="100%"
-                                  fontSize="sm"
-                                  py={1}
-                                  mt={1}
-                                  borderRadius="md"
-                                >
-                                  Start
-                                </Button>
-                              </Box>
+                                action={action}
+                                onClick={() => startAction(action)}
+                                isDisabled={!canPerformAction(action)}
+                                isActive={currentAction?.id === action.id}
+                                colorScheme="blue"
+                              />
                             ))
                           )}
                         </Grid>

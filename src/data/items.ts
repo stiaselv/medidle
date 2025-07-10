@@ -1645,9 +1645,18 @@ export const ITEMS: Record<string, Item> = {
     name: 'Arrow Shafts',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Fletching/arrow_shafts.png',
     buyPrice: 5,
     sellPrice: 1
+  },
+  headless_arrows: {
+    id: 'headless_arrows',
+    name: 'Headless Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Fletching/headless_arrows.png',
+    buyPrice: 8,
+    sellPrice: 2
   },
   mithril_full_helm: {
     id: 'mithril_full_helm',

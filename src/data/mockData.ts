@@ -2322,7 +2322,7 @@ export const mockLocations: Location[] = [
   { itemId: 'raw_chicken', quantity: 1, chance: 1.0 },
   { itemId: 'feathers', quantity: 5, chance: 0.8 },
   { itemId: 'egg', quantity: 1, chance: 0.2 }
-], thumbnail: '/assets/monsters/placeholder.png' },
+], thumbnail: '/assets/ItemThumbnail/Combat/chicken.png' },
         requirements: []
       },
       {
@@ -2337,7 +2337,7 @@ export const mockLocations: Location[] = [
         monster: { id: 'cow', name: 'Cow', level: 7, hitpoints: 12, maxHitpoints: 12, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
   { itemId: 'bones', quantity: 1, chance: 1.0 },
   { itemId: 'cowhide', quantity: 1, chance: 1.0 }
-], thumbnail: '/assets/monsters/placeholder.png' },
+], thumbnail: '/assets/ItemThumbnail/Combat/cow.png' },
         requirements: []
       },
       {
@@ -2354,7 +2354,7 @@ export const mockLocations: Location[] = [
   { itemId: 'coins', quantity: 5, chance: 0.2 },
   { itemId: 'potato_seed', quantity: 1, chance: 0.05 },
   { itemId: 'guam_seed', quantity: 1, chance: 0.05 }
-], thumbnail: '/assets/monsters/placeholder.png' },
+], thumbnail: '/assets/ItemThumbnail/Combat/farmer.png' },
         requirements: []
       }
     ]

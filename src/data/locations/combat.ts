@@ -90,7 +90,7 @@ export const MONSTERS: Record<string, Monster> = {
       { itemId: 'raw_chicken', quantity: 1, chance: 1.0 },
       { itemId: 'feathers', quantity: 5, chance: 0.8 }
     ],
-    thumbnail: '/assets/monsters/chicken.png'
+    thumbnail: '/assets/ItemThumbnail/Combat/chicken.png'
   }
 };
 
