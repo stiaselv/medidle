@@ -2,9 +2,23 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { Collection } from 'mongodb';
-import clientPromise from '../_lib/db';
-import { User } from '../_lib/types';
+import { Collection, MongoClient } from 'mongodb';
+
+// Inline database connection (previously from _lib/db.ts)
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error('Please define the MONGODB_URI environment variable');
+}
+
+const client = new MongoClient(uri);
+const clientPromise = client.connect();
+
+// Inline types (previously from _lib/types.ts)
+export interface User {
+  _id?: string;
+  username: string;
+  passwordHash: string;
+}
 
 // Helper to get the users collection
 async function getUsersCollection(): Promise<Collection<User>> {
