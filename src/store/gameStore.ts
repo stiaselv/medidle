@@ -632,6 +632,21 @@ const createStore = () => create<GameState>()(
         }
       }
 
+      // Handle thieving possible loot
+      let thievingLootItems: Array<{id: string, name: string, quantity: number}> = [];
+      if (state.currentAction.type === 'thieving' && 'possibleLoot' in state.currentAction && state.currentAction.possibleLoot) {
+        state.currentAction.possibleLoot.forEach(lootEntry => {
+          if (Math.random() < lootEntry.chance) {
+            const item = getItemById(lootEntry.id);
+            if (item) {
+              const quantity = lootEntry.quantity || 1;
+              state.addItemToBank(item, quantity);
+              thievingLootItems.push({ id: item.id, name: item.name, quantity });
+            }
+          }
+        });
+      }
+
       let levelUp: { skill: string; level: number } | undefined;
       let xpGained = 0;
       const hitpointsXpGained = 0;
@@ -651,11 +666,34 @@ const createStore = () => create<GameState>()(
       const hasXp = xpGained > 0;
       const hasItem = !!(state.currentAction.itemReward && state.currentAction.itemReward.quantity);
       const hasLevelUp = !!levelUp;
-      if (hasXp || hasItem || hasLevelUp) {
-                set({
+      const hasThievingLoot = thievingLootItems.length > 0;
+      
+      // For thieving actions with loot, combine the guaranteed reward with the stolen items
+      let rewardItem = state.currentAction.itemReward;
+      if (state.currentAction.type === 'thieving' && hasThievingLoot) {
+        if (thievingLootItems.length === 1) {
+          // Single loot item - show it
+          rewardItem = { 
+            id: thievingLootItems[0].id, 
+            name: thievingLootItems[0].name, 
+            quantity: thievingLootItems[0].quantity 
+          };
+        } else {
+          // Multiple loot items - create a summary
+          const summary = thievingLootItems.map(item => `${item.name} x${item.quantity}`).join(', ');
+          rewardItem = { 
+            id: 'thieving_loot', 
+            name: summary, 
+            quantity: thievingLootItems.length 
+          };
+        }
+      }
+      
+      if (hasXp || hasItem || hasLevelUp || hasThievingLoot) {
+        set({
           lastActionReward: {
             xp: xpGained,
-            item: state.currentAction.itemReward,
+            item: rewardItem,
             levelUp,
             skill: skillAwarded,
             hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined

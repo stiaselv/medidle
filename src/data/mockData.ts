@@ -3510,7 +3510,12 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'coins', name: 'Coins', quantity: 3 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+        possibleLoot: [
+          { id: 'potato_seed', quantity: 1, chance: 0.2 },
+          { id: 'iron_dagger', quantity: 1, chance: 0.05 },
+          { id: 'logs', quantity: 1, chance: 0.01 },
+          { id: 'raw_shrimp', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_farmer',
@@ -3522,7 +3527,11 @@ export const mockLocations: Location[] = [
         baseTime: 3200,
         itemReward: { id: 'coins', name: 'Coins', quantity: 5 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+        possibleLoot: [
+          { id: 'potato_seed', quantity: 2, chance: 0.1 },
+          { id: 'onion_seed', quantity: 2, chance: 0.1 },
+          { id: 'cabbage_seed', quantity: 1, chance: 0.1 }
+        ]
       },
       {
         id: 'pickpocket_warrior',
@@ -3534,7 +3543,11 @@ export const mockLocations: Location[] = [
         baseTime: 3400,
         itemReward: { id: 'coins', name: 'Coins', quantity: 18 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+        possibleLoot: [
+          { id: 'iron_platebody', quantity: 1, chance: 0.05 },
+          { id: 'iron_platelegs', quantity: 1, chance: 0.05 },
+          { id: 'raw_sardine', quantity: 1, chance: 0.02 }
+        ]
       },
       {
         id: 'pickpocket_rogue',
@@ -3546,7 +3559,12 @@ export const mockLocations: Location[] = [
         baseTime: 3600,
         itemReward: { id: 'coins', name: 'Coins', quantity: 30 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+        possibleLoot: [
+          { id: 'air_rune', quantity: 5, chance: 0.07 },
+          { id: 'copper_ore', quantity: 1, chance: 0.05 },
+          { id: 'tin_ore', quantity: 1, chance: 0.05 },
+          { id: 'iron_ore', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_villager',
@@ -3556,9 +3574,13 @@ export const mockLocations: Location[] = [
         levelRequired: 30,
         experience: 28,
         baseTime: 3800,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 32 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 45 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+        possibleLoot: [
+          { id: 'steel_bar', quantity: 1, chance: 0.05 },
+          { id: 'oak_logs', quantity: 1, chance: 0.025 },
+          { id: 'feather', quantity: 5, chance: 0.02 }
+        ]
       },
       {
         id: 'pickpocket_master_farmer',
@@ -3568,9 +3590,24 @@ export const mockLocations: Location[] = [
         levelRequired: 38,
         experience: 43,
         baseTime: 4000,
-        itemReward: { id: 'potato_seed', name: 'Potato Seed', quantity: 2 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 50 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'cabbage_seed', chance: 5 }, { id: 'tomato_seed', chance: 5 }, { id: 'strawberry_seed', chance: 5 }]
+        possibleLoot: [
+          { id: 'guam_seed', quantity: 1, chance: 0.1 },
+          { id: 'marrentill_seed', quantity: 1, chance: 0.1 },
+          { id: 'tarromin_seed', quantity: 1, chance: 0.1 },
+          { id: 'harralander_seed', quantity: 1, chance: 0.05 },
+          { id: 'ranarr_seed', quantity: 1, chance: 0.01 },
+          { id: 'toadflax_seed', quantity: 1, chance: 0.01 },
+          { id: 'irit_seed', quantity: 1, chance: 0.01 },
+          { id: 'avantoe_seed', quantity: 1, chance: 0.01 },
+          { id: 'potato_seed', quantity: 1, chance: 0.1 },
+          { id: 'onion_seed', quantity: 1, chance: 0.1 },
+          { id: 'sweetcorn_seed', quantity: 1, chance: 0.05 },
+          { id: 'watermelon_seed', quantity: 1, chance: 0.05 },
+          { id: 'snapegrass_seed', quantity: 1, chance: 0.01 },
+          { id: 'acorn', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_guard',
@@ -3580,9 +3617,16 @@ export const mockLocations: Location[] = [
         levelRequired: 45,
         experience: 46,
         baseTime: 4200,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 35 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 60 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'bow_string', chance: 10 }, { id: 'feathers', chance: 10 }, { id: 'iron_arrows', chance: 10 }]
+        possibleLoot: [
+          { id: 'steel_arrows', quantity: 1, chance: 0.2 },
+          { id: 'air_rune', quantity: 3, chance: 0.2 },
+          { id: 'earth_rune', quantity: 3, chance: 0.2 },
+          { id: 'fire_rune', quantity: 3, chance: 0.2 },
+          { id: 'steel_platebody', quantity: 1, chance: 0.05 },
+          { id: 'steel_platelegs', quantity: 1, chance: 0.05 }
+        ]
       },
       {
         id: 'pickpocket_wealthy_citizen',
@@ -3592,9 +3636,13 @@ export const mockLocations: Location[] = [
         levelRequired: 50,
         experience: 54,
         baseTime: 4400,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 45 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 85 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }]
+        possibleLoot: [
+          { id: 'gold_ore', quantity: 1, chance: 0.05 },
+          { id: 'uncut_sapphire', quantity: 1, chance: 0.02 },
+          { id: 'uncut_emerald', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_knight',
@@ -3604,9 +3652,14 @@ export const mockLocations: Location[] = [
         levelRequired: 55,
         experience: 60,
         baseTime: 4600,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 50 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 90 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'iron_kiteshield', chance: 10 }, { id: 'bronze_boots', chance: 10 }, { id: 'bronze_medium_helm', chance: 10 }]
+        possibleLoot: [
+          { id: 'steel_full_helm', quantity: 1, chance: 0.1 },
+          { id: 'steel_boot', quantity: 1, chance: 0.1 },
+          { id: 'mithril_arrows', quantity: 1, chance: 0.05 },
+          { id: 'mithril_scimitar', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_watchman',
@@ -3616,9 +3669,13 @@ export const mockLocations: Location[] = [
         levelRequired: 65,
         experience: 66,
         baseTime: 4800,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 60 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 95 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'iron_platebody', chance: 10 }, { id: 'steel_sword', chance: 10 }]
+        possibleLoot: [
+          { id: 'coal_ore', quantity: 1, chance: 0.05 },
+          { id: 'mithril_ore', quantity: 1, chance: 0.01 },
+          { id: 'irit_leaf', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_paladin',
@@ -3628,9 +3685,14 @@ export const mockLocations: Location[] = [
         levelRequired: 70,
         experience: 74,
         baseTime: 5000,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 65 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 110 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'chaos_rune', chance: 10 }, { id: 'steel_platebody', chance: 10 }, { id: 'steel_platelegs', chance: 10 }, { id: 'mithril_scimitar', chance: 10 }]
+        possibleLoot: [
+          { id: 'ranarr_weed', quantity: 1, chance: 0.02 },
+          { id: 'mithril_platebody', quantity: 1, chance: 0.01 },
+          { id: 'mithril_fullhelm', quantity: 1, chance: 0.01 },
+          { id: 'mithril_platelegs', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_gnome',
@@ -3640,9 +3702,14 @@ export const mockLocations: Location[] = [
         levelRequired: 75,
         experience: 80,
         baseTime: 5200,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 85 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 140 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'arrow_shafts', chance: 10 }, { id: 'gold_ore', chance: 10 }, { id: 'earth_rune', chance: 10 }, { id: 'raw_lobster', chance: 10 }]
+        possibleLoot: [
+          { id: 'headless_arrows', quantity: 2, chance: 0.1 },
+          { id: 'gold_ore', quantity: 1, chance: 0.1 },
+          { id: 'snapdragon_seed', quantity: 1, chance: 0.01 },
+          { id: 'willow_seed', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_hero',
@@ -3652,9 +3719,15 @@ export const mockLocations: Location[] = [
         levelRequired: 80,
         experience: 87,
         baseTime: 5400,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 90 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 180 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'mithril_full_helm', chance: 10 }, { id: 'mithril_kiteshield', chance: 10 }, { id: 'nature_rune', chance: 10 }]
+        possibleLoot: [
+          { id: 'mithril_arrows', quantity: 1, chance: 0.2 },
+          { id: 'adamantite_ore', quantity: 1, chance: 0.1 },
+          { id: 'adamantite_sword', quantity: 1, chance: 0.01 },
+          { id: 'adamantite_chainbody', quantity: 1, chance: 0.01 },
+          { id: 'adamantite_platelegs', quantity: 1, chance: 0.01 }
+        ]
       },
       {
         id: 'pickpocket_vampire',
@@ -3662,11 +3735,17 @@ export const mockLocations: Location[] = [
         type: 'thieving',
         skill: 'thieving',
         levelRequired: 85,
-        experience: 94,
+        experience: 95,
         baseTime: 5600,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 115 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 210 },
         requirements: [],
-        possibleLoot: [{ id: 'coins', chance: 80 }, { id: 'potato_seed', chance: 15 }, { id: 'onion_seed', chance: 5 }, { id: 'blood_rune', chance: 10 }, { id: 'death_rune', chance: 10 }, { id: 'chaos_rune', chance: 10 }, { id: 'fire_rune', chance: 10 }, { id: 'raw_meat', chance: 10 }, { id: 'uncut_ruby', chance: 10 }]
+        possibleLoot: [
+          { id: 'blood_rune', quantity: 1, chance: 0.1 },
+          { id: 'death_rune', quantity: 1, chance: 0.1 },
+          { id: 'uncut_ruby', quantity: 1, chance: 0.05 },
+          { id: 'cosmic_rune', quantity: 1, chance: 0.05 },
+          { id: 'uncut_diamond', quantity: 1, chance: 0.005 }
+        ]
       },
       {
         id: 'pickpocket_elf',
@@ -3674,11 +3753,15 @@ export const mockLocations: Location[] = [
         type: 'thieving',
         skill: 'thieving',
         levelRequired: 90,
-        experience: 99,
+        experience: 103,
         baseTime: 5800,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 140 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 250 },
         requirements: [],
-        possibleLoot: ['nature_rune', 'death_rune', 'uncut_diamond']
+        possibleLoot: [
+          { id: 'nature_rune', quantity: 1, chance: 0.1 },
+          { id: 'uncut_diamond', quantity: 1, chance: 0.01 },
+          { id: 'magic_shortbow', quantity: 1, chance: 0.005 }
+        ]
       },
       {
         id: 'pickpocket_tzhaar',
@@ -3688,9 +3771,15 @@ export const mockLocations: Location[] = [
         levelRequired: 95,
         experience: 110,
         baseTime: 6000,
-        itemReward: { id: 'coins', name: 'Coins', quantity: 160 },
+        itemReward: { id: 'coins', name: 'Coins', quantity: 300 },
         requirements: [],
-        possibleLoot: ['uncut_sapphire', 'uncut_emerald', 'uncut_ruby', 'uncut_diamond']
+        possibleLoot: [
+          { id: 'uncut_sapphire', quantity: 1, chance: 0.2 },
+          { id: 'uncut_emerald', quantity: 1, chance: 0.2 },
+          { id: 'uncut_ruby', quantity: 1, chance: 0.05 },
+          { id: 'uncut_diamond', quantity: 1, chance: 0.01 },
+          { id: 'uncut_onyx', quantity: 1, chance: 0.00001 }
+        ]
       }
     ].map(action => ({
       ...action,

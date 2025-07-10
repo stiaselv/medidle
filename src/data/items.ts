@@ -464,6 +464,125 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/items/placeholder.png',
   },
 
+  // Thieving items
+  bread: {
+    id: 'bread',
+    name: 'Bread',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 3,
+    sellPrice: 1
+  },
+  beer: {
+    id: 'beer',
+    name: 'Beer',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 5,
+    sellPrice: 2
+  },
+  wine: {
+    id: 'wine',
+    name: 'Wine',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 15,
+    sellPrice: 5
+  },
+  lockpick: {
+    id: 'lockpick',
+    name: 'Lockpick',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 20,
+    sellPrice: 8
+  },
+  lantern: {
+    id: 'lantern',
+    name: 'Lantern',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 25,
+    sellPrice: 10
+  },
+  silk: {
+    id: 'silk',
+    name: 'Silk',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 40,
+    sellPrice: 15
+  },
+  garlic: {
+    id: 'garlic',
+    name: 'Garlic',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 8,
+    sellPrice: 3
+  },
+  crystal_shard: {
+    id: 'crystal_shard',
+    name: 'Crystal Shard',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 500,
+    sellPrice: 200
+  },
+  obsidian_shard: {
+    id: 'obsidian_shard',
+    name: 'Obsidian Shard',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  prayer_potion: {
+    id: 'prayer_potion',
+    name: 'Prayer Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 100,
+    sellPrice: 40
+  },
+  super_strength_potion: {
+    id: 'super_strength_potion',
+    name: 'Super Strength Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 150,
+    sellPrice: 60
+  },
+  raw_fish: {
+    id: 'raw_fish',
+    name: 'Raw Fish',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 10,
+    sellPrice: 4
+  },
+  fruit_tree_seed: {
+    id: 'fruit_tree_seed',
+    name: 'Fruit Tree Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 200,
+    sellPrice: 80
+  },
+
   // Tools - Mining
   bronze_pickaxe: {
     id: 'bronze_pickaxe',
@@ -1348,6 +1467,16 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 48,
     sellPrice: 14
   },
+
+  snapegrass_seed: {
+    id: 'snapegrass_seed',
+    name: 'Snapegrass Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 120,
+    sellPrice: 80
+  },
   cadantine_seed: {
     id: 'cadantine_seed',
     name: 'Cadantine Seed',
@@ -1747,6 +1876,161 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/items/placeholder.png',
     buyPrice: 200,
     sellPrice: 50
+  },
+
+  // Missing items for thieving loot tables
+  uncut_onyx: {
+    id: 'uncut_onyx',
+    name: 'Uncut Onyx',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 50000,
+    sellPrice: 35000
+  },
+
+  iron_platelegs: {
+    id: 'iron_platelegs',
+    name: 'Iron Platelegs',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 5 },
+    buyPrice: 640,
+    sellPrice: 256
+  },
+
+  steel_full_helm: {
+    id: 'steel_full_helm',
+    name: 'Steel Full Helm',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 6 },
+    buyPrice: 780,
+    sellPrice: 312
+  },
+
+  steel_boot: {
+    id: 'steel_boot',
+    name: 'Steel Boots',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.FEET,
+    stats: { defence: 4 },
+    buyPrice: 500,
+    sellPrice: 200
+  },
+
+  mithril_platebody: {
+    id: 'mithril_platebody',
+    name: 'Mithril Platebody',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 25 },
+    buyPrice: 5200,
+    sellPrice: 2080
+  },
+
+  mithril_fullhelm: {
+    id: 'mithril_fullhelm',
+    name: 'Mithril Full Helm',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 12 },
+    buyPrice: 1650,
+    sellPrice: 660
+  },
+
+  mithril_platelegs: {
+    id: 'mithril_platelegs',
+    name: 'Mithril Platelegs',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 22 },
+    buyPrice: 2600,
+    sellPrice: 1040
+  },
+
+  adamantite_sword: {
+    id: 'adamantite_sword',
+    name: 'Adamantite Sword',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 3200,
+    sellPrice: 1280
+  },
+
+  adamantite_chainbody: {
+    id: 'adamantite_chainbody',
+    name: 'Adamantite Chainbody',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 30 },
+    buyPrice: 8800,
+    sellPrice: 3520
+  },
+
+  adamantite_platelegs: {
+    id: 'adamantite_platelegs',
+    name: 'Adamantite Platelegs',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 33 },
+    buyPrice: 4800,
+    sellPrice: 1920
+  },
+
+  steel_arrows: {
+    id: 'steel_arrows',
+    name: 'Steel Arrows',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 20,
+    sellPrice: 8
+  },
+
+  mithril_arrows: {
+    id: 'mithril_arrows',
+    name: 'Mithril Arrows',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 50,
+    sellPrice: 20
+  },
+
+  magic_shortbow: {
+    id: 'magic_shortbow',
+    name: 'Magic Shortbow',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 12000,
+    sellPrice: 4800
   },
 };
 
