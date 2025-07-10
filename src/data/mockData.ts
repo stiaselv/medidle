@@ -2318,9 +2318,10 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
         monster: { id: 'chicken', name: 'Chicken', level: 3, hitpoints: 5, maxHitpoints: 5, combatStyle: 'melee', stats: { attackStab: 1, attackSlash: 1, attackCrush: 1, attackMagic: 0, attackRanged: 0, defenceStab: 1, defenceSlash: 1, defenceCrush: 1, defenceMagic: 1, defenceRanged: 1, strengthMelee: 1, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
-  { itemId: 'bones', quantity: 1, chance: 100.0 },
-  { itemId: 'feather', quantity: 3, chance: 100.0 },
-  { itemId: 'egg', quantity: 1, chance: 20.0 }
+  { itemId: 'bones', quantity: 1, chance: 1.0 },
+  { itemId: 'raw_chicken', quantity: 1, chance: 1.0 },
+  { itemId: 'feathers', quantity: 5, chance: 0.8 },
+  { itemId: 'egg', quantity: 1, chance: 0.2 }
 ], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
@@ -2334,8 +2335,8 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
         monster: { id: 'cow', name: 'Cow', level: 7, hitpoints: 12, maxHitpoints: 12, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
-  { itemId: 'bones', quantity: 1, chance: 100.0 },
-  { itemId: 'cowhide', quantity: 1, chance: 100.0 }
+  { itemId: 'bones', quantity: 1, chance: 1.0 },
+  { itemId: 'cowhide', quantity: 1, chance: 1.0 }
 ], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
@@ -2349,10 +2350,10 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
         monster: { id: 'farmer', name: 'Farmer', level: 9, hitpoints: 15, maxHitpoints: 15, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
-  { itemId: 'bones', quantity: 1, chance: 100.0 },
-  { itemId: 'coins', quantity: 5, chance: 20.0 },
-  { itemId: 'potato_seed', quantity: 1, chance: 5.0 },
-  { itemId: 'guam_seed', quantity: 1, chance: 5.0 }
+  { itemId: 'bones', quantity: 1, chance: 1.0 },
+  { itemId: 'coins', quantity: 5, chance: 0.2 },
+  { itemId: 'potato_seed', quantity: 1, chance: 0.05 },
+  { itemId: 'guam_seed', quantity: 1, chance: 0.05 }
 ], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       }
@@ -2379,9 +2380,9 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
         monster: { id: 'giant_rat', name: 'Giant rat', level: 5, hitpoints: 8, maxHitpoints: 8, combatStyle: 'melee', stats: { attackStab: 2, attackSlash: 2, attackCrush: 2, attackMagic: 0, attackRanged: 0, defenceStab: 2, defenceSlash: 2, defenceCrush: 2, defenceMagic: 1, defenceRanged: 1, strengthMelee: 2, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
-  { itemId: 'bones', quantity: 1, chance: 100.0 },
-  { itemId: 'raw_meat', quantity: 1, chance: 100.0 },
-  { itemId: 'coins', quantity: 3, chance: 50.0 }
+  { itemId: 'bones', quantity: 1, chance: 1.0 },
+  { itemId: 'raw_meat', quantity: 1, chance: 1.0 },
+  { itemId: 'coins', quantity: 3, chance: 0.5 }
 ], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
@@ -2395,10 +2396,10 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
         monster: { id: 'slug', name: 'Slug', level: 9, hitpoints: 10, maxHitpoints: 10, combatStyle: 'melee', stats: { attackStab: 3, attackSlash: 3, attackCrush: 3, attackMagic: 0, attackRanged: 0, defenceStab: 3, defenceSlash: 3, defenceCrush: 3, defenceMagic: 2, defenceRanged: 2, strengthMelee: 3, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
-  { itemId: 'coins', quantity: 3, chance: 50.0 },
-  { itemId: 'copper_ore', quantity: 1, chance: 20.0 },
-  { itemId: 'tin_ore', quantity: 1, chance: 20.0 },
-  { itemId: 'iron_dagger', quantity: 1, chance: 10.0 }
+  { itemId: 'coins', quantity: 3, chance: 0.5 },
+  { itemId: 'copper_ore', quantity: 1, chance: 0.2 },
+  { itemId: 'tin_ore', quantity: 1, chance: 0.2 },
+  { itemId: 'iron_dagger', quantity: 1, chance: 0.1 }
 ], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
@@ -2412,10 +2413,10 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
         monster: { id: 'cave_slime', name: 'Cave slime', level: 13, hitpoints: 16, maxHitpoints: 16, combatStyle: 'melee', stats: { attackStab: 4, attackSlash: 4, attackCrush: 4, attackMagic: 0, attackRanged: 0, defenceStab: 4, defenceSlash: 4, defenceCrush: 4, defenceMagic: 2, defenceRanged: 2, strengthMelee: 4, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
-  { itemId: 'coins', quantity: 10, chance: 40.0 },
-  { itemId: 'iron_sword', quantity: 1, chance: 20.0 },
-  { itemId: 'water_rune', quantity: 5, chance: 20.0 },
-  { itemId: 'earth_rune', quantity: 4, chance: 20.0 }
+  { itemId: 'coins', quantity: 10, chance: 0.4 },
+  { itemId: 'iron_sword', quantity: 1, chance: 0.2 },
+  { itemId: 'water_rune', quantity: 5, chance: 0.2 },
+  { itemId: 'earth_rune', quantity: 4, chance: 0.2 }
 ], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       },
@@ -2429,12 +2430,12 @@ export const mockLocations: Location[] = [
         baseTime: 3000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
         monster: { id: 'big_frog', name: 'Big frog', level: 23, hitpoints: 30, maxHitpoints: 30, combatStyle: 'melee', stats: { attackStab: 6, attackSlash: 6, attackCrush: 6, attackMagic: 0, attackRanged: 0, defenceStab: 6, defenceSlash: 6, defenceCrush: 6, defenceMagic: 3, defenceRanged: 3, strengthMelee: 6, strengthRanged: 0, strengthMagic: 0, prayerBonus: 0 }, drops: [
-  { itemId: 'bones', quantity: 1, chance: 100.0 },
-  { itemId: 'coins', quantity: 5, chance: 25.0 },
-  { itemId: 'water_rune', quantity: 10, chance: 10.0 },
-  { itemId: 'earth_rune', quantity: 10, chance: 10.0 },
-  { itemId: 'nature_rune', quantity: 2, chance: 2.5 },
-  { itemId: 'cosmic_rune', quantity: 2, chance: 2.5 }
+  { itemId: 'bones', quantity: 1, chance: 1.0 },
+  { itemId: 'coins', quantity: 5, chance: 0.25 },
+  { itemId: 'water_rune', quantity: 10, chance: 0.1 },
+  { itemId: 'earth_rune', quantity: 10, chance: 0.1 },
+  { itemId: 'nature_rune', quantity: 2, chance: 0.025 },
+  { itemId: 'cosmic_rune', quantity: 2, chance: 0.025 }
 ], thumbnail: '/assets/monsters/placeholder.png' },
         requirements: []
       }

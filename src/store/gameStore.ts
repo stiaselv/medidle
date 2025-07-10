@@ -373,6 +373,8 @@ const createStore = () => create<GameState>()(
           // Grant loot (if any)
           let rewardItem: ItemReward | null = null;
           if (roundResult.loot && roundResult.loot.length > 0) {
+            const lootItems: Array<{id: string, name: string, quantity: number}> = [];
+            
             roundResult.loot.forEach(itemId => {
               const item = getItemById(itemId);
               if (item) {
@@ -380,24 +382,42 @@ const createStore = () => create<GameState>()(
                 const drop = monster.drops?.find(d => d.itemId === itemId);
                 const quantity = drop?.quantity || 1;
                 state.addItemToBank(item, quantity);
-                rewardItem = { id: item.id, name: item.name, quantity };
+                lootItems.push({ id: item.id, name: item.name, quantity });
               }
             });
+
+            // Create a combined reward item for display
+            if (lootItems.length === 1) {
+              // Single item - show normally
+              rewardItem = lootItems[0];
+            } else if (lootItems.length > 1) {
+              // Multiple items - create a summary
+              const summary = lootItems.map(item => `${item.name} x${item.quantity}`).join(', ');
+              rewardItem = { 
+                id: 'multiple_loot', 
+                name: summary, 
+                quantity: lootItems.reduce((total, item) => total + item.quantity, 0) 
+              };
+            }
           } else {
             // No loot, but still show monster killed
             rewardItem = { id: monster.id, name: `Defeated ${monster.name}`, quantity: 1 };
           }
           // Track per-monster stats
           const monsterId = monster.id;
+          // Get fresh character state after bank items have been added
+          const characterWithLoot = get().character;
+          if (!characterWithLoot) return;
+          
           const updatedStats = {
-            ...latestCharacter!.stats,
+            ...characterWithLoot.stats,
             monstersKilledByType: {
-              ...latestCharacter!.stats.monstersKilledByType,
-              [monsterId]: (latestCharacter!.stats.monstersKilledByType[monsterId] || 0) + 1
+              ...characterWithLoot.stats.monstersKilledByType,
+              [monsterId]: (characterWithLoot.stats.monstersKilledByType[monsterId] || 0) + 1
             }
           };
           set({
-            character: { ...latestCharacter!, stats: updatedStats, hitpoints: newPlayerHp },
+            character: { ...characterWithLoot, stats: updatedStats, hitpoints: newPlayerHp },
             currentAction: null,
             isActionInProgress: false,
             lastCombatRound: {
@@ -664,7 +684,6 @@ const createStore = () => create<GameState>()(
           get().incrementStat('coinsEarned', quantity);
         }
         const updatedCharacter = { ...state.character, bank };
-        if (updatedCharacter) get().saveCharacter(updatedCharacter);
         return {
           character: updatedCharacter
         };
@@ -685,7 +704,6 @@ const createStore = () => create<GameState>()(
           get().incrementStat('coinsSpent', quantity);
         }
         const updatedCharacter = { ...state.character, bank };
-        if (updatedCharacter) get().saveCharacter(updatedCharacter);
         return {
           character: updatedCharacter
         };

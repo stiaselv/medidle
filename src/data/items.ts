@@ -34,7 +34,8 @@ export const ITEM_CATEGORIES = {
   CONSUMABLES: 'Consumables',
   CURRENCY: 'Currency',
   MISC: 'Misc',
-  SMITHING: 'Smithing'
+  SMITHING: 'Smithing',
+  RUNES: 'Runes'
 } as const;
 
 // Equipment slots
@@ -455,6 +456,13 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Div/feather.png',
   },
+  raw_chicken: {
+    id: 'raw_chicken',
+    name: 'Raw Chicken',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+  },
 
   // Tools - Mining
   bronze_pickaxe: {
@@ -642,6 +650,13 @@ export const ITEMS: Record<string, Item> = {
   },
 
   // Resources - Logs
+  logs: {
+    id: 'logs',
+    name: 'Logs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Woodcutting/Normal_Log.png'
+  },
   normal_logs: {
     id: 'normal_logs',
     name: 'Normal Logs',
@@ -958,6 +973,41 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
+  },
+  egg: {
+    id: 'egg',
+    name: 'Egg',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+  },
+  cowhide: {
+    id: 'cowhide',
+    name: 'Cowhide',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+  },
+  water_rune: {
+    id: 'water_rune',
+    name: 'Water Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/water_rune.png',
+  },
+  earth_rune: {
+    id: 'earth_rune',
+    name: 'Earth Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/earth_rune.png',
+  },
+  cosmic_rune: {
+    id: 'cosmic_rune',
+    name: 'Cosmic Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/cosmic_rune.png',
   },
   big_bones: {
     id: 'big_bones',
