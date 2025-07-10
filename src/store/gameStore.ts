@@ -125,8 +125,13 @@ const createStore = () => create<GameState>()(
     
     // Function to save character progress to the backend
     saveCharacter: async (character: Character) => {
-      if (!character || !character.id) {
-        console.warn('saveCharacter: No character or missing id', character);
+      if (!character) {
+        console.warn('saveCharacter: No character provided');
+        return;
+      }
+      if (!character.id) {
+        console.warn('saveCharacter: Character missing id', character);
+        console.trace('saveCharacter: Stack trace for missing ID');
         return;
       }
       try {
@@ -166,13 +171,24 @@ const createStore = () => create<GameState>()(
       const id = (character as any)._id || character.id;
       const { _id, ...rest } = character as any;
       
+      // Debug logging
+      if (!id) {
+        console.warn('setCharacter: Character missing ID', character);
+        console.trace('setCharacter: Stack trace for missing ID');
+      }
+      
       // Calculate max hitpoints based on hitpoints skill level
       const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
       const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
       
       const updatedCharacter = { ...rest, id, maxHitpoints };
+      console.log('setCharacter: Setting character with ID:', id);
       set({ character: updatedCharacter });
-      if (id) get().saveCharacter(updatedCharacter);
+      if (id) {
+        get().saveCharacter(updatedCharacter);
+      } else {
+        console.warn('setCharacter: Skipping save due to missing ID');
+      }
     },
     createCharacter: async (name: string): Promise<Character | null> => {
       try {
@@ -195,28 +211,45 @@ const createStore = () => create<GameState>()(
         }
 
         const newCharacter = await response.json();
+        console.log('Created character response from server:', newCharacter);
+        
+        // Ensure we have the proper ID
+        const characterId = newCharacter._id || newCharacter.id;
+        if (!characterId) {
+          throw new Error('Server did not return a valid character ID');
+        }
         
         // The server now provides the full character object.
         // We need to convert the lastLogin string back to a Date object.
         const characterWithDate = {
           ...newCharacter,
+          id: characterId, // Ensure ID is set correctly
           lastLogin: new Date(newCharacter.lastLogin),
-          // Also rename _id from mongo to id for the frontend
-          id: newCharacter._id
         };
-        delete characterWithDate._id;
-
-
-        // Set character in the store temporarily to show it's created,
-        // then refresh the list from the server.
-        set({ character: characterWithDate });
-        await get().loadCharacters(); // Refresh the list
         
-        // Find the newly created character in the refreshed list to return it
-        const newList = get().characters;
-        const newCharFromServer = newList.find(c => c.name === name);
+        // Remove _id to avoid confusion
+        if (characterWithDate._id) {
+          delete characterWithDate._id;
+        }
 
-        return newCharFromServer || null;
+        console.log('Character with proper ID:', characterWithDate);
+
+        // Refresh the characters list first
+        await get().loadCharacters();
+        
+        // Find the newly created character in the refreshed list
+        const newList = get().characters;
+        const newCharFromServer = newList.find(c => c.id === characterId);
+        
+        if (newCharFromServer) {
+          // Set the character from the server list (ensures consistency)
+          get().selectCharacter(newCharFromServer);
+          return newCharFromServer;
+        } else {
+          // Fallback: use the character we processed locally
+          get().selectCharacter(characterWithDate as Character);
+          return characterWithDate as Character;
+        }
 
       } catch (e) {
         console.error('An error occurred during character creation:', e);
@@ -690,8 +723,7 @@ const createStore = () => create<GameState>()(
       }
 
       const updatedCharacter = { ...character, bank };
-      set({ character: updatedCharacter });
-      get().saveCharacter(updatedCharacter);
+      get().setCharacter(updatedCharacter);
     },
     updateBankOrder: (newBank: ItemReward[]) => {
       // Implementation needed
@@ -773,10 +805,7 @@ const createStore = () => create<GameState>()(
       }
       
       const updatedCharacter = { ...state.character, skills, maxHitpoints, hitpoints };
-      set({
-        character: updatedCharacter
-      });
-      if (updatedCharacter) get().saveCharacter(updatedCharacter);
+      get().setCharacter(updatedCharacter);
       if (newLevel > oldLevel) {
         return { skill, level: newLevel };
       }
@@ -805,7 +834,7 @@ const createStore = () => create<GameState>()(
         remaining: amount,
         difficulty
       };
-      set({ character: { ...state.character, currentSlayerTask: newTask } });
+      get().setCharacter({ ...state.character, currentSlayerTask: newTask });
     },
     completeSlayerTask: () => {
       const state = get();
@@ -815,13 +844,11 @@ const createStore = () => create<GameState>()(
       const newStreak = prevStreak + 1;
       // Calculate points
       const points = getSlayerPointsForStreak(newStreak);
-      set({
-        character: {
-          ...state.character,
-          slayerPoints: (state.character.slayerPoints || 0) + points,
-          currentSlayerTask: null,
-          slayerTaskStreak: newStreak
-        }
+      get().setCharacter({
+        ...state.character,
+        slayerPoints: (state.character.slayerPoints || 0) + points,
+        currentSlayerTask: null,
+        slayerTaskStreak: newStreak
       });
       // Award slayer points (example: 10 points)
       get().incrementStat('slayerPointsEarned', 10); // Replace 10 with actual awarded amount
@@ -832,12 +859,10 @@ const createStore = () => create<GameState>()(
       const state = get();
       if (!state.character || !state.character.currentSlayerTask) return;
       if ((state.character.slayerPoints || 0) < 30) return;
-      set({
-        character: {
-          ...state.character,
-          slayerPoints: state.character.slayerPoints - 30,
-          currentSlayerTask: null
-        }
+      get().setCharacter({
+        ...state.character,
+        slayerPoints: state.character.slayerPoints - 30,
+        currentSlayerTask: null
       });
       // Spend slayer points (example: 30 points)
       get().incrementStat('slayerPointsSpent', 30); // Replace 30 with actual spent amount
@@ -858,8 +883,7 @@ const createStore = () => create<GameState>()(
       const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
       
       const updatedCharacter = { ...character, maxHitpoints };
-      set({ character: updatedCharacter });
-      if (updatedCharacter) get().saveCharacter(updatedCharacter);
+      get().setCharacter(updatedCharacter);
     },
 
     // Add location slice (includes state and actions)
@@ -893,8 +917,7 @@ const createStore = () => create<GameState>()(
       }
 
       const updatedCharacter = { ...character, bank };
-      set({ character: updatedCharacter });
-      get().saveCharacter(updatedCharacter);
+      get().setCharacter(updatedCharacter);
     },
     equipItem: (item: Item) => {
       const { character } = get();
@@ -938,8 +961,7 @@ const createStore = () => create<GameState>()(
         },
       };
 
-      set({ character: updatedCharacter });
-      get().saveCharacter(updatedCharacter);
+      get().setCharacter(updatedCharacter);
     },
     unequipItem: (slot: string) => {
       const { character } = get();
@@ -957,8 +979,7 @@ const createStore = () => create<GameState>()(
       }
       equipment[slot] = undefined;
       const updatedCharacter = { ...character, equipment, bank };
-      set({ character: updatedCharacter });
-      get().saveCharacter(updatedCharacter);
+      get().setCharacter(updatedCharacter);
     },
     useConsumable: (itemId: string, quantity: number = 1) => {
       set((state) => {
