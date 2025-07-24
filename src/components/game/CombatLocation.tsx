@@ -30,11 +30,13 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
-import type { GameState, ItemReward, SkillAction, CombatAction, CombatSelectionAction, Monster, Location } from '../../types/game';
+import type { GameState, ItemReward, SkillAction, CombatAction, CombatSelectionAction, Monster, Location, Character } from '../../types/game';
 import { EquipmentPanel } from '../equipment/EquipmentPanel';
 import { getItemById } from '../../data/items';
+import { calculateMaxHit, calculateAccuracy } from '../../combat/combatCalculations';
+import { getCombatStyle } from '../../combat/combatTriangle';
 import React from 'react';
-import { FaBullseye, FaFistRaised, FaShieldAlt } from 'react-icons/fa';
+import { FaBullseye, FaFistRaised, FaShieldAlt, FaFire, FaHeart } from 'react-icons/fa';
 
 interface CombatLocationProps {
   location: Location;
@@ -154,6 +156,32 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
     }
   };
 
+  // Calculate max hit for display
+  const getMaxHit = (entity: typeof character | Monster, isPlayer: boolean) => {
+    if (!entity) return 0;
+    
+    if (isPlayer && character) {
+      // For player, use current attack style
+      return calculateMaxHit(character, attackStyle, selectedMonster || {} as Monster, false);
+    } else {
+      // For monster, assume aggressive style (most common for monsters)
+      return calculateMaxHit(entity as Monster, 'aggressive', character || {} as Character, false);
+    }
+  };
+
+  // Calculate accuracy for display
+  const getAccuracy = (entity: typeof character | Monster, isPlayer: boolean) => {
+    if (!entity || !character || !selectedMonster) return 0;
+    
+    if (isPlayer) {
+      // Player attacking monster
+      return calculateAccuracy(character, attackStyle, selectedMonster, false);
+    } else {
+      // Monster attacking player
+      return calculateAccuracy(entity as Monster, 'aggressive', character, false);
+    }
+  };
+
   const handleMonsterSelect = (monster: Monster) => {
     setSelectedMonster(monster);
   };
@@ -224,39 +252,156 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
   const monsterForDrops = (currentAction && currentAction.type === 'combat') ? (currentAction as CombatAction).monster : selectedMonster;
   const possibleDrops = monsterForDrops?.drops || [];
 
-  const renderStatDisplay = (entity: typeof character | Monster, isPlayer: boolean) => {
+  const renderCombatantCard = (entity: typeof character | Monster, isPlayer: boolean) => {
     if (!entity) return null;
     const stats = getCombatStats(entity);
     const level = isPlayer ? character.combatLevel : (entity as Monster).level || 1;
     const name = isPlayer ? character.name : (entity as Monster).name || 'Unknown';
     const flash = isPlayer ? playerFlash : monsterFlash;
+    const maxHit = getMaxHit(entity, isPlayer);
+    const hpPercentage = (stats.hitpoints / stats.maxHitpoints) * 100;
+    
     return (
-      <Box transition="background 0.3s" bg={flash ? 'red.300' : 'transparent'} borderRadius="md" p={2} w="100%">
-        <VStack spacing={2} align="start" w="100%">
-          <HStack justify="space-between" w="100%">
-            <Text fontWeight="bold" fontSize="lg">{name}</Text>
-            <Text fontWeight="bold" color="yellow.400">Level {level}</Text>
+      <Card 
+        variant="outline" 
+        bg={flash ? 'red.200' : 'gray.50'}
+        borderColor={isPlayer ? 'blue.300' : 'red.300'}
+        borderWidth={2}
+        transition="all 0.3s"
+        _dark={{
+          bg: flash ? 'red.800' : 'gray.800',
+          borderColor: isPlayer ? 'blue.400' : 'red.400'
+        }}
+      >
+        <CardHeader pb={2}>
+          <HStack justify="space-between" align="center">
+            <VStack spacing={0} align="start">
+              <Text fontWeight="bold" fontSize="lg" color={isPlayer ? 'blue.600' : 'red.600'} _dark={{ color: isPlayer ? 'blue.300' : 'red.300' }}>
+                {name}
+              </Text>
+              <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                Combat Level {level}
+              </Text>
+            </VStack>
+            {!isPlayer && (
+              <Image 
+                src={(entity as Monster).thumbnail || `/assets/monsters/${(entity as Monster).id}.png`}
+                fallbackSrc="/assets/monsters/placeholder.png"
+                boxSize="60px"
+                objectFit="contain"
+                alt={`${name} icon`}
+              />
+            )}
           </HStack>
-          <SimpleGrid columns={2} spacing={4} w="100%">
-            <Stat size="sm">
-              <StatLabel>Attack</StatLabel>
-              <StatNumber>{stats.attack}</StatNumber>
-            </Stat>
-            <Stat size="sm">
-              <StatLabel>Strength</StatLabel>
-              <StatNumber>{stats.strength}</StatNumber>
-            </Stat>
-            <Stat size="sm">
-              <StatLabel>Defence</StatLabel>
-              <StatNumber>{stats.defence}</StatNumber>
-            </Stat>
-            <Stat size="sm">
-              <StatLabel>HP</StatLabel>
-              <StatNumber>{stats.hitpoints}/{stats.maxHitpoints}</StatNumber>
-            </Stat>
-          </SimpleGrid>
-        </VStack>
-      </Box>
+        </CardHeader>
+        
+        <CardBody pt={0}>
+          <VStack spacing={4} align="stretch">
+            {/* HP Bar with visual indicator */}
+            <Box>
+              <HStack justify="space-between" mb={1}>
+                <HStack>
+                  <FaHeart color={hpPercentage > 50 ? '#38a169' : hpPercentage > 25 ? '#d69e2e' : '#e53e3e'} />
+                  <Text fontSize="sm" fontWeight="semibold">Hitpoints</Text>
+                </HStack>
+                <Text fontSize="sm" fontWeight="bold">
+                  {stats.hitpoints}/{stats.maxHitpoints}
+                </Text>
+              </HStack>
+              <Progress 
+                value={hpPercentage} 
+                colorScheme={hpPercentage > 50 ? 'green' : hpPercentage > 25 ? 'yellow' : 'red'}
+                size="lg"
+                borderRadius="md"
+              />
+            </Box>
+
+            {/* Combat Stats Display */}
+            <VStack spacing={2}>
+              {/* Max Hit Display */}
+              <Box 
+                bg={isPlayer ? 'blue.50' : 'red.50'} 
+                p={3} 
+                borderRadius="md" 
+                border="1px solid"
+                borderColor={isPlayer ? 'blue.200' : 'red.200'}
+                w="100%"
+                _dark={{
+                  bg: isPlayer ? 'blue.900' : 'red.900',
+                  borderColor: isPlayer ? 'blue.600' : 'red.600'
+                }}
+              >
+                <HStack justify="space-between" align="center">
+                  <HStack>
+                    <FaFire color={isPlayer ? '#3182ce' : '#e53e3e'} />
+                    <Text fontSize="sm" fontWeight="semibold">Max Hit</Text>
+                  </HStack>
+                  <Text 
+                    fontSize="xl" 
+                    fontWeight="bold" 
+                    color={isPlayer ? 'blue.600' : 'red.600'}
+                    _dark={{ color: isPlayer ? 'blue.300' : 'red.300' }}
+                  >
+                    {maxHit}
+                  </Text>
+                </HStack>
+                {isPlayer && (
+                  <Text fontSize="xs" color="gray.600" _dark={{ color: 'gray.400' }} mt={1}>
+                    Using {attackStyle} style
+                  </Text>
+                )}
+              </Box>
+
+              {/* Accuracy Display */}
+              {(character && selectedMonster) && (
+                <Box 
+                  bg={isPlayer ? 'green.50' : 'orange.50'} 
+                  p={2} 
+                  borderRadius="md" 
+                  border="1px solid"
+                  borderColor={isPlayer ? 'green.200' : 'orange.200'}
+                  w="100%"
+                  _dark={{
+                    bg: isPlayer ? 'green.900' : 'orange.900',
+                    borderColor: isPlayer ? 'green.600' : 'orange.600'
+                  }}
+                >
+                  <HStack justify="space-between" align="center">
+                    <HStack>
+                      <FaBullseye color={isPlayer ? '#38a169' : '#d69e2e'} size="14px" />
+                      <Text fontSize="xs" fontWeight="semibold">Accuracy</Text>
+                    </HStack>
+                    <Text 
+                      fontSize="sm" 
+                      fontWeight="bold" 
+                      color={isPlayer ? 'green.600' : 'orange.600'}
+                      _dark={{ color: isPlayer ? 'green.300' : 'orange.300' }}
+                    >
+                      {Math.round(getAccuracy(entity, isPlayer) * 100)}%
+                    </Text>
+                  </HStack>
+                </Box>
+              )}
+            </VStack>
+
+            {/* Combat Stats Grid */}
+            <SimpleGrid columns={3} spacing={2}>
+              <Stat size="sm" textAlign="center">
+                <StatLabel fontSize="xs">Attack</StatLabel>
+                <StatNumber fontSize="lg">{stats.attack}</StatNumber>
+              </Stat>
+              <Stat size="sm" textAlign="center">
+                <StatLabel fontSize="xs">Strength</StatLabel>
+                <StatNumber fontSize="lg">{stats.strength}</StatNumber>
+              </Stat>
+              <Stat size="sm" textAlign="center">
+                <StatLabel fontSize="xs">Defence</StatLabel>
+                <StatNumber fontSize="lg">{stats.defence}</StatNumber>
+              </Stat>
+            </SimpleGrid>
+          </VStack>
+        </CardBody>
+      </Card>
     );
   };
 
@@ -329,95 +474,87 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
           <HStack align="start" spacing={6} w="100%">
             <Box flex="1" minW={0}>
               <VStack spacing={4} align="stretch">
-                {/* Stats Display */}
-                <Grid templateColumns="1fr auto 1fr" gap={4} alignItems="start">
-                  {/* Player Stats */}
+                {/* Combat Cards Display */}
+                <Grid templateColumns="1fr auto 1fr" gap={6} alignItems="start">
+                  {/* Player Card */}
                   <Box>
-                    {renderStatDisplay(character, true)}
+                    {renderCombatantCard(character, true)}
                   </Box>
 
                   {/* VS Text */}
-                  <Text fontSize="xl" fontWeight="bold" alignSelf="center">VS</Text>
+                  <VStack spacing={2} alignSelf="center" pt={8}>
+                    <Text fontSize="2xl" fontWeight="bold" color="gray.500">VS</Text>
+                    {isInCombat ? (
+                      <Text fontSize="sm" color="green.500" fontWeight="semibold" textAlign="center">
+                        🗡️ Fighting!
+                      </Text>
+                    ) : (
+                      <Text fontSize="sm" color="gray.400" textAlign="center">
+                        Ready to Fight
+                      </Text>
+                    )}
+                  </VStack>
 
-                  {/* Monster Stats */}
+                  {/* Monster Card */}
                   <Box>
-                    <Box textAlign="center" mb={2}>
-                      <Image 
-                        src={monsterForDisplay.thumbnail || `/assets/monsters/${monsterForDisplay.id}.png`}
-                        fallbackSrc="/assets/monsters/placeholder.png"
-                        boxSize="80px"
-                        objectFit="contain"
-                        alt={`${monsterForDisplay.name} icon`}
-                        mx="auto"
-                      />
-                    </Box>
-                    {renderStatDisplay(monsterForDisplay, false)}
+                    {renderCombatantCard(monsterForDisplay, false)}
                   </Box>
                 </Grid>
 
-                <Divider />
-
-                {/* Combat Progress */}
-                <Grid templateColumns="1fr auto 1fr" gap={4} alignItems="center">
-                  {/* Player Side */}
-                  <VStack>
-                    <Box w="200px">
-                      <Progress 
-                        value={character.hitpoints} 
-                        max={character.maxHitpoints}
-                        colorScheme="green" 
-                        width="200px"
-                      />
-                      <Text fontSize="sm" textAlign="center">
-                        HP: {character.hitpoints}/{character.maxHitpoints}
-                      </Text>
-                    </Box>
-                    {isInCombat && (
-                      <Box w="200px">
-                        <Progress 
-                          value={actionProgress} 
-                          colorScheme="blue" 
-                          width="200px"
-                          size="sm"
-                        />
-                        <Text fontSize="sm" textAlign="center">
-                          Attack: {Math.min(100, Math.floor(actionProgress))}%
+                {/* Combat Action Progress */}
+                {isInCombat && (
+                  <Card variant="outline" bg="gray.50" _dark={{ bg: 'gray.800' }}>
+                    <CardBody>
+                      <VStack spacing={3}>
+                        <Text fontSize="lg" fontWeight="semibold" textAlign="center">
+                          ⚔️ Combat in Progress
                         </Text>
-                      </Box>
-                    )}
-                  </VStack>
+                        <Grid templateColumns="1fr auto 1fr" gap={4} alignItems="center" w="100%">
+                          {/* Player Action Progress */}
+                          <VStack>
+                            <Text fontSize="sm" fontWeight="medium" color="blue.600" _dark={{ color: 'blue.300' }}>
+                              {character.name}'s Turn
+                            </Text>
+                            <Box w="180px">
+                              <Progress 
+                                value={actionProgress} 
+                                colorScheme="blue" 
+                                size="lg"
+                                borderRadius="md"
+                              />
+                              <Text fontSize="xs" textAlign="center" mt={1} color="gray.600" _dark={{ color: 'gray.400' }}>
+                                Attack: {Math.min(100, Math.floor(actionProgress))}%
+                              </Text>
+                            </Box>
+                          </VStack>
 
-                  {/* VS Text */}
-                  <Box />
+                          {/* Combat Icon */}
+                          <Box textAlign="center">
+                            <Text fontSize="2xl">⚔️</Text>
+                          </Box>
 
-                  {/* Monster Side */}
-                  <VStack>
-                    <Box w="200px">
-                      <Progress 
-                        value={monsterForDisplay.hitpoints} 
-                        max={monsterForDisplay.maxHitpoints}
-                        colorScheme="red" 
-                        width="200px"
-                      />
-                      <Text fontSize="sm" textAlign="center">
-                        HP: {monsterForDisplay.hitpoints}/{monsterForDisplay.maxHitpoints}
-                      </Text>
-                    </Box>
-                    {isInCombat && (
-                      <Box w="200px">
-                        <Progress 
-                          value={actionProgress} 
-                          colorScheme="orange" 
-                          width="200px"
-                          size="sm"
-                        />
-                        <Text fontSize="sm" textAlign="center">
-                          Attack: {Math.min(100, Math.floor(actionProgress))}%
-                        </Text>
-                      </Box>
-                    )}
-                  </VStack>
-                </Grid>
+                          {/* Monster Action Progress */}
+                          <VStack>
+                            <Text fontSize="sm" fontWeight="medium" color="red.600" _dark={{ color: 'red.300' }}>
+                              {monsterForDisplay.name}'s Turn
+                            </Text>
+                            <Box w="180px">
+                              <Progress 
+                                value={actionProgress} 
+                                colorScheme="red" 
+                                size="lg"
+                                borderRadius="md"
+                              />
+                              <Text fontSize="xs" textAlign="center" mt={1} color="gray.600" _dark={{ color: 'gray.400' }}>
+                                Attack: {Math.min(100, Math.floor(actionProgress))}%
+                              </Text>
+                            </Box>
+                          </VStack>
+                        </Grid>
+                      </VStack>
+                    </CardBody>
+                  </Card>
+                )}
 
                 <Divider />
 
