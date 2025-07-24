@@ -8,14 +8,19 @@ import { Footer } from './Footer';
 import { getItemsByCategory } from '../../data/items';
 import debounce from 'lodash.debounce';
 import type { Character } from '../../types/game';
+import { SettingsModal } from '../settings/SettingsModal';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const { character, signOut, stopAction, saveCharacter } = useGameStore();
   const { isFooterExpanded, toggleFooter } = useUIStore();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const navigate = useNavigate();
   const locations = useGameStore(state => state.locations);
+  const { theme } = useTheme();
+
 
   // Debounced auto-save logic
   const prevCharacterRef = useRef<Character | null>(null);
@@ -131,6 +136,7 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
         alignItems="center"
         borderBottom="1px"
         borderColor="gray.700"
+        className={theme === 'medieval' ? 'medieval-wood' : ''}
       >
         <Flex align="center">
           <Button onClick={onOpen} leftIcon={<Icon as={FaChartBar} />} colorScheme="blue" size="sm" mr={4}>
@@ -161,7 +167,7 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
             <MenuItem icon={<Icon as={FaUserFriends} />} onClick={handleSwitchCharacter} bg="gray.700" _hover={{ bg: 'gray.600' }}>
               Switch Character
             </MenuItem>
-            <MenuItem icon={<Icon as={FaCog} />} bg="gray.700" _hover={{ bg: 'gray.600' }}>
+            <MenuItem icon={<Icon as={FaCog} />} onClick={onSettingsOpen} bg="gray.700" _hover={{ bg: 'gray.600' }}>
               Settings
             </MenuItem>
             <MenuDivider />
@@ -356,6 +362,9 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      {/* Settings Modal */}
+      <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
     </Box>
   );
 }; 

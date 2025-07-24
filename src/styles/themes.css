@@ -1,0 +1,354 @@
+/* Theme CSS Variables and Styles */
+
+/* Dark Theme (Default) */
+[data-theme="dark"] {
+  --bg-primary: #1a202c;
+  --bg-secondary: #2d3748;
+  --bg-tertiary: #4a5568;
+  --text-primary: #ffffff;
+  --text-secondary: #a0aec0;
+  --border-color: #4a5568;
+  --accent-color: #3182ce;
+  --paper-texture: none;
+  --wood-texture: none;
+}
+
+/* Medieval Theme */
+[data-theme="medieval"] {
+  --bg-primary: #f4e8d0;
+  --bg-secondary: #e8dcc0;
+  --bg-tertiary: #d4c4a0;
+  --text-primary: #3c2415;
+  --text-secondary: #5d4037;
+  --border-color: #8b4513;
+  --accent-color: #a0522d;
+  --paper-texture: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4af7a' fill-opacity='0.08' fill-rule='evenodd'%3E%3Cpath d='m0 60l60-60h-60v60zm60 0v-60h-60l60 60z'/%3E%3C/g%3E%3C/svg%3E");
+  --wood-texture: linear-gradient(90deg, #6d4c28 0%, #8b4513 20%, #a0522d 35%, #8b6914 50%, #a0522d 65%, #8b4513 80%, #6d4c28 100%);
+  --parchment-base: #f7f1e8;
+  --ink-color: #2c1810;
+  --aged-brown: #8b7355;
+}
+
+/* Medieval Theme Specific Styles */
+[data-theme="medieval"] body {
+  background: #f4e8d0;
+  background-image: var(--paper-texture);
+  color: var(--text-primary);
+}
+
+/* Medieval Paper Effects */
+.medieval-paper {
+  background: var(--parchment-base);
+  background-image: 
+    /* Age spots and stains */
+    radial-gradient(circle at 15% 85%, rgba(139, 101, 71, 0.4) 0%, transparent 12%),
+    radial-gradient(circle at 85% 25%, rgba(139, 101, 71, 0.25) 0%, transparent 8%),
+    radial-gradient(circle at 45% 60%, rgba(160, 82, 45, 0.15) 0%, transparent 15%),
+    radial-gradient(circle at 75% 75%, rgba(139, 69, 19, 0.2) 0%, transparent 6%),
+    /* Subtle aging gradient */
+    linear-gradient(135deg, rgba(139, 115, 85, 0.1) 0%, transparent 30%, rgba(139, 115, 85, 0.08) 70%, transparent 100%),
+    /* Paper fiber texture */
+    var(--paper-texture);
+  box-shadow: 
+    /* Inner aging shadows */
+    inset 0 0 30px rgba(139, 69, 19, 0.15),
+    inset 0 0 60px rgba(139, 115, 85, 0.08),
+    /* Outer shadow for depth */
+    0 6px 16px rgba(139, 69, 19, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--aged-brown);
+  position: relative;
+  border-radius: 3px;
+}
+
+.medieval-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    /* Horizontal aging lines */
+    linear-gradient(90deg, transparent 0%, rgba(139, 69, 19, 0.08) 25%, transparent 50%, rgba(139, 69, 19, 0.06) 75%, transparent 100%),
+    /* Vertical aging lines */
+    linear-gradient(0deg, transparent 0%, rgba(139, 115, 85, 0.05) 30%, transparent 60%, rgba(139, 115, 85, 0.08) 85%, transparent 100%);
+  pointer-events: none;
+  border-radius: 1px;
+}
+
+.medieval-paper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    /* Random parchment marks */
+    radial-gradient(ellipse at 25% 20%, rgba(139, 101, 71, 0.12) 0%, transparent 25%),
+    radial-gradient(ellipse at 80% 80%, rgba(160, 82, 45, 0.08) 0%, transparent 20%);
+  pointer-events: none;
+  border-radius: 1px;
+}
+
+/* Medieval Wood Effects */
+.medieval-wood {
+  background: #6d4c28;
+  background-image: 
+    /* Primary wood grain */
+    var(--wood-texture),
+    /* Wood knots and imperfections */
+    radial-gradient(ellipse at 20% 30%, #5d4037 0%, transparent 25%),
+    radial-gradient(ellipse at 70% 80%, #5d4037 0%, transparent 20%),
+    radial-gradient(ellipse at 90% 20%, #4a2c17 0%, transparent 15%),
+    /* Depth and shadow layers */
+    linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 15%, rgba(0,0,0,0.08) 50%, transparent 85%, rgba(0,0,0,0.2) 100%),
+    linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 10%, rgba(101, 67, 33, 0.1) 50%, transparent 90%, rgba(0,0,0,0.1) 100%);
+  box-shadow: 
+    /* Deep carved shadow */
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -3px 8px rgba(101, 67, 33, 0.6),
+    /* Outer depth */
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.4);
+  border: 2px solid #4a2c17;
+  border-radius: 4px;
+  color: var(--parchment-base);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Medieval Scroll Effect for Footer */
+.medieval-scroll {
+  background: var(--parchment-base);
+  background-image: 
+    /* Central aging and wear */
+    radial-gradient(ellipse at center, rgba(139, 69, 19, 0.15) 0%, transparent 60%),
+    /* Edge darkening */
+    linear-gradient(90deg, rgba(139, 115, 85, 0.2) 0%, transparent 15%, transparent 85%, rgba(139, 115, 85, 0.2) 100%),
+    /* Parchment texture */
+    var(--paper-texture);
+  border: none;
+  border-radius: 0;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(139, 69, 19, 0.4);
+  padding: 0 40px; /* Make room for the wooden handles */
+}
+
+.medieval-scroll::before,
+.medieval-scroll::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 40px;
+  background: var(--wood-texture);
+  background-size: 15px 15px;
+  border: 3px solid #4a2c17;
+  z-index: 10;
+  /* Add wood knot details */
+  background-image: 
+    var(--wood-texture),
+    radial-gradient(circle at 50% 25%, #4a2c17 0%, transparent 15%),
+    radial-gradient(circle at 50% 75%, #5d4037 0%, transparent 12%);
+}
+
+.medieval-scroll::before {
+  left: -20px;
+  border-radius: 20px 5px 5px 20px;
+  box-shadow: 
+    /* Deep carved wooden handle shadow */
+    inset 3px 0 6px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    /* Outer shadow for depth */
+    4px 0 8px rgba(0, 0, 0, 0.3),
+    2px 0 4px rgba(0, 0, 0, 0.2);
+  transform: perspective(50px) rotateY(-5deg);
+}
+
+.medieval-scroll::after {
+  right: -20px;
+  border-radius: 5px 20px 20px 5px;
+  box-shadow: 
+    /* Deep carved wooden handle shadow */
+    inset -3px 0 6px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    /* Outer shadow for depth */
+    -4px 0 8px rgba(0, 0, 0, 0.3),
+    -2px 0 4px rgba(0, 0, 0, 0.2);
+  transform: perspective(50px) rotateY(5deg);
+}
+
+/* Medieval Button Styles */
+[data-theme="medieval"] .chakra-button {
+  background: var(--parchment-base) !important;
+  background-image: 
+    radial-gradient(circle at 30% 30%, rgba(139, 101, 71, 0.1) 0%, transparent 40%),
+    var(--paper-texture) !important;
+  border: 2px solid var(--aged-brown) !important;
+  color: var(--ink-color) !important;
+  box-shadow: 
+    0 3px 6px rgba(139, 69, 19, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(139, 115, 85, 0.2) !important;
+  transition: all 0.2s ease !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-theme="medieval"] .chakra-button:hover {
+  background: #f0e6d6 !important;
+  background-image: 
+    radial-gradient(circle at 30% 30%, rgba(139, 101, 71, 0.15) 0%, transparent 40%),
+    var(--paper-texture) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 
+    0 6px 12px rgba(139, 69, 19, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(139, 115, 85, 0.3) !important;
+  border-color: var(--accent-color) !important;
+}
+
+[data-theme="medieval"] .chakra-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 
+    0 2px 4px rgba(139, 69, 19, 0.3),
+    inset 0 3px 6px rgba(139, 69, 19, 0.15) !important;
+}
+
+/* Medieval Card Styles */
+[data-theme="medieval"] .chakra-card {
+  background: var(--parchment-base) !important;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(139, 101, 71, 0.12) 0%, transparent 30%),
+    radial-gradient(circle at 75% 75%, rgba(160, 82, 45, 0.08) 0%, transparent 25%),
+    var(--paper-texture) !important;
+  border: 2px solid var(--aged-brown) !important;
+  box-shadow: 
+    0 6px 16px rgba(139, 69, 19, 0.25),
+    inset 0 0 30px rgba(139, 69, 19, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+/* Action Container Styles */
+[data-theme="medieval"] .action-container,
+[data-theme="medieval"] .medieval-action-container {
+  background: var(--parchment-base) !important;
+  background-image: 
+    /* Ink stains and aging */
+    radial-gradient(circle at 20% 80%, rgba(139, 101, 71, 0.3) 0%, transparent 15%),
+    radial-gradient(circle at 80% 30%, rgba(139, 115, 85, 0.2) 0%, transparent 20%),
+    var(--paper-texture) !important;
+  border: 2px solid var(--aged-brown) !important;
+  border-radius: 8px !important;
+  box-shadow: 
+    0 4px 12px rgba(139, 69, 19, 0.25),
+    inset 0 0 25px rgba(139, 69, 19, 0.08) !important;
+}
+
+/* Action Grid Styles */
+[data-theme="medieval"] .action-grid {
+  background: rgba(244, 232, 208, 0.8) !important;
+  border: 1px solid var(--aged-brown) !important;
+  border-radius: 6px !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+/* Medieval Modal Styles */
+[data-theme="medieval"] .chakra-modal__content {
+  background: #f7f1e8 !important;
+  background-image: var(--paper-texture) !important;
+  border: 3px solid #8b4513 !important;
+  box-shadow: 
+    0 8px 24px rgba(139, 69, 19, 0.4),
+    inset 0 0 30px rgba(139, 69, 19, 0.1) !important;
+}
+
+/* Medieval Header */
+[data-theme="medieval"] header {
+  background: var(--wood-texture) !important;
+  background-size: 20px 20px !important;
+  border-bottom: 3px solid #654321 !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 -2px 4px rgba(101, 67, 33, 0.5) !important;
+}
+
+[data-theme="medieval"] header .chakra-button {
+  background: #f7f1e8 !important;
+  border: 2px solid #8b4513 !important;
+  color: #2d3748 !important;
+}
+
+/* Medieval Text Colors */
+[data-theme="medieval"] .chakra-text {
+  color: var(--ink-color) !important;
+}
+
+[data-theme="medieval"] .chakra-heading {
+  color: var(--ink-color) !important;
+  text-shadow: 0 1px 2px rgba(139, 115, 85, 0.3) !important;
+}
+
+/* Medieval Input Styles */
+[data-theme="medieval"] .chakra-input {
+  background: #faf8f4 !important;
+  background-image: var(--paper-texture) !important;
+  border: 2px solid var(--aged-brown) !important;
+  color: var(--ink-color) !important;
+  box-shadow: 
+    inset 0 2px 4px rgba(139, 69, 19, 0.1),
+    0 1px 3px rgba(139, 69, 19, 0.15) !important;
+}
+
+[data-theme="medieval"] .chakra-input:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 
+    0 0 0 1px var(--accent-color),
+    inset 0 2px 4px rgba(139, 69, 19, 0.15),
+    0 2px 6px rgba(160, 82, 45, 0.2) !important;
+}
+
+/* Medieval Progress Bars */
+[data-theme="medieval"] .chakra-progress {
+  background: var(--bg-tertiary) !important;
+  border: 2px solid var(--aged-brown) !important;
+  border-radius: 6px !important;
+  box-shadow: 
+    inset 0 2px 4px rgba(139, 69, 19, 0.2),
+    0 1px 3px rgba(139, 69, 19, 0.1) !important;
+}
+
+[data-theme="medieval"] .chakra-progress__filled-track {
+  background: linear-gradient(90deg, var(--accent-color) 0%, #b8860b 30%, var(--accent-color) 70%, #8b6914 100%) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Medieval Scrollbar Styles */
+[data-theme="medieval"] ::-webkit-scrollbar {
+  width: 12px !important;
+}
+
+[data-theme="medieval"] ::-webkit-scrollbar-track {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--aged-brown) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="medieval"] ::-webkit-scrollbar-thumb {
+  background: var(--aged-brown) !important;
+  background-image: var(--wood-texture) !important;
+  border-radius: 6px !important;
+  border: 1px solid #4a2c17 !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="medieval"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color) !important;
+}
+
+/* Transition animations for theme switching */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+} 

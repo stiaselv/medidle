@@ -7,6 +7,7 @@ import type { SkillAction } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
 import campBg from '../../assets/BG/camp.webp';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -274,6 +275,7 @@ const ActionSection = ({
   currentAction: SkillAction | null;
 }) => {
   const { character } = useGameStore();
+  const { theme } = useTheme();
   const skillType = actions[0]?.skill || '';
   
   // Calculate experience progress for the skill
@@ -306,6 +308,7 @@ const ActionSection = ({
       maxW="420px"
       mx="auto"
       w="100%"
+      className={theme === 'medieval' ? 'medieval-action-container' : ''}
     >
       <VStack spacing={4} align="stretch" width="100%">
         <HStack spacing={4} align="center" bg="whiteAlpha.100" p={3} borderRadius="lg">
@@ -375,6 +378,7 @@ const ActionSection = ({
           maxH="600px"
           overflowY="auto"
           gap={2}
+          className={theme === 'medieval' ? 'action-grid' : ''}
           sx={{
             '&::-webkit-scrollbar': {
               width: '4px',

@@ -7,6 +7,7 @@ import type { SkillAction } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
 import templeBg from '../../assets/BG/temple.webp';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -265,6 +266,7 @@ const ActionSection = ({
   currentAction: SkillAction | null;
 }) => {
   const { character } = useGameStore();
+  const { theme } = useTheme();
   const skillType = actions[0]?.skill || '';
 
   // Calculate experience progress for the skill
@@ -300,6 +302,7 @@ const ActionSection = ({
       display="flex"
       flexDirection="column"
       minWidth="280px"
+      className={theme === 'medieval' ? 'medieval-action-container' : ''}
     >
       <VStack spacing={4} align="stretch">
         <Heading size="md" color={accent === 'blue' ? 'blue.200' : accent === 'purple' ? 'purple.200' : 'gray.200'} textAlign="center">{title}</Heading>
@@ -360,7 +363,7 @@ const ActionSection = ({
         </Box>
 
         {/* Actions */}
-        <VStack spacing={3} align="stretch">
+        <VStack spacing={3} align="stretch" className={theme === 'medieval' ? 'action-grid' : ''}>
           {actions.map((action) => (
             <ActionButton
               key={action.id}

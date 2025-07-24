@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, HStack, Icon, Text, Tooltip, VStack } from '@chakra-ui/react';
 import { GiWoodAxe, GiFishingPole, GiMiningHelmet, GiAnvil, GiCampfire, GiCampCookingPot } from 'react-icons/gi';
 import type { SkillAction } from '../../types/game';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface ActionButtonProps {
   action: SkillAction;
@@ -36,6 +37,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   isActive = false,
 }) => {
   const ActionIcon = getActionIcon(action.type);
+  const { theme } = useTheme();
 
   return (
     <Tooltip
@@ -60,6 +62,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
         borderWidth={1}
         borderColor={isActive ? "whiteAlpha.400" : "transparent"}
         transition="all 0.2s"
+        className={theme === 'medieval' ? 'medieval-paper' : ''}
       >
         <HStack width="100%" spacing={4} justify="flex-start">
           <Icon

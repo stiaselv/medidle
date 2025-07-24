@@ -15,6 +15,8 @@ import type { OfflineRewards } from './types/game';
 import { ActionFeedback } from './components/game/ActionFeedback';
 import { TestPlan } from './components/testing/TestPlan';
 import CharacterCreation from './components/character/CharacterCreation';
+import { ThemeProvider } from './contexts/ThemeContext';
+import './styles/themes.css';
 
 const App = () => {
   const { user, character, loadCharacters, processOfflineProgress, isLoading } = useGameStore();
@@ -65,8 +67,9 @@ const App = () => {
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <ChakraProvider theme={theme}>
+    <ThemeProvider>
+      <DndProvider backend={HTML5Backend}>
+        <ChakraProvider theme={theme}>
         <Router>
           <Routes>
             <Route path="/login" element={!user ? <UserAuth /> : <Navigate to="/" />} />
@@ -100,6 +103,7 @@ const App = () => {
         </Router>
       </ChakraProvider>
     </DndProvider>
+    </ThemeProvider>
   );
 };
 

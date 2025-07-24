@@ -9,6 +9,7 @@ import { EquipmentPanel } from '../equipment/EquipmentPanel';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useDragControls } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const SkillTooltip = ({ children, ...props }: TooltipProps) => (
   <Tooltip hasArrow placement="top" {...props}>
@@ -70,6 +71,7 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const controls = useDragControls();
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const character = useGameStore(state => state.character);
   const currentLocation = useGameStore(state => state.currentLocation);
@@ -191,6 +193,7 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
             display="flex"
             alignItems="center"
             justifyContent="center"
+            className={theme === 'medieval' ? 'medieval-scroll' : ''}
           >
             <Grid
               templateColumns="repeat(4, 1fr)"
