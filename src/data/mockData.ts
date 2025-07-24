@@ -3269,7 +3269,7 @@ export const mockLocations: Location[] = [
         experience: 5,
         baseTime: 4000,
         itemReward: { id: 'air_rune', name: 'Air Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_mind_rune',
@@ -3280,7 +3280,7 @@ export const mockLocations: Location[] = [
         experience: 5.5,
         baseTime: 4000,
         itemReward: { id: 'mind_rune', name: 'Mind Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_water_rune',
@@ -3291,7 +3291,7 @@ export const mockLocations: Location[] = [
         experience: 6,
         baseTime: 4000,
         itemReward: { id: 'water_rune', name: 'Water Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_earth_rune',
@@ -3302,7 +3302,7 @@ export const mockLocations: Location[] = [
         experience: 6.5,
         baseTime: 4000,
         itemReward: { id: 'earth_rune', name: 'Earth Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_fire_rune',
@@ -3313,7 +3313,7 @@ export const mockLocations: Location[] = [
         experience: 7,
         baseTime: 4000,
         itemReward: { id: 'fire_rune', name: 'Fire Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_body_rune',
@@ -3324,7 +3324,7 @@ export const mockLocations: Location[] = [
         experience: 7.5,
         baseTime: 4000,
         itemReward: { id: 'body_rune', name: 'Body Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_cosmic_rune',
@@ -3335,7 +3335,7 @@ export const mockLocations: Location[] = [
         experience: 8,
         baseTime: 4000,
         itemReward: { id: 'cosmic_rune', name: 'Cosmic Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_chaos_rune',
@@ -3346,7 +3346,7 @@ export const mockLocations: Location[] = [
         experience: 8.5,
         baseTime: 4000,
         itemReward: { id: 'chaos_rune', name: 'Chaos Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_astral_rune',
@@ -3357,7 +3357,7 @@ export const mockLocations: Location[] = [
         experience: 8.7,
         baseTime: 4000,
         itemReward: { id: 'astral_rune', name: 'Astral Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_nature_rune',
@@ -3368,7 +3368,7 @@ export const mockLocations: Location[] = [
         experience: 9,
         baseTime: 4000,
         itemReward: { id: 'nature_rune', name: 'Nature Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_law_rune',
@@ -3379,7 +3379,7 @@ export const mockLocations: Location[] = [
         experience: 9.5,
         baseTime: 4000,
         itemReward: { id: 'law_rune', name: 'Law Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_death_rune',
@@ -3390,7 +3390,7 @@ export const mockLocations: Location[] = [
         experience: 10,
         baseTime: 4000,
         itemReward: { id: 'death_rune', name: 'Death Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_blood_rune',
@@ -3401,7 +3401,7 @@ export const mockLocations: Location[] = [
         experience: 23.8,
         baseTime: 4000,
         itemReward: { id: 'blood_rune', name: 'Blood Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       },
       {
         id: 'craft_soul_rune',
@@ -3412,7 +3412,7 @@ export const mockLocations: Location[] = [
         experience: 29.7,
         baseTime: 4000,
         itemReward: { id: 'soul_rune', name: 'Soul Rune', quantity: 1 },
-        requirements: [ { type: 'item', itemId: 'rune_essence', quantity: 1 } ]
+        requirements: [ { type: 'item', itemId: 'pure_essence', quantity: 1 } ]
       }
     ]
   },

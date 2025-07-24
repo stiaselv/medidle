@@ -17,54 +17,127 @@ const SkillTooltip = ({ children, ...props }: TooltipProps) => (
   </Tooltip>
 );
 
-const LocationCard = ({ location, isActive, onClick }: { location: Location; isActive: boolean; onClick: () => void }) => (
-  <Button
-    variant="outline"
-    colorScheme={isActive ? "blue" : "gray"}
-    height="auto"
-    p={4}
-    display="flex"
-    flexDirection="column"
-    alignItems="center"
-    gap={2}
-    onClick={onClick}
-    _hover={{ transform: 'scale(1.02)' }}
-    transition="all 0.2s"
-    w="100%"
-  >
-    <Text fontWeight="bold">{location.name}</Text>
-    <Text 
-      fontSize="sm" 
-      color="gray.400" 
-      noOfLines={2}
-      textAlign="center"
+const LocationCard = ({ location, isActive, onClick }: { location: Location; isActive: boolean; onClick: () => void }) => {
+  // Map location IDs to background image paths
+  const getLocationBackground = (locationId: string): string => {
+    const backgroundMap: Record<string, string> = {
+      'forest': '/assets/BG/forest.webp',
+      'quarry': '/assets/BG/quarry.webp',
+      'forge': '/assets/BG/forge.webp',
+      'camp': '/assets/BG/camp.webp',
+      'temple': '/assets/BG/temple.webp',
+      'workbench': '/assets/BG/workbench.webp',
+      'general_store': '/assets/BG/general_store.webp',
+      'rooftop_thieving': '/assets/BG/rooftop_thieving.webp',
+      'fields': '/assets/BG/fields.webp',
+      'farm': '/assets/BG/farm.webp',
+      'construction': '/assets/BG/construction.webp',
+      'ardougne_market_place': '/assets/BG/ardougne_market_place.webp',
+      'slayer_cave': '/assets/BG/slayer_cave.webp',
+      'easy_cave': '/assets/BG/easy_cave.webp',
+      'medium_cave': '/assets/BG/medium_cave.webp',
+      'lumbridge_swamp_cave': '/assets/BG/lumbridge_swamp_cave.webp',
+      'dragons_den': '/assets/BG/dragons_den.webp',
+      'lava_dragon': '/assets/BG/lava_dragon.webp',
+      'wizard_tower': '/assets/BG/wizard_tower.webp',
+      'bank': '/assets/BG/bank.webp'
+    };
+    
+    return backgroundMap[locationId] || '/assets/BG/camp.webp'; // Default fallback
+  };
+
+  return (
+    <Box
+      position="relative"
       w="100%"
-      whiteSpace="normal"
-      wordBreak="break-word"
+      h="120px"
+      borderRadius="md"
+      overflow="hidden"
+      cursor="pointer"
+      onClick={onClick}
+      _hover={{ transform: 'scale(1.02)' }}
+      transition="all 0.2s"
+      border={isActive ? "2px solid" : "1px solid"}
+      borderColor={isActive ? "blue.400" : "gray.600"}
     >
-      {location.description}
-    </Text>
-    <Flex gap={1} mt={2} flexWrap="wrap" justify="center">
-      {(location.availableSkills ?? []).map((skill) => (
-        <img
-          key={skill}
-          src={`/assets/ItemThumbnail/skillicons/${skill}.png`}
-          alt={`${skill} icon`}
-          style={{
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            filter: 'brightness(1.1)',
-            opacity: 0.8
-          }}
-          onError={(e) => {
-            e.currentTarget.src = '/assets/items/placeholder.png';
-          }}
-        />
-      ))}
-    </Flex>
-  </Button>
-);
+      {/* Background Image */}
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        backgroundImage={`url(${getLocationBackground(location.id)})`}
+        backgroundSize="cover"
+        backgroundPosition="center"
+        backgroundRepeat="no-repeat"
+        opacity={0.7}
+        filter="brightness(0.8)"
+      />
+      
+      {/* Dark overlay for better text readability */}
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        bg="blackAlpha.600"
+      />
+      
+      {/* Content */}
+      <Box
+        position="relative"
+        zIndex={1}
+        h="100%"
+        p={3}
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+      >
+        <VStack spacing={1} align="start">
+          <Text 
+            fontWeight="bold" 
+            color="white"
+            fontSize="sm"
+            textShadow="0 1px 2px rgba(0,0,0,0.8)"
+          >
+            {location.name}
+          </Text>
+          <Text 
+            fontSize="xs" 
+            color="gray.200" 
+            noOfLines={2}
+            textShadow="0 1px 2px rgba(0,0,0,0.8)"
+          >
+            {location.description}
+          </Text>
+        </VStack>
+        
+        <Flex gap={1} flexWrap="wrap" justify="start">
+          {(location.availableSkills ?? []).map((skill) => (
+            <img
+              key={skill}
+              src={`/assets/ItemThumbnail/skillicons/${skill}.png`}
+              alt={`${skill} icon`}
+              style={{
+                width: '14px',
+                height: '14px',
+                borderRadius: '50%',
+                filter: 'brightness(1.2)',
+                opacity: 0.9,
+                border: '1px solid rgba(255,255,255,0.3)'
+              }}
+              onError={(e) => {
+                e.currentTarget.src = '/assets/items/placeholder.png';
+              }}
+            />
+          ))}
+        </Flex>
+      </Box>
+    </Box>
+  );
+};
 
 export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
   const { isFooterExpanded, toggleFooter } = useUIStore();
@@ -233,8 +306,8 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                   <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Bank</Tab>
                 </TabList>
                 <TabPanels flex="1" overflow="auto">
-                  <TabPanel display="flex" flexDirection="column" alignItems="center">
-                    <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4} w="100%" maxW="1200px">
+                  <TabPanel display="flex" flexDirection="column" alignItems="center" p={4}>
+                    <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={3} w="100%" maxW="1200px">
                       {mainLocations.map(location => (
                         <LocationCard
                           key={location.id}
