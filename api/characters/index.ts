@@ -183,6 +183,17 @@ async function getCharactersCollection(): Promise<Collection<Character>> {
   return client.db().collection<Character>('characters');
 }
 
+// Helper function to calculate level from experience
+const calculateLevel = (experience: number): number => {
+  // Find the highest level where the experience requirement is met
+  let level = 1;
+  while (experience >= Math.floor(level * level * 83)) {
+    level++;
+    if (level > 99) return 99; // Cap level at 99
+  }
+  return level;
+};
+
 // Helper function to calculate max hitpoints
 const calculateMaxHitpoints = (hitpointsLevel: number): number => {
   return hitpointsLevel;
@@ -249,10 +260,36 @@ async function handleCreateCharacter(req: AuthenticatedRequest, res: VercelRespo
       return acc;
     }, {} as Record<SkillName, any>);
 
+    // Calculate proper combat level based on initial skills
+    const calculateCombatLevel = (skills: Record<SkillName, any>): number => {
+      const defence = calculateLevel(skills.defence.experience);
+      const hitpoints = calculateLevel(skills.hitpoints.experience);
+      const prayer = calculateLevel(skills.prayer.experience);
+      const attack = calculateLevel(skills.attack.experience);
+      const strength = calculateLevel(skills.strength.experience);
+      const ranged = calculateLevel(skills.ranged.experience);
+      const magic = calculateLevel(skills.magic.experience);
+
+      // Base = (1/4) × (Defence + Hitpoints + floor(Prayer × 1/2))
+      const base = (1/4) * (defence + hitpoints + Math.floor(prayer * 0.5));
+
+      // Melee = (13/40) × (Attack + Strength)
+      const melee = (13/40) * (attack + strength);
+
+      // Range = (13/40) × floor(Ranged × 3/2)
+      const range = (13/40) * Math.floor(ranged * 1.5);
+
+      // Mage = (13/40) × floor(Magic × 3/2)
+      const mage = (13/40) * Math.floor(magic * 1.5);
+
+      // Final = floor(Base + max(Melee, Range, Mage))
+      return Math.floor(base + Math.max(melee, range, mage));
+    };
+
     const newCharacter: Omit<Character, 'id' | '_id'> & { userId: ObjectId } = {
       userId: new ObjectId(req.user.userId),
       name,
-      combatLevel: 3,
+      combatLevel: calculateCombatLevel(initialSkills),
       hitpoints: 10,
       maxHitpoints: calculateMaxHitpoints(initialSkills['hitpoints'].level),
       prayer: 1,

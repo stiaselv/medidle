@@ -23,6 +23,7 @@ import { EQUIPMENT_SLOTS, getItemById, getEquipmentLevelRequirement } from '../.
 import type { KeyboardEvent } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { LoadingState } from '../common/LoadingState';
+import { ItemIcon } from '../ui/ItemIcon';
 import { useState } from 'react';
 
 const MotionBox = motion(Box);
@@ -224,17 +225,12 @@ const EquipmentSlot = ({ slot, item, onUnequip, index, isLoading }: EquipmentSlo
           whileTap={item ? { scale: 0.95 } : {}}
           role="button"
         >
-          {itemData ? (
-            <Image
-              src={itemData.icon}
-              alt={`${itemData.name} icon`}
-              boxSize="32px"
-              objectFit="contain"
-              fallbackSrc="/assets/items/placeholder.png"
-              aria-hidden="true"
-              style={{
-                animation: shouldReduceMotion ? 'none' : `${equipAnimation} 0.3s ease-out`
-              }}
+          {itemData && item ? (
+            <ItemIcon
+              item={item}
+              size={32}
+              showQuantity={false}
+              disableHover={true}
             />
           ) : (
             <Text fontSize="xs" color="gray.500" textAlign="center" aria-hidden="true">

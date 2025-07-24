@@ -14,11 +14,12 @@ import { WorkbenchLocation } from './WorkbenchLocation';
 import { TempleLocation } from './TempleLocation';
 import AgilityThievingLocation from './AgilityThievingLocation';
 import { FieldsLocation } from '../farming/FieldsLocation';
+import { BankLocation } from './BankLocation';
 
 const MotionBox = motion(Box);
 
 export const GameScreen = () => {
-  const { currentLocation, setLocation, activeView, setView } = useGameStore();
+  const { currentLocation, setLocation, activeView, setView, character } = useGameStore();
   const [selectedMonster, setSelectedMonster] = useState<null | import('../../types/game').Monster>(null);
 
   // List of custom combat area IDs
@@ -66,6 +67,16 @@ export const GameScreen = () => {
       }
     }
   }, [currentLocation, selectedMonster]);
+
+  // Set bank as default location when character is present but no location is set
+  useEffect(() => {
+    if (character && !currentLocation) {
+      const bankLocation = mockLocations.find(loc => loc.id === 'bank');
+      if (bankLocation) {
+        setLocation(bankLocation);
+      }
+    }
+  }, [character, currentLocation, setLocation]);
 
   const renderCombatAreaSelector = () => (
     <Box p={6}>
@@ -177,8 +188,10 @@ export const GameScreen = () => {
         return <AgilityThievingLocation />;
       case 'fields':
         return <FieldsLocation />;
+      case 'bank':
+        return <BankLocation />;
       default:
-        return <ForestLocation />;
+        return <BankLocation />;
     }
   };
 

@@ -28,6 +28,34 @@ export const calculateLevel = (experience: number): number => {
   return level;
 };
 
+// Calculate combat level using the correct formula
+export const calculateCombatLevel = (character: Character): number => {
+  const defence = calculateLevel(character.skills.defence.experience);
+  const hitpoints = calculateLevel(character.skills.hitpoints.experience);
+  const prayer = calculateLevel(character.skills.prayer.experience);
+  const attack = calculateLevel(character.skills.attack.experience);
+  const strength = calculateLevel(character.skills.strength.experience);
+  const ranged = calculateLevel(character.skills.ranged.experience);
+  const magic = calculateLevel(character.skills.magic.experience);
+
+  // Base = (1/4) × (Defence + Hitpoints + floor(Prayer × 1/2))
+  const base = (1/4) * (defence + hitpoints + Math.floor(prayer * 0.5));
+
+  // Melee = (13/40) × (Attack + Strength)
+  const melee = (13/40) * (attack + strength);
+
+  // Range = (13/40) × floor(Ranged × 3/2)
+  const range = (13/40) * Math.floor(ranged * 1.5);
+
+  // Mage = (13/40) × floor(Magic × 3/2)
+  const mage = (13/40) * Math.floor(magic * 1.5);
+
+  // Final = floor(Base + max(Melee, Range, Mage))
+  const combatLevel = Math.floor(base + Math.max(melee, range, mage));
+
+  return combatLevel;
+};
+
 export const getNextLevelExperience = (level: number): number => {
   // Cap level at 99 for next level experience calculation
   const cappedLevel = Math.min(level, 99);
@@ -68,6 +96,54 @@ const getWeaponSpeed = (weaponId: string | undefined): number => {
   return weaponSpeeds[weaponType] || 2500; // Default to sword speed if weapon type not found
 };
 
+// Helper function to calculate modified action time based on equipped tools
+const getModifiedActionTime = (action: SkillAction, character: Character): number => {
+  const baseTime = action.baseTime;
+  
+  // Only apply tool modifications for woodcutting and mining
+  if (action.type !== 'woodcutting' && action.type !== 'mining') {
+    return baseTime;
+  }
+  
+  // Find the equipped tool for this skill
+  const equippedWeapon = character.equipment.weapon;
+  if (!equippedWeapon) {
+    return baseTime; // No tool equipped, use base time
+  }
+  
+  const toolData = getItemById(equippedWeapon.id);
+  if (!toolData || !toolData.stats) {
+    return baseTime; // Invalid tool or no stats
+  }
+  
+  // Get the tool's skill stat (woodcutting stat for axes, mining stat for pickaxes)
+  let toolStat = 0;
+  if (action.type === 'woodcutting' && 'woodcutting' in toolData.stats && toolData.stats.woodcutting) {
+    toolStat = toolData.stats.woodcutting;
+  } else if (action.type === 'mining' && 'mining' in toolData.stats && toolData.stats.mining) {
+    toolStat = toolData.stats.mining;
+  }
+  
+  if (toolStat <= 0) {
+    return baseTime; // No relevant tool stat
+  }
+  
+  // Apply time reduction based on tool tier
+  // Higher tier tools (higher stat values) reduce time more
+  // Formula: baseTime * (1 - (toolStat - 1) * 0.1)
+  // Bronze (stat 1): 0% reduction
+  // Iron (stat 2): 10% reduction  
+  // Steel (stat 3): 20% reduction
+  // Mithril (stat 4): 30% reduction
+  // Adamant (stat 5): 40% reduction
+  // Rune (stat 6): 50% reduction
+  const timeReduction = (toolStat - 1) * 0.1;
+  const modifiedTime = Math.round(baseTime * (1 - timeReduction));
+  
+  // Ensure minimum time of 500ms
+  return Math.max(modifiedTime, 500);
+};
+
 // Create the store with all its state and actions (persist disabled for debugging)
 const createStore = () => create<GameState>()(
   (set, get) => ({
@@ -86,6 +162,14 @@ const createStore = () => create<GameState>()(
     lastActionReward: null,
     lastCombatRound: null,
     isLoading: false,
+
+    // Bank state
+    bankTabs: [{
+      id: 'main',
+      name: 'Main',
+      items: []
+    }],
+    activeBankTab: 'main',
 
     // Farming state
     farmingPatches: [],
@@ -186,9 +270,28 @@ const createStore = () => create<GameState>()(
       const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
       const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
       
-      const updatedCharacter = { ...rest, id, maxHitpoints };
+      // Recalculate combat level for existing characters (in case they were created with old formula)
+      const combatLevel = calculateCombatLevel({ ...rest, maxHitpoints });
+      
+      const updatedCharacter = { ...rest, id, maxHitpoints, combatLevel };
       console.log('setCharacter: Setting character with ID:', id);
-      set({ character: updatedCharacter });
+      
+      // Sync bank tabs with character bank
+      set((state) => {
+        const newBankTabs = [...state.bankTabs];
+        const mainTabIndex = newBankTabs.findIndex(tab => tab.id === 'main');
+        if (mainTabIndex !== -1) {
+          newBankTabs[mainTabIndex] = {
+            ...newBankTabs[mainTabIndex],
+            items: updatedCharacter.bank || []
+          };
+        }
+        return { 
+          character: updatedCharacter,
+          bankTabs: newBankTabs
+        };
+      });
+      
       if (id) {
         get().saveCharacter(updatedCharacter);
       } else {
@@ -287,7 +390,9 @@ const createStore = () => create<GameState>()(
       // Set up new action
       set({ currentAction: action, isActionInProgress: true, actionProgress: 0 });
       let startTime = Date.now();
-      const duration = action.baseTime;
+      const duration = state.character && action.type !== 'combat' ? 
+        getModifiedActionTime(action as SkillAction, state.character) : 
+        action.baseTime;
       const interval = setInterval(() => {
         const state = get();
         if (!state.isActionInProgress || !state.currentAction || state.currentAction.id !== action.id) {
@@ -787,7 +892,110 @@ const createStore = () => create<GameState>()(
       get().setCharacter(updatedCharacter);
     },
     updateBankOrder: (newBank: ItemReward[]) => {
-      // Implementation needed
+      set((state) => {
+        if (!state.character) return {};
+        
+        // Update the main bank tab and character bank
+        const newBankTabs = [...state.bankTabs];
+        const mainTabIndex = newBankTabs.findIndex(tab => tab.id === 'main');
+        if (mainTabIndex !== -1) {
+          newBankTabs[mainTabIndex] = {
+            ...newBankTabs[mainTabIndex],
+            items: newBank
+          };
+        }
+        
+        return {
+          character: { ...state.character, bank: newBank },
+          bankTabs: newBankTabs
+        };
+      });
+    },
+
+    // Bank tab management
+    createBankTab: (name: string, initialItem?: ItemReward) => {
+      set((state) => {
+        const newTabId = `tab_${Date.now()}`;
+        const newTab = {
+          id: newTabId,
+          name,
+          items: initialItem ? [initialItem] : []
+        };
+        
+        return {
+          bankTabs: [...state.bankTabs, newTab],
+          activeBankTab: newTabId
+        };
+      });
+    },
+
+    deleteBankTab: (tabId: string) => {
+      set((state) => {
+        if (tabId === 'main') return {}; // Can't delete main tab
+        
+        const tabToDelete = state.bankTabs.find(tab => tab.id === tabId);
+        if (!tabToDelete) return {};
+        
+        // Move items back to main tab
+        const newBankTabs = state.bankTabs.filter(tab => tab.id !== tabId);
+        const mainTab = newBankTabs.find(tab => tab.id === 'main');
+        if (mainTab && tabToDelete.items.length > 0) {
+          mainTab.items.push(...tabToDelete.items);
+          
+          // Update character bank
+          const updatedCharacter = state.character ? {
+            ...state.character,
+            bank: mainTab.items
+          } : null;
+          
+          return {
+            bankTabs: newBankTabs,
+            activeBankTab: state.activeBankTab === tabId ? 'main' : state.activeBankTab,
+            character: updatedCharacter
+          };
+        }
+        
+        return {
+          bankTabs: newBankTabs,
+          activeBankTab: state.activeBankTab === tabId ? 'main' : state.activeBankTab
+        };
+      });
+    },
+
+    setBankTab: (tabId: string) => {
+      set({ activeBankTab: tabId });
+    },
+
+    moveBankItem: (fromTabId: string, fromIndex: number, toTabId: string, toIndex: number) => {
+      set((state) => {
+        const newBankTabs = [...state.bankTabs];
+        const fromTab = newBankTabs.find(tab => tab.id === fromTabId);
+        const toTab = newBankTabs.find(tab => tab.id === toTabId);
+
+        if (!fromTab || !toTab) return {};
+
+        const [movedItem] = fromTab.items.splice(fromIndex, 1);
+        
+        if (fromTabId === toTabId) {
+          // Moving within the same tab
+          toTab.items.splice(toIndex, 0, movedItem);
+        } else {
+          // Moving to a different tab
+          toTab.items.splice(toIndex, 0, movedItem);
+        }
+
+        // Update character bank if main tab changed
+        const mainTab = newBankTabs.find(tab => tab.id === 'main');
+        const updatedCharacter = (mainTab && (fromTabId === 'main' || toTabId === 'main') && state.character) ? {
+          ...state.character,
+          bank: mainTab.items
+        } : state.character;
+
+        return {
+          bankTabs: newBankTabs,
+          character: updatedCharacter
+        };
+      });
     },
     canPerformAction: (action: SkillAction | CombatAction | CombatSelectionAction) => {
       const state = get();
@@ -811,11 +1019,12 @@ const createStore = () => create<GameState>()(
                 return false;
               }
             } else if (requirement.category) {
-              // Check if any equipped item matches the required category (e.g., any axe)
+              // Check if any equipped item matches the required category (e.g., any axe, any pickaxe)
               const equipped = Object.values(state.character.equipment).find(
                 (item) => item && (
                   item.category === requirement.category ||
-                  (requirement.category === 'axe' && item.id.endsWith('_axe'))
+                  (requirement.category === 'axe' && item.id.endsWith('_axe')) ||
+                  (requirement.category === 'pickaxe' && item.id.endsWith('_pickaxe'))
                 )
               );
             if (!equipped) {
@@ -865,7 +1074,15 @@ const createStore = () => create<GameState>()(
         }
       }
       
-      const updatedCharacter = { ...state.character, skills, maxHitpoints, hitpoints };
+      // Calculate new combat level (affects any combat skill)
+      const combatSkills = ['attack', 'strength', 'defence', 'hitpoints', 'prayer', 'ranged', 'magic'];
+      let combatLevel = state.character.combatLevel;
+      if (combatSkills.includes(skill)) {
+        const tempCharacter = { ...state.character, skills, maxHitpoints, hitpoints };
+        combatLevel = calculateCombatLevel(tempCharacter);
+      }
+      
+      const updatedCharacter = { ...state.character, skills, maxHitpoints, hitpoints, combatLevel };
       get().setCharacter(updatedCharacter);
       if (newLevel > oldLevel) {
         return { skill, level: newLevel };

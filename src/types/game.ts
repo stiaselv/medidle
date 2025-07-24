@@ -85,10 +85,13 @@ export type ActionType =
 export type ItemType = 'tool' | 'resource' | 'consumable' | 'currency' | 'weapon' | 'armor' | 'ammo';
 
 export type ItemStats = {
+  attack?: number;
+  strength?: number;
   defence?: number;
   woodcutting?: number;
   fishing?: number;
   mining?: number;
+  magic?: number;
   // Add other skill stats as needed
 };
 
@@ -427,6 +430,12 @@ export interface CombatStats {
   prayerBonus: number;
 }
 
+export interface BankTab {
+  id: string;
+  name: string;
+  items: ItemReward[];
+}
+
 export interface GameState {
   // Character state
   character: Character | null;
@@ -462,6 +471,10 @@ export interface GameState {
     loot: string[];
   } | null;
   isLoading: boolean;
+
+  // Bank state
+  bankTabs: BankTab[];
+  activeBankTab: string;
 
   // Farming state
   farmingPatches: FarmingPatch[];
@@ -508,7 +521,14 @@ export interface GameState {
   addItemToBank: (item: Item, quantity: number) => void;
   removeItemFromBank: (itemId: string, quantity: number) => void;
   sellItem: (itemId: string, quantity: number) => void;
+  buyItem: (itemId: string, quantity: number) => void;
   updateBankOrder: (newBank: ItemReward[]) => void;
+  
+  // Bank tab methods
+  createBankTab: (name: string, initialItem?: ItemReward) => void;
+  deleteBankTab: (tabId: string) => void;
+  setBankTab: (tabId: string) => void;
+  moveBankItem: (fromTabId: string, fromIndex: number, toTabId: string, toIndex: number) => void;
   equipItem: (item: Item) => void;
   unequipItem: (slot: string) => void;
   canPerformAction: (action: SkillAction | CombatAction | CombatSelectionAction) => boolean;

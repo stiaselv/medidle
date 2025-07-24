@@ -3,6 +3,7 @@ import {
   Text,
   VStack,
   Grid,
+  SimpleGrid,
   Flex,
   Button,
   Image,
@@ -24,11 +25,12 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
-import type { StoreAction, StoreItem, SkillName } from '../../types/game';
+import type { StoreAction, StoreItem, SkillName, ItemReward } from '../../types/game';
 import { getItemById, meetsLevelRequirement } from '../../data/items';
 import { useState } from 'react';
 import { SearchIcon } from '@chakra-ui/icons';
 import generalStoreBg from '../../assets/BG/general_store.webp';
+import { ItemIcon } from '../ui/ItemIcon';
 
 interface ItemCardProps {
   id: string;
@@ -91,22 +93,19 @@ const ItemCard = ({
       }}
     >
       <VStack spacing={1}>
-        <Box position="relative" width="40px" height="40px">
-          <Image
-            src={icon}
-            alt={name}
-            width="100%"
-            height="100%"
-            objectFit="contain"
-            style={{
-              filter: !canAfford ? 'brightness(0.8)' : undefined
-            }}
+        <Box position="relative">
+          <ItemIcon
+            item={{ id, name, quantity } as ItemReward}
+            size={40}
+            showQuantity={!isStore}
+            quantity={isStore ? undefined : quantity}
+            disableHover={true}
           />
           {levelRequired && isStore && (
             <Badge
               position="absolute"
-              top={-2}
-              right={-2}
+              top={-6}
+              right={-6}
               colorScheme={meetsLevel ? "green" : "red"}
               fontSize="xs"
               borderRadius="full"
@@ -119,11 +118,93 @@ const ItemCard = ({
           {name}
         </Text>
         <Text fontSize="xs" color={canAfford ? "gray.500" : "red.400"}>
-          {isStore ? `${price} coins` : `Qty: ${quantity}`}
+          {isStore ? `${price} coins` : `x${quantity}`}
         </Text>
       </VStack>
     </Box>
   );
+};
+
+interface BankItemSlotProps {
+  item?: ItemReward;
+  onClick?: () => void;
+  isSelected?: boolean;
+}
+
+const BankItemSlot: React.FC<BankItemSlotProps> = ({ item, onClick, isSelected }) => {
+  const borderColor = isSelected ? 'blue.500' : useColorModeValue('gray.200', 'gray.600');
+  const itemData = item ? getItemById(item.id) : null;
+
+  const getItemTooltip = () => {
+    if (!item || !itemData) return '';
+
+    const sections = [
+      // Item Name
+      itemData.name,
+      
+      // Quantity
+      `Quantity: ${item.quantity.toLocaleString()}`,
+
+      // Item Type and Category
+      `Type: ${itemData.type}`,
+      itemData.category ? `Category: ${itemData.category}` : null,
+
+      // Level requirement
+      itemData.level ? `Level Required: ${itemData.level}` : null,
+
+      // Equipment slot
+      itemData.slot ? `Equipment Slot: ${itemData.slot}` : null,
+
+      // Stats if they exist
+      itemData.stats && Object.entries(itemData.stats).length > 0 ? 
+        ['Stats:'].concat(
+          Object.entries(itemData.stats)
+            .map(([stat, value]) => `  ${stat.charAt(0).toUpperCase() + stat.slice(1)}: +${value}`)
+        ).join('\n') : 
+        null,
+
+      // Prices
+      itemData.buyPrice ? `Buy Price: ${itemData.buyPrice.toLocaleString()} coins` : null,
+      itemData.sellPrice ? `Sell Price: ${itemData.sellPrice.toLocaleString()} coins` : null,
+
+      // Healing amount for consumables
+      itemData.healing ? `Heals: ${itemData.healing} HP` : null,
+    ].filter(Boolean).join('\n');
+
+    return sections;
+  };
+
+  const itemSlot = (
+    <Box>
+      <ItemIcon
+        item={item || ''}
+        size={56}
+        onClick={onClick}
+        borderColor={borderColor}
+        showQuantity={true}
+      />
+    </Box>
+  );
+
+  if (item && itemData) {
+    return (
+      <Tooltip
+        label={getItemTooltip()}
+        placement="top"
+        hasArrow
+        bg="gray.800"
+        color="white"
+        p={3}
+        borderRadius="md"
+        whiteSpace="pre-line"
+        fontSize="sm"
+      >
+        {itemSlot}
+      </Tooltip>
+    );
+  }
+
+  return itemSlot;
 };
 
 export const GeneralStoreLocation = () => {
@@ -307,53 +388,25 @@ export const GeneralStoreLocation = () => {
               />
             </InputGroup>
             <Box overflowY="auto" flex={1}>
-              <Grid templateColumns="repeat(auto-fill, minmax(100px, 1fr))" gap={3}>
+              <SimpleGrid columns={8} spacingX={0.5} spacingY={2} maxH="450px" overflowY="auto">
                 {character.bank.filter(item => 
                   item.name.toLowerCase().includes(bankSearch.toLowerCase())
                 ).map((item) => {
                   const itemDetails = getItemById(item.id);
                   if (!itemDetails) return null;
-                  const storeItem = getStoreItemForBankItem(item.id);
                   return (
-                    <Tooltip 
-                      key={item.id} 
-                      label={getItemTooltip(storeItem || { 
-                        id: item.id, 
-                        name: item.name,
-                        buyPrice: itemDetails.buyPrice || 0,
-                        sellPrice: itemDetails.sellPrice || 0,
-                        levelRequired: itemDetails.level
-                      })}
-                      placement="right"
-                      hasArrow
-                      bg="gray.800"
-                      color="white"
-                      p={3}
-                      borderRadius="md"
-                      whiteSpace="pre-line"
-                    >
-                      <Box
-                        className={`relative cursor-pointer ${
-                          selectedBankItem === item.id ? 'border-2 border-blue-500' : ''
-                        }`}
-                        onClick={() => {
-                          setSelectedBankItem(selectedBankItem === item.id ? null : item.id);
-                          setSelectedStoreItem(null);
-                        }}
-                      >
-                        <ItemCard
-                          key={item.id}
-                          id={item.id}
-                          name={item.name}
-                          icon={itemDetails.icon}
-                          quantity={item.quantity}
-                          isSelected={selectedBankItem === item.id}
-                        />
-                      </Box>
-                    </Tooltip>
+                    <BankItemSlot
+                      key={item.id}
+                      item={item}
+                      onClick={() => {
+                        setSelectedBankItem(selectedBankItem === item.id ? null : item.id);
+                        setSelectedStoreItem(null);
+                      }}
+                      isSelected={selectedBankItem === item.id}
+                    />
                   );
                 })}
-              </Grid>
+              </SimpleGrid>
             </Box>
           </Box>
 

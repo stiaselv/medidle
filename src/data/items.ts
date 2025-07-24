@@ -35,7 +35,10 @@ export const ITEM_CATEGORIES = {
   CURRENCY: 'Currency',
   MISC: 'Misc',
   SMITHING: 'Smithing',
-  RUNES: 'Runes'
+  RUNES: 'Runes',
+  FARMING: 'Farming',
+  HERBLORE: 'Herblore',
+  JEWELRY: 'Jewelry'
 } as const;
 
 // Equipment slots
@@ -173,7 +176,8 @@ export const METAL_PRICE_MULTIPLIERS = {
   steel: 4,
   mithril: 8,
   adamant: 16,
-  rune: 32
+  rune: 32,
+  dragon: 64
 } as const;
 
 // Helper function to calculate item price based on metal type and bar count
@@ -1670,15 +1674,7 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 30,
     sellPrice: 8
   },
-  iron_dagger: {
-    id: 'iron_dagger',
-    name: 'Iron Dagger',
-    type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 50,
-    sellPrice: 12
-  },
+
   feathers: {
     id: 'feathers',
     name: 'Feathers',
@@ -2031,6 +2027,1065 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/items/placeholder.png',
     buyPrice: 12000,
     sellPrice: 4800
+  },
+
+
+  // === JEWELRY - AMULETS ===
+  silver_sapphire_amulet: {
+    id: 'silver_sapphire_amulet',
+    name: 'Silver Sapphire Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/silver_sapphire_amulet.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 2 },
+    buyPrice: 150,
+    sellPrice: 60
+  },
+  gold_sapphire_amulet: {
+    id: 'gold_sapphire_amulet',
+    name: 'Gold Sapphire Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/gold_sapphire_amulet.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 4 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  silver_emerald_amulet: {
+    id: 'silver_emerald_amulet',
+    name: 'Silver Emerald Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/silver_emerald_amulet.png',
+    level: 10,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 5 },
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  gold_emerald_amulet: {
+    id: 'gold_emerald_amulet',
+    name: 'Gold Emerald Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/gold_emerald_amulet.png',
+    level: 15,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 8 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+  silver_ruby_amulet: {
+    id: 'silver_ruby_amulet',
+    name: 'Silver Ruby Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/silver_ruby_amulet.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 10 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  gold_ruby_amulet: {
+    id: 'gold_ruby_amulet',
+    name: 'Gold Ruby Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/gold_ruby_amulet.png',
+    level: 25,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 15 },
+    buyPrice: 2000,
+    sellPrice: 800
+  },
+  silver_diamond_amulet: {
+    id: 'silver_diamond_amulet',
+    name: 'Silver Diamond Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/silver_diamond_amulet.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 18 },
+    buyPrice: 3000,
+    sellPrice: 1200
+  },
+  gold_diamond_amulet: {
+    id: 'gold_diamond_amulet',
+    name: 'Gold Diamond Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/gold_diamond_amulet.png',
+    level: 35,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 25 },
+    buyPrice: 5000,
+    sellPrice: 2000
+  },
+  silver_dragonstone_amulet: {
+    id: 'silver_dragonstone_amulet',
+    name: 'Silver Dragonstone Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/silver_dragonstone_amulet.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 30 },
+    buyPrice: 8000,
+    sellPrice: 3200
+  },
+  gold_dragonstone_amulet: {
+    id: 'gold_dragonstone_amulet',
+    name: 'Gold Dragonstone Amulet',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Neck/gold dragonstone_amulet.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.NECK,
+    stats: { magic: 40 },
+    buyPrice: 15000,
+    sellPrice: 6000
+  },
+
+  // === JEWELRY - RINGS ===
+  silver_sapphire_ring: {
+    id: 'silver_sapphire_ring',
+    name: 'Silver Sapphire Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/silver_sapphire_ring.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 1 },
+    buyPrice: 100,
+    sellPrice: 40
+  },
+  gold_sapphire_ring: {
+    id: 'gold_sapphire_ring',
+    name: 'Gold Sapphire Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/gold_sapphire_ring.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 2 },
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  silver_emerald_ring: {
+    id: 'silver_emerald_ring',
+    name: 'Silver Emerald Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/silver_emerald_ring.png',
+    level: 10,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 3 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  gold_emerald_ring: {
+    id: 'gold_emerald_ring',
+    name: 'Gold Emerald Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/gold_emerald_ring.png',
+    level: 15,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 5 },
+    buyPrice: 500,
+    sellPrice: 200
+  },
+  silver_ruby_ring: {
+    id: 'silver_ruby_ring',
+    name: 'Silver Ruby Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/silver_ruby_ring.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 7 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+  gold_ruby_ring: {
+    id: 'gold_ruby_ring',
+    name: 'Gold Ruby Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/gold_ruby_ring.png',
+    level: 25,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 10 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  silver_diamond_ring: {
+    id: 'silver_diamond_ring',
+    name: 'Silver Diamond Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/silver_diamond_ring.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 12 },
+    buyPrice: 2000,
+    sellPrice: 800
+  },
+  gold_diamond_ring: {
+    id: 'gold_diamond_ring',
+    name: 'Gold Diamond Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/gold_diamond_ring.png',
+    level: 35,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 18 },
+    buyPrice: 3500,
+    sellPrice: 1400
+  },
+  silver_dragonstone_ring: {
+    id: 'silver_dragonstone_ring',
+    name: 'Silver Dragonstone Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/silver_dragonstone_ring.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 20 },
+    buyPrice: 5000,
+    sellPrice: 2000
+  },
+  gold_dragonstone_ring: {
+    id: 'gold_dragonstone_ring',
+    name: 'Gold Dragonstone Ring',
+    type: 'armor',
+    category: ITEM_CATEGORIES.JEWELRY,
+    icon: '/assets/ItemThumbnail/Gear/Ring/gold_dragonstone_ring.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.RING,
+    stats: { magic: 30 },
+    buyPrice: 10000,
+    sellPrice: 4000
+  },
+
+  // === FARMING - SEEDS ===
+  potato_seeds: {
+    id: 'potato_seeds',
+    name: 'Potato Seeds',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/potato_seeds.png',
+    buyPrice: 5,
+    sellPrice: 2
+  },
+  marrentill_seed: {
+    id: 'marrentill_seed',
+    name: 'Marrentill Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/marrentill_seed.png',
+    buyPrice: 25,
+    sellPrice: 10
+  },
+
+  // === HERBLORE - HERBS ===
+  ranarr: {
+    id: 'ranarr',
+    name: 'Ranarr Weed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/ranarr.png',
+    buyPrice: 150,
+    sellPrice: 60
+  },
+  snapdragon: {
+    id: 'snapdragon',
+    name: 'Snapdragon',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/snapdragon.png',
+    buyPrice: 300,
+    sellPrice: 120
+  },
+
+  // === WEAPONS - DAGGERS ===
+  bronze_dagger: {
+    id: 'bronze_dagger',
+    name: 'Bronze Dagger',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/bronze_dagger.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 1, strength: 1 },
+    buyPrice: 100,
+    sellPrice: 40
+  },
+  iron_dagger: {
+    id: 'iron_dagger',
+    name: 'Iron Dagger',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/iron_dagger.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 2, strength: 1 },
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  steel_dagger: {
+    id: 'steel_dagger',
+    name: 'Steel Dagger',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/steel_dagger.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 4, strength: 2 },
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  mithril_dagger: {
+    id: 'mithril_dagger',
+    name: 'Mithril Dagger',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/mithril_dagger.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 8, strength: 4 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+  adamant_dagger: {
+    id: 'adamant_dagger',
+    name: 'Adamant Dagger',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/adamant_dagger.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 16, strength: 8 },
+    buyPrice: 1600,
+    sellPrice: 640
+  },
+  rune_dagger: {
+    id: 'rune_dagger',
+    name: 'Rune Dagger',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/rune_dagger.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 32, strength: 16 },
+    buyPrice: 3200,
+    sellPrice: 1280
+  },
+  dragon_dagger: {
+    id: 'dragon_dagger',
+    name: 'Dragon Dagger',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/dragon_dagger.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 64, strength: 32 },
+    buyPrice: 6400,
+    sellPrice: 2560
+  },
+
+  // === ARMOR - MEDIUM HELMS ===
+  bronze_medium_helm: {
+    id: 'bronze_medium_helm',
+    name: 'Bronze Medium Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/bronze_med_helm.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 2 },
+    buyPrice: 150,
+    sellPrice: 60
+  },
+  iron_medium_helm: {
+    id: 'iron_medium_helm',
+    name: 'Iron Medium Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/iron_med_helm.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 4 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  steel_medium_helm: {
+    id: 'steel_medium_helm',
+    name: 'Steel Medium Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/steel_med_helm.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 6 },
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  mithril_medium_helm: {
+    id: 'mithril_medium_helm',
+    name: 'Mithril Medium Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/mithril_med_helm.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 8 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  adamant_medium_helm: {
+    id: 'adamant_medium_helm',
+    name: 'Adamant Medium Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/adamant_med_helm.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 10 },
+    buyPrice: 2400,
+    sellPrice: 960
+  },
+  rune_medium_helm: {
+    id: 'rune_medium_helm',
+    name: 'Rune Medium Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/rune_med_helm.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 12 },
+    buyPrice: 4800,
+    sellPrice: 1920
+  },
+  dragon_medium_helm: {
+    id: 'dragon_medium_helm',
+    name: 'Dragon Medium Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/dragon_med_helm.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 16 },
+    buyPrice: 9600,
+    sellPrice: 3840
+  },
+
+  // === WEAPONS - SPEARS ===
+  bronze_spear: {
+    id: 'bronze_spear',
+    name: 'Bronze Spear',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/bronze_spear.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 2, strength: 2 },
+    buyPrice: 150,
+    sellPrice: 60
+  },
+  iron_spear: {
+    id: 'iron_spear',
+    name: 'Iron Spear',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/iron_spear.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 4, strength: 2 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  steel_spear: {
+    id: 'steel_spear',
+    name: 'Steel Spear',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/steel_spear.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 6, strength: 4 },
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  mithril_spear: {
+    id: 'mithril_spear',
+    name: 'Mithril Spear',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/mithril_spear.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 12, strength: 8 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  adamant_spear: {
+    id: 'adamant_spear',
+    name: 'Adamant Spear',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/adamant_spear.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 24, strength: 16 },
+    buyPrice: 2400,
+    sellPrice: 960
+  },
+  rune_spear: {
+    id: 'rune_spear',
+    name: 'Rune Spear',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/rune_spear.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 48, strength: 32 },
+    buyPrice: 4800,
+    sellPrice: 1920
+  },
+  dragon_spear: {
+    id: 'dragon_spear',
+    name: 'Dragon Spear',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/dragon_spear.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 96, strength: 64 },
+    buyPrice: 9600,
+    sellPrice: 3840
+  },
+
+  // === ARMOR - FULL HELMS ===
+  bronze_full_helm: {
+    id: 'bronze_full_helm',
+    name: 'Bronze Full Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/bronze_full_helm.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 4 },
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  iron_full_helm: {
+    id: 'iron_full_helm',
+    name: 'Iron Full Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/iron_full_helm.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 8 },
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  steel_full_helm: {
+    id: 'steel_full_helm',
+    name: 'Steel Full Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/steel_full_helm.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 12 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+  mithril_full_helm: {
+    id: 'mithril_full_helm',
+    name: 'Mithril Full Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/mithril_full_helm.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 16 },
+    buyPrice: 1600,
+    sellPrice: 640
+  },
+  adamant_full_helm: {
+    id: 'adamant_full_helm',
+    name: 'Adamant Full Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/adamant_full_helm.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 20 },
+    buyPrice: 3200,
+    sellPrice: 1280
+  },
+  rune_full_helm: {
+    id: 'rune_full_helm',
+    name: 'Rune Full Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/rune_full_helm.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 24 },
+    buyPrice: 6400,
+    sellPrice: 2560
+  },
+  dragon_full_helm: {
+    id: 'dragon_full_helm',
+    name: 'Dragon Full Helm',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/dragon_full_helm.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 32 },
+    buyPrice: 12800,
+    sellPrice: 5120
+  },
+
+  // === ARMOR - SQUARE SHIELDS ===
+  bronze_square_shield: {
+    id: 'bronze_square_shield',
+    name: 'Bronze Square Shield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Square_shield/bronze_square_shield.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 3 },
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  iron_square_shield: {
+    id: 'iron_square_shield',
+    name: 'Iron Square Shield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Square_shield/iron_square_shield.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 6 },
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  steel_square_shield: {
+    id: 'steel_square_shield',
+    name: 'Steel Square Shield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Square_shield/steel_square_shield.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 9 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+  mithril_square_shield: {
+    id: 'mithril_square_shield',
+    name: 'Mithril Square Shield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Square_shield/mithril_square_shield.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 12 },
+    buyPrice: 1600,
+    sellPrice: 640
+  },
+  adamant_square_shield: {
+    id: 'adamant_square_shield',
+    name: 'Adamant Square Shield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Square_shield/adamant_square_shield.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 15 },
+    buyPrice: 3200,
+    sellPrice: 1280
+  },
+  rune_square_shield: {
+    id: 'rune_square_shield',
+    name: 'Rune Square Shield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Square_shield/rune_square_shield.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 18 },
+    buyPrice: 6400,
+    sellPrice: 2560
+  },
+  dragon_square_shield: {
+    id: 'dragon_square_shield',
+    name: 'Dragon Square Shield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Square_shield/dragon_square_shield.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 24 },
+    buyPrice: 12800,
+    sellPrice: 5120
+  },
+
+  // === ARMOR - KITESHIELDS ===
+  bronze_kiteshield: {
+    id: 'bronze_kiteshield',
+    name: 'Bronze Kiteshield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/bronze_kiteshield.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 5 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  iron_kiteshield: {
+    id: 'iron_kiteshield',
+    name: 'Iron Kiteshield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/iron_kiteshield.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 10 },
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  steel_kiteshield: {
+    id: 'steel_kiteshield',
+    name: 'Steel Kiteshield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/steel_kiteshield.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 15 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  mithril_kiteshield: {
+    id: 'mithril_kiteshield',
+    name: 'Mithril Kiteshield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/mithril_kiteshield.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 20 },
+    buyPrice: 2400,
+    sellPrice: 960
+  },
+  adamant_kiteshield: {
+    id: 'adamant_kiteshield',
+    name: 'Adamant Kiteshield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/adamant_kiteshield.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 25 },
+    buyPrice: 4800,
+    sellPrice: 1920
+  },
+  rune_kiteshield: {
+    id: 'rune_kiteshield',
+    name: 'Rune Kiteshield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/rune_kiteshield.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 30 },
+    buyPrice: 9600,
+    sellPrice: 3840
+  },
+  dragon_kiteshield: {
+    id: 'dragon_kiteshield',
+    name: 'Dragon Kiteshield',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/dragon_kiteshield.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 40 },
+    buyPrice: 19200,
+    sellPrice: 7680
+  },
+
+  // === WEAPONS - TWO-HANDED SWORDS ===
+  bronze_two_handed_sword: {
+    id: 'bronze_two_handed_sword',
+    name: 'Bronze Two-handed Sword',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/bronze_two_handed_sword.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 6, strength: 6 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  iron_two_handed_sword: {
+    id: 'iron_two_handed_sword',
+    name: 'Iron Two-handed Sword',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/iron_two_handed_sword.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 12, strength: 6 },
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  steel_two_handed_sword: {
+    id: 'steel_two_handed_sword',
+    name: 'Steel Two-handed Sword',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/steel_two_handed_sword.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 18, strength: 12 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  mithril_two_handed_sword: {
+    id: 'mithril_two_handed_sword',
+    name: 'Mithril Two-handed Sword',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/mithril_two_handed_sword.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 36, strength: 24 },
+    buyPrice: 2400,
+    sellPrice: 960
+  },
+  adamant_two_handed_sword: {
+    id: 'adamant_two_handed_sword',
+    name: 'Adamant Two-handed Sword',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/adamant_two_handed_sword.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 72, strength: 48 },
+    buyPrice: 4800,
+    sellPrice: 1920
+  },
+  rune_two_handed_sword: {
+    id: 'rune_two_handed_sword',
+    name: 'Rune Two-handed Sword',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/rune_two_handed_sword.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 144, strength: 96 },
+    buyPrice: 9600,
+    sellPrice: 3840
+  },
+  dragon_two_handed_sword: {
+    id: 'dragon_two_handed_sword',
+    name: 'Dragon Two-handed Sword',
+    type: 'weapon',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/dragon_two_handed_sword.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 288, strength: 192 },
+    buyPrice: 19200,
+    sellPrice: 7680
+  },
+
+  // === ARMOR - PLATELEGS ===
+  bronze_platelegs: {
+    id: 'bronze_platelegs',
+    name: 'Bronze Platelegs',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/bronze_platelegs.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 4 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  iron_platelegs: {
+    id: 'iron_platelegs',
+    name: 'Iron Platelegs',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/iron_platelegs.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 8 },
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  steel_platelegs: {
+    id: 'steel_platelegs',
+    name: 'Steel Platelegs',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/steel_platelegs.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 12 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  mithril_platelegs: {
+    id: 'mithril_platelegs',
+    name: 'Mithril Platelegs',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/mithril_platelegs.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 16 },
+    buyPrice: 2400,
+    sellPrice: 960
+  },
+  adamant_platelegs: {
+    id: 'adamant_platelegs',
+    name: 'Adamant Platelegs',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/adamant_platelegs.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 20 },
+    buyPrice: 4800,
+    sellPrice: 1920
+  },
+  rune_platelegs: {
+    id: 'rune_platelegs',
+    name: 'Rune Platelegs',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/rune_platelegs.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 24 },
+    buyPrice: 9600,
+    sellPrice: 3840
+  },
+  dragon_platelegs: {
+    id: 'dragon_platelegs',
+    name: 'Dragon Platelegs',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/dragon_platelegs.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 32 },
+    buyPrice: 19200,
+    sellPrice: 7680
+  },
+
+  // === ARMOR - PLATEBODIES ===
+  bronze_platebody: {
+    id: 'bronze_platebody',
+    name: 'Bronze Platebody',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/bronze_platebody.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 8 },
+    buyPrice: 500,
+    sellPrice: 200
+  },
+  iron_platebody: {
+    id: 'iron_platebody',
+    name: 'Iron Platebody',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/iron_platebody.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 16 },
+    buyPrice: 1000,
+    sellPrice: 400
+  },
+  steel_platebody: {
+    id: 'steel_platebody',
+    name: 'Steel Platebody',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/steel_platebody.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 24 },
+    buyPrice: 2000,
+    sellPrice: 800
+  },
+  mithril_platebody: {
+    id: 'mithril_platebody',
+    name: 'Mithril Platebody',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/mithril_platebody.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 32 },
+    buyPrice: 4000,
+    sellPrice: 1600
+  },
+  adamant_platebody: {
+    id: 'adamant_platebody',
+    name: 'Adamant Platebody',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/adamant_platebody.png',
+    level: 30,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 40 },
+    buyPrice: 8000,
+    sellPrice: 3200
+  },
+  rune_platebody: {
+    id: 'rune_platebody',
+    name: 'Rune Platebody',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/rune_platebody.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 48 },
+    buyPrice: 16000,
+    sellPrice: 6400
+  },
+  dragon_platebody: {
+    id: 'dragon_platebody',
+    name: 'Dragon Platebody',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/dragon_platebody.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 64 },
+    buyPrice: 32000,
+    sellPrice: 12800
   },
 };
 

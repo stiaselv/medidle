@@ -24,6 +24,8 @@ import { useGameStore, calculateLevel, getNextLevelExperience } from '../../stor
 import type { SkillAction } from '../../types/game';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ProgressBar } from './ProgressBar';
+import { ItemIcon } from '../ui/ItemIcon';
+import { getItemById } from '../../data/items';
 import forgeBg from '../../assets/BG/forge.webp';
 
 const bounce = keyframes`
@@ -99,15 +101,31 @@ const ActionButton = ({
       }}
     >
       <VStack spacing={2} align="center" width="100%">
-        <Icon
-          as={GiHammerNails}
-          boxSize={8} 
-          color={!allRequirementsMet ? "red.300" : isActive ? "blue.300" : "green.300"}
-          sx={{
-            animation: isActive && !shouldReduceMotion ? `${bounce} 1s infinite` : 'none',
-            filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none',
-          }}
-        />
+        {action.itemReward && action.itemReward.id ? (
+          <Box
+            sx={{
+              animation: isActive && !shouldReduceMotion ? `${bounce} 1s infinite` : 'none',
+              filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none',
+            }}
+          >
+            <ItemIcon
+              item={action.itemReward}
+              size={48}
+              showQuantity={false}
+              disableHover={true}
+            />
+          </Box>
+        ) : (
+          <Icon
+            as={GiHammerNails}
+            boxSize={8} 
+            color={!allRequirementsMet ? "red.300" : isActive ? "blue.300" : "green.300"}
+            sx={{
+              animation: isActive && !shouldReduceMotion ? `${bounce} 1s infinite` : 'none',
+              filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none',
+            }}
+          />
+        )}
         
         <Heading
           size="sm" 

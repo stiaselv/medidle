@@ -1,434 +1,669 @@
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Box,
-  Button,
-  Flex,
-  Grid,
-  Image,
-  Input,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Text,
-  Tooltip,
-  useColorModeValue,
   VStack,
-  Badge,
-  VisuallyHidden,
-  keyframes,
   HStack,
+  Flex,
+  useColorModeValue,
+  Tooltip,
+  Button,
+  useToast,
+  SimpleGrid,
+  Divider,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  Input,
+  InputGroup,
+  InputLeftElement,
 } from '@chakra-ui/react';
-import { useState, useCallback } from 'react';
-import { useGameStore } from '../../store/gameStore';
-import type { ItemReward, CombatStats, SkillName } from '../../types/game';
-import { ITEM_CATEGORIES } from '../../data/items';
-import { getItemById, isEquippable, getEquipmentSlot, meetsLevelRequirement, getEquipmentLevelRequirement } from '../../data/items';
-import type { KeyboardEvent } from 'react';
-import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { shallow } from 'zustand/shallow';
+import { FaPlus, FaArrowUp, FaHeart, FaShieldAlt, FaSearch } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useGameStore } from '../../store/gameStore';
+import type { ItemReward, BankTab } from '../../types/game';
+import { getItemById, isEquippable } from '../../data/items';
+import { ItemIcon } from '../ui/ItemIcon';
 
 const MotionBox = motion(Box);
-const MotionGrid = motion(Grid);
 
-const equipAnimation = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(0.9); }
-  100% { transform: scale(0); }
-`;
-
-// Convert ITEM_CATEGORIES object values to array for tabs
-const TAB_CATEGORIES = ['All', ...Object.values(ITEM_CATEGORIES)];
-
-interface BankItemProps {
-  item: ItemReward;
-  isEquipped: boolean;
-  onClick?: () => void;
+interface ItemSlotProps {
+  item?: ItemReward;
   index: number;
-  moveItem: (dragIndex: number, hoverIndex: number) => void;
+  tabId: string;
+  moveItem: (fromTabId: string, fromIndex: number, toTabId: string, toIndex: number) => void;
+  onClick?: () => void;
 }
 
-const BankItem = ({ item, isEquipped, onClick, index, moveItem }: BankItemProps) => {
-  const { character } = useGameStore();
-  const bgColor = useColorModeValue('gray.100', 'gray.700');
-  const hoverBgColor = useColorModeValue('gray.200', 'gray.600');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const shouldReduceMotion = useReducedMotion();
-
+const ItemSlot: React.FC<ItemSlotProps> = ({ item, index, tabId, moveItem, onClick }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'BANK_ITEM',
-    item: { index },
+    item: item ? { item, tabId, index } : null,
+    canDrag: !!item,
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
-  const [, drop] = useDrop<{ index: number }, void, {}>({
+  const [{ isOver }, drop] = useDrop({
     accept: 'BANK_ITEM',
-    hover(item: { index: number }) {
-      if (item.index === index) {
-        return;
+    drop: (draggedItem: { item: ItemReward; tabId: string; index: number }) => {
+      if (draggedItem.tabId !== tabId || draggedItem.index !== index) {
+        moveItem(draggedItem.tabId, draggedItem.index, tabId, index);
       }
-      moveItem(item.index, index);
-      item.index = index;
     },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
   });
 
-  // Get full item data
+  const borderColor = isOver ? 'blue.500' : useColorModeValue('gray.200', 'gray.600');
+  const itemData = item ? getItemById(item.id) : null;
+
+  const getItemTooltip = () => {
+    if (!item || !itemData) return '';
+
+    const sections = [
+      // Item Name
+      itemData.name,
+      
+      // Quantity
+      `Quantity: ${item.quantity.toLocaleString()}`,
+
+      // Item Type and Category
+      `Type: ${itemData.type}`,
+      itemData.category ? `Category: ${itemData.category}` : null,
+
+      // Level requirement
+      itemData.level ? `Level Required: ${itemData.level}` : null,
+
+      // Equipment slot
+      itemData.slot ? `Equipment Slot: ${itemData.slot}` : null,
+
+      // Stats if they exist
+      itemData.stats && Object.entries(itemData.stats).length > 0 ? 
+        ['Stats:'].concat(
+          Object.entries(itemData.stats)
+            .map(([stat, value]) => `  ${stat.charAt(0).toUpperCase() + stat.slice(1)}: +${value}`)
+        ).join('\n') : 
+        null,
+
+      // Prices
+      itemData.buyPrice ? `Buy Price: ${itemData.buyPrice.toLocaleString()} coins` : null,
+      itemData.sellPrice ? `Sell Price: ${itemData.sellPrice.toLocaleString()} coins` : null,
+
+      // Healing amount for consumables
+      itemData.healing ? `Heals: ${itemData.healing} HP` : null,
+    ].filter(Boolean).join('\n');
+
+    return sections;
+  };
+
+  const itemSlot = (
+    <Box
+      ref={(node) => drag(drop(node))}
+      opacity={isDragging ? 0.5 : 1}
+    >
+      <ItemIcon
+        item={item || ''}
+        size={48}
+        onClick={onClick}
+        borderColor={borderColor}
+        showQuantity={true}
+      />
+    </Box>
+  );
+
+  if (item && itemData) {
+    return (
+      <Tooltip
+        label={getItemTooltip()}
+        placement="top"
+        hasArrow
+        bg="gray.800"
+        color="white"
+        p={3}
+        borderRadius="md"
+        whiteSpace="pre-line"
+        fontSize="sm"
+      >
+        {itemSlot}
+      </Tooltip>
+    );
+  }
+
+  return itemSlot;
+};
+
+const ItemDetailsPanel: React.FC<{
+  item: ItemReward | null;
+  onClose: () => void;
+  onSell: (id: string, quantity: number) => void;
+  onEat?: (id: string) => void;
+  onEquip?: (id: string) => void;
+}> = ({ item, onClose, onSell, onEat, onEquip }) => {
+  const [sellQuantity, setSellQuantity] = useState(1);
+  const toast = useToast();
+
+  if (!item) return null;
+
   const itemData = getItemById(item.id);
   if (!itemData) return null;
 
-  // Check if item can be equipped
+  const maxQuantity = item.quantity;
+  const isFood = itemData.healing && itemData.healing > 0;
   const canEquip = isEquippable(itemData);
-  let meetsLevel = true;
-  let equipReq: { skill: SkillName, level: number } | null = null;
-  if (canEquip && character) {
-    equipReq = getEquipmentLevelRequirement(itemData);
-    if (equipReq) {
-      const charLevel = character.skills?.[equipReq.skill as SkillName]?.level ?? 0;
-      meetsLevel = charLevel >= equipReq.level;
-    }
-  }
+  const canUpgrade = false; // TODO: Implement upgrade logic
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && !isEquipped && canEquip && meetsLevel) {
-      e.preventDefault();
-      onClick?.();
+  const handleSell = () => {
+    if (sellQuantity > 0 && sellQuantity <= maxQuantity) {
+      onSell(item.id, sellQuantity);
+      toast({
+        title: 'Item Sold',
+        description: `Sold ${sellQuantity}x ${itemData.name}`,
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+      onClose();
     }
   };
 
-  const ariaLabel = `${item.name}, quantity: ${item.quantity}${
-    itemData.level ? `, requires level ${itemData.level}` : ''
-  }${isEquipped ? ', currently equipped' : ''}${
-    canEquip && !isEquipped && meetsLevel ? ', click to equip' : ''
-  }. Drag to reorder.`;
+  const handleEat = () => {
+    if (onEat && isFood) {
+      onEat(item.id);
+      toast({
+        title: 'Food Consumed',
+        description: `Ate ${itemData.name} (+${itemData.healing} HP)`,
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleEquip = () => {
+    if (onEquip && canEquip) {
+      onEquip(item.id);
+      toast({
+        title: 'Item Equipped',
+        description: `Equipped ${itemData.name}`,
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+      onClose();
+    }
+  };
 
   return (
-    <Tooltip
-      label={
-        <VStack spacing={2} align="start" minW="200px">
-          <Text fontWeight="bold" fontSize="lg">{item.name}</Text>
-          
-          <HStack spacing={2}>
-            <Text fontWeight="semibold">Quantity:</Text>
-            <Text>{item.quantity.toLocaleString()}</Text>
-          </HStack>
-
-          {equipReq && (
-            <HStack spacing={2} color={meetsLevel ? 'green.200' : 'red.200'}>
-              <Text fontWeight="semibold">Required:</Text>
-              <Text>{equipReq.skill.charAt(0).toUpperCase() + equipReq.skill.slice(1)} lvl {equipReq.level}</Text>
-              <Text>({meetsLevel ? 'Met' : 'Not met'})</Text>
-            </HStack>
-          )}
-
-          {itemData?.stats && Object.entries(itemData.stats).length > 0 && (
-            <Box w="100%">
-              <Text fontWeight="semibold" mb={1} color="blue.200">Item Stats</Text>
-              {/* Grouped stats */}
-              {/* Attack Stats */}
-              {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].some(stat => stat in itemData.stats!) && (
-                <Box mb={1}>
-                  <Text fontSize="xs" color="blue.100" fontWeight="bold">Attack</Text>
-                  <Grid templateColumns="repeat(2, 1fr)" gap={2}>
-                    {['attackStab','attackSlash','attackCrush','attackMagic','attackRanged'].map(stat =>
-                      stat in itemData.stats! ? (
-                        <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
-                          <Text fontSize="sm">{stat.replace('attack','Atk ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
-                          <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
-                        </HStack>
-                      ) : null
-                    )}
-                  </Grid>
-                </Box>
-              )}
-              {/* Defence Stats */}
-              {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].some(stat => stat in itemData.stats!) && (
-                <Box mb={1}>
-                  <Text fontSize="xs" color="blue.100" fontWeight="bold">Defence</Text>
-                  <Grid templateColumns="repeat(2, 1fr)" gap={2}>
-                    {['defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].map(stat =>
-                      stat in itemData.stats! ? (
-                        <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
-                          <Text fontSize="sm">{stat.replace('defence','Def ').replace('Stab','Stb').replace('Slash','Slh').replace('Crush','Crh').replace('Magic','Mag').replace('Ranged','Rng')}</Text>
-                          <Text fontSize="sm" color="green.200">+{itemData.stats![stat as keyof typeof itemData.stats]}</Text>
-                        </HStack>
-                      ) : null
-                    )}
-                  </Grid>
-                </Box>
-              )}
-              {/* Other Stats */}
-              {Object.keys(itemData.stats).some(stat => !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat)) && (
-                <Box>
-                  <Text fontSize="xs" color="blue.100" fontWeight="bold">Other</Text>
-                  <Grid templateColumns="repeat(2, 1fr)" gap={2}>
-                    {Object.entries(itemData.stats).map(([stat, value]) =>
-                      !['attackStab','attackSlash','attackCrush','attackMagic','attackRanged','defenceStab','defenceSlash','defenceCrush','defenceMagic','defenceRanged'].includes(stat) ? (
-                        <HStack key={stat} bg="whiteAlpha.100" p={1} borderRadius="md" justify="space-between">
-                          <Text fontSize="sm">{stat.charAt(0).toUpperCase() + stat.slice(1)}</Text>
-                          <Text fontSize="sm" color="green.200">+{value}</Text>
-                        </HStack>
-                      ) : null
-                    )}
-                  </Grid>
-                </Box>
-              )}
-            </Box>
-          )}
-
-          {itemData.slot && (
-            <HStack spacing={2} color="purple.200">
-              <Text fontWeight="semibold">Slot:</Text>
-              <Text>{itemData.slot}</Text>
-            </HStack>
-          )}
-
-          {canEquip && !isEquipped && (
-            <Text 
-              color={meetsLevel ? 'green.200' : 'red.200'} 
-              fontSize="sm" 
-              fontStyle="italic"
-            >
-              {meetsLevel ? 'Click to equip' : 'Level too low to equip'}
-            </Text>
-          )}
-          
-          {isEquipped && (
-            <Text color="blue.200" fontSize="sm" fontStyle="italic">
-              Currently equipped
-            </Text>
-          )}
-        </VStack>
-      }
-      hasArrow
-      placement="top"
-      bg="gray.800"
-      color="white"
+    <Box
+      position="fixed"
+      right={4}
+      top="50%"
+      transform="translateY(-50%)"
+      w="300px"
+      bg="rgba(24,24,24,0.95)"
+      backdropFilter="blur(12px)"
+      borderRadius="xl"
+      p={6}
+      boxShadow="2xl"
+      borderWidth={1}
+      borderColor="rgba(255,255,255,0.1)"
+      zIndex={1000}
     >
-      <MotionBox
-        as="button"
-        role="button"
-        tabIndex={0}
-        onClick={() => {
-          onClick?.();
-        }}
-        onKeyDown={handleKeyDown}
-        ref={drag}
-        bg={useColorModeValue('white', 'gray.800')}
-        border="2px solid"
-        borderColor={isEquipped ? 'blue.400' : useColorModeValue('gray.200', 'gray.600')}
-        borderRadius="md"
-        p={2}
-        cursor="pointer"
-        position="relative"
-        _hover={{
-          borderColor: isEquipped ? 'blue.500' : 'blue.400',
-          transform: 'translateY(-2px)',
-          shadow: 'md'
-        }}
-        _active={{ transform: 'translateY(0)' }}
-        _focus={{
-          outline: 'none',
-          ring: 2,
-          ringColor: 'blue.500'
-        }}
-        transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 25 }}
-        layout
-      >
-        {isEquipped && (
-          <Badge
-            position="absolute"
-            top={1}
-            right={1}
-            colorScheme="blue"
-            fontSize="xs"
-            borderRadius="full"
-            px={2}
-            aria-hidden="true"
-          >
-            Equipped
-          </Badge>
-        )}
-        <Flex direction="column" align="center" gap={1}>
-          <Image
-            src={itemData.icon}
-            alt={`${item.name} icon`}
-            boxSize="48px"
-            objectFit="contain"
-            fallbackSrc="/assets/items/placeholder.png"
-            aria-hidden="true"
-            style={{
-              animation: shouldReduceMotion ? 'none' : isEquipped ? `${equipAnimation} 0.3s ease-out` : undefined
-            }}
+      <VStack spacing={4} align="stretch">
+        {/* Item Icon */}
+        <Flex justify="center">
+          <ItemIcon
+            item={item}
+            size={64}
+            showQuantity={false}
+            disableHover={true}
           />
-          <Text fontSize="sm" fontWeight="medium" textAlign="center" noOfLines={2} aria-hidden="true">
-            {item.name}
-          </Text>
-          <Text fontSize="xs" color="gray.500" aria-hidden="true">
-            x{item.quantity.toLocaleString()}
-          </Text>
         </Flex>
-        <VisuallyHidden>
-          {`${item.name}, quantity: ${item.quantity.toLocaleString()}${
-            isEquipped ? ', currently equipped' : ''
-          }${canEquip && !isEquipped && meetsLevel ? '. Press Enter to equip' : ''}`}
-        </VisuallyHidden>
-      </MotionBox>
-    </Tooltip>
+
+        {/* Item Info */}
+        <VStack spacing={2} align="stretch">
+          <Text fontSize="lg" fontWeight="bold" textAlign="center" color="white">
+            {itemData.name}
+          </Text>
+          <Text fontSize="sm" color="gray.300" textAlign="center">
+            Quantity: {item.quantity.toLocaleString()}
+          </Text>
+        </VStack>
+
+        <Divider borderColor="rgba(255,255,255,0.2)" />
+
+        {/* Action Buttons */}
+        <VStack spacing={3} align="stretch">
+          {canUpgrade && (
+            <Button
+              leftIcon={<FaArrowUp />}
+              colorScheme="blue"
+              variant="solid"
+            >
+              Upgrade
+            </Button>
+          )}
+
+          {isFood && onEat && (
+            <Button
+              leftIcon={<FaHeart />}
+              colorScheme="green"
+              variant="solid"
+              onClick={handleEat}
+            >
+              Eat (+{itemData.healing} HP)
+            </Button>
+          )}
+
+          {canEquip && onEquip && (
+            <Button
+              leftIcon={<FaShieldAlt />}
+              colorScheme="purple"
+              variant="solid"
+              onClick={handleEquip}
+            >
+              Equip
+            </Button>
+          )}
+
+          {/* Sell Section */}
+          <VStack spacing={2} align="stretch">
+            <Text fontSize="sm" color="gray.300">
+              Sell for {itemData.sellPrice || 0} coins each
+            </Text>
+            
+            <Slider
+              value={sellQuantity}
+              onChange={setSellQuantity}
+              min={1}
+              max={maxQuantity}
+              step={1}
+            >
+              <SliderTrack bg="gray.600">
+                <SliderFilledTrack bg="yellow.400" />
+              </SliderTrack>
+              <SliderThumb bg="yellow.400" />
+            </Slider>
+
+            <HStack spacing={2}>
+              <NumberInput
+                value={sellQuantity}
+                onChange={(_, value) => setSellQuantity(isNaN(value) ? 1 : value)}
+                min={1}
+                max={maxQuantity}
+                size="sm"
+                flex={1}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <Text fontSize="sm" color="gray.300" minW="60px">
+                / {maxQuantity}
+              </Text>
+            </HStack>
+
+            <Button
+              colorScheme="yellow"
+              variant="solid"
+              onClick={handleSell}
+              isDisabled={sellQuantity <= 0 || sellQuantity > maxQuantity}
+            >
+              Sell {sellQuantity}x {itemData.name}
+            </Button>
+          </VStack>
+        </VStack>
+
+        {/* Close Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          color="gray.400"
+          _hover={{ color: 'white' }}
+        >
+          Close
+        </Button>
+      </VStack>
+    </Box>
+  );
+};
+
+interface BankTabButtonProps {
+  tab: BankTab;
+  isActive: boolean;
+  onSelect: () => void;
+  onDrop?: (draggedItem: { item: ItemReward; tabId: string; index: number }) => void;
+}
+
+const BankTabButton: React.FC<BankTabButtonProps> = ({ 
+  tab, 
+  isActive, 
+  onSelect, 
+  onDrop 
+}) => {
+  const [{ isOver }, drop] = useDrop({
+    accept: 'BANK_ITEM',
+    drop: (item: { item: ItemReward; tabId: string; index: number }) => {
+      if (onDrop) {
+        onDrop(item);
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  if (tab.id === 'new_tab') {
+    return (
+      <Box
+        ref={drop}
+        w="48px"
+        h="48px"
+        bg={isOver ? 'green.500' : useColorModeValue('gray.100', 'gray.600')}
+        border="2px dashed"
+        borderColor={isOver ? 'green.300' : useColorModeValue('gray.300', 'gray.500')}
+        borderRadius="md"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        cursor="pointer"
+        _hover={{
+          borderColor: 'green.400',
+          bg: useColorModeValue('gray.200', 'gray.500'),
+        }}
+        onClick={onSelect}
+      >
+        <FaPlus size={14} color={useColorModeValue('gray.600', 'gray.300')} />
+      </Box>
+    );
+  }
+
+  const firstItem = tab.items[0];
+
+  return (
+    <VStack spacing={1}>
+      <Box
+        ref={drop}
+        w="48px"
+        h="48px"
+        bg={isOver ? 'green.400' : isActive ? 'blue.500' : useColorModeValue('gray.100', 'gray.600')}
+        border="2px solid"
+        borderColor={isOver ? 'green.300' : isActive ? 'blue.400' : useColorModeValue('gray.200', 'gray.500')}
+        borderRadius="md"
+        position="relative"
+        cursor="pointer"
+        onClick={onSelect}
+        _hover={{
+          borderColor: isActive ? 'blue.300' : 'blue.400',
+        }}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        {firstItem ? (
+          <ItemIcon
+            item={firstItem}
+            size={36}
+            showQuantity={false}
+            disableHover={true}
+          />
+        ) : (
+          <Text fontSize="xs" color="gray.500" textAlign="center">
+            Empty
+          </Text>
+        )}
+      </Box>
+      <Text fontSize="xs" textAlign="center" maxW="48px" noOfLines={1}>
+        {tab.name}
+      </Text>
+    </VStack>
   );
 };
 
 export const BankPanel = () => {
-  const { character, equipItem, sellItem, updateBankOrder } = useGameStore(
-    (state) => ({
-      character: state.character,
-      equipItem: state.equipItem,
-      sellItem: state.sellItem,
-      updateBankOrder: state.updateBankOrder
-    }),
-    shallow
-  );
-  
+  const {
+    character,
+    bankTabs,
+    activeBankTab,
+    setBankTab,
+    moveBankItem,
+    createBankTab,
+    deleteBankTab,
+    sellItem,
+    equipItem
+  } = useGameStore();
+
+  const [selectedItem, setSelectedItem] = useState<ItemReward | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState(0);
+  const toast = useToast();
 
   if (!character) return null;
 
-  const handleItemClick = useCallback((item: ItemReward) => {
-    const fullItem = getItemById(item.id);
-    if (fullItem && isEquippable(fullItem)) {
-      equipItem(fullItem);
+  // Filter bank tabs and items based on search term
+  const filteredBankData = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return {
+        tabs: bankTabs,
+        activeTab: bankTabs.find(tab => tab.id === activeBankTab) || bankTabs[0]
+      };
     }
-  }, [equipItem]);
 
-  const isItemEquipped = useCallback((itemId: string) => {
-    if (!character) return false;
-    return Object.values(character.equipment).some(
-      (equippedItem) => equippedItem && equippedItem.id === itemId
-    );
-  }, [character.equipment]);
+    const searchLower = searchTerm.toLowerCase();
+    
+    // Filter items within each tab
+    const filteredTabs = bankTabs.map(tab => ({
+      ...tab,
+      items: tab.items.filter(item => {
+        const itemData = getItemById(item.id);
+        return itemData?.name.toLowerCase().includes(searchLower);
+      })
+    })).filter(tab => tab.items.length > 0); // Only show tabs with matching items
+
+    // Find the active tab from filtered tabs, or default to first filtered tab
+    const activeTab = filteredTabs.find(tab => tab.id === activeBankTab) || filteredTabs[0];
+
+    return {
+      tabs: filteredTabs,
+      activeTab
+    };
+  }, [bankTabs, activeBankTab, searchTerm]);
+
+  const { tabs: displayTabs, activeTab } = filteredBankData;
   
-  const moveItem = useCallback((dragIndex: number, hoverIndex: number) => {
-    const newBank = [...(character?.bank || [])];
-    const draggedItem = newBank[dragIndex];
-    newBank.splice(dragIndex, 1);
-    newBank.splice(hoverIndex, 0, draggedItem);
-    updateBankOrder(newBank);
-  }, [character?.bank, updateBankOrder]);
+  const totalSlots = 28;
+  const emptySlots = Array(Math.max(0, totalSlots - activeTab.items.length)).fill(null);
 
-  const filteredBank = (character.bank || [])
-    .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter(item => {
-      if (activeTab === 0) return true; // 'All' tab
-      const itemData = getItemById(item.id);
-      return itemData && itemData.category === TAB_CATEGORIES[activeTab];
-    });
+  const moveItem = useCallback((fromTabId: string, fromIndex: number, toTabId: string, toIndex: number) => {
+    moveBankItem(fromTabId, fromIndex, toTabId, toIndex);
+  }, [moveBankItem]);
+
+  const createNewTab = useCallback((draggedItem: { item: ItemReward; tabId: string; index: number }) => {
+    const newTabId = `tab_${Date.now()}`;
+    createBankTab(newTabId, `Tab ${bankTabs.length}`);
+    
+    // Move the item to the new tab after a short delay to ensure tab is created
+    setTimeout(() => {
+      const currentState = useGameStore.getState();
+      const newTab = currentState.bankTabs.find(tab => tab.id === newTabId);
+      if (newTab) {
+        moveBankItem(draggedItem.tabId, draggedItem.index, newTabId, 0);
+      }
+    }, 10);
+  }, [createBankTab, moveBankItem, bankTabs.length]);
+
+  const moveToExistingTab = useCallback((draggedItem: { item: ItemReward; tabId: string; index: number }, targetTabId: string) => {
+    const targetTab = bankTabs.find(tab => tab.id === targetTabId);
+    if (targetTab) {
+      const newIndex = targetTab.items.length;
+      moveBankItem(draggedItem.tabId, draggedItem.index, targetTabId, newIndex);
+      
+      // Auto-delete source tab if it becomes empty (except main tab)
+      setTimeout(() => {
+        const currentState = useGameStore.getState();
+        const sourceTab = currentState.bankTabs.find(tab => tab.id === draggedItem.tabId);
+        if (sourceTab && sourceTab.items.length === 0 && sourceTab.id !== 'main') {
+          deleteBankTab(draggedItem.tabId);
+        }
+      }, 10);
+    }
+  }, [bankTabs, moveBankItem, deleteBankTab]);
+
+  const handleItemClick = (item: ItemReward) => {
+    setSelectedItem(selectedItem?.id === item.id ? null : item);
+  };
+
+  const handleSell = (id: string, quantity: number) => {
+    sellItem(id, quantity);
+  };
+
+  const handleEat = (id: string) => {
+    const itemData = getItemById(id);
+    if (itemData?.healing) {
+      // TODO: Implement consume functionality
+      toast({
+        title: 'Food Consumed',
+        description: `Ate ${itemData.name} (+${itemData.healing} HP)`,
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleEquip = (id: string) => {
+    const itemData = getItemById(id);
+    if (itemData && isEquippable(itemData)) {
+      equipItem(itemData);
+      setSelectedItem(null); // Close panel after equipping
+    }
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <VStack spacing={4} align="stretch" w="100%" maxW="1200px" mx="auto">
-        <Input
-          placeholder="Search items..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          bg={useColorModeValue('white', 'gray.800')}
-          color={useColorModeValue('gray.800', 'white')}
-        />
-        
-        <Tabs 
-          variant="soft-rounded"
-          colorScheme="blue"
-          flex={1}
-        >
-          <TabList overflowX="auto" overflowY="hidden" py={2} role="tablist" aria-label="Item categories">
-            {TAB_CATEGORIES.map((category, index) => (
-              <Tab
-                key={category}
-                onClick={() => setActiveTab(index)}
-                _selected={{ bg: 'blue.500', color: 'white' }}
-                whiteSpace="nowrap"
-                minW="auto"
-                role="tab"
-                aria-selected={activeTab === index}
-              >
-                {category}
-              </Tab>
-            ))}
-          </TabList>
+      <Box position="relative" w="100%" h="450px">
+        <VStack spacing={4} align="stretch" h="100%">
+          {/* Search Bar */}
+          <InputGroup size="sm">
+            <InputLeftElement pointerEvents="none">
+              <FaSearch color="gray.300" />
+            </InputLeftElement>
+            <Input
+              placeholder="Search items..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              bg={useColorModeValue('white', 'gray.700')}
+              borderColor={useColorModeValue('gray.300', 'gray.600')}
+              _hover={{
+                borderColor: useColorModeValue('gray.400', 'gray.500'),
+              }}
+              _focus={{
+                borderColor: 'blue.400',
+                boxShadow: '0 0 0 1px blue.400',
+              }}
+            />
+          </InputGroup>
 
-          <TabPanels flex={1} overflow="auto">
-            <TabPanel p={0} role="tabpanel">
-              <AnimatePresence mode="popLayout">
-                {filteredBank.length === 0 ? (
-                  <Flex
-                    direction="column"
-                    align="center"
-                    justify="center"
-                    h="100%"
-                    minH="200px"
-                    color="gray.500"
-                    bg="whiteAlpha.50"
-                    borderRadius="md"
-                    p={8}
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <Text fontSize="lg">
-                      {searchTerm
-                        ? 'No items match your search'
-                        : character.bank.length === 0
-                        ? 'Your bank is empty'
-                        : 'No items in this category'}
-                    </Text>
-                    {searchTerm && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setSearchTerm('')}
-                        mt={2}
-                        aria-label="Clear search"
-                      >
-                        Clear Search
-                      </Button>
-                    )}
-                  </Flex>
-                ) : (
-                  <MotionGrid
-                    templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
-                    gap={3}
-                    p={2}
-                    role="list"
-                    aria-label="Bank items"
-                    layout
-                  >
-                    {filteredBank.map((item, index) => (
-                      <motion.div
-                        key={item.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <BankItem
-                          item={item}
-                          isEquipped={isItemEquipped(item.id)}
-                          onClick={() => handleItemClick(item)}
-                          index={index}
-                          moveItem={moveItem}
-                        />
-                      </motion.div>
-                    ))}
-                  </MotionGrid>
+          {/* Bank Tabs */}
+          <HStack spacing={2} justify="flex-start" wrap="wrap">
+            {displayTabs.map((tab) => (
+              <BankTabButton
+                key={tab.id}
+                tab={tab}
+                isActive={tab.id === activeBankTab}
+                onSelect={() => setBankTab(tab.id)}
+                onDrop={(draggedItem) => moveToExistingTab(draggedItem, tab.id)}
+              />
+            ))}
+            {!searchTerm && (
+              <BankTabButton
+                tab={{ id: 'new_tab', name: 'New', items: [] }}
+                isActive={false}
+                onSelect={() => {}}
+                onDrop={createNewTab}
+              />
+            )}
+          </HStack>
+
+          <Divider borderColor="rgba(255,255,255,0.2)" />
+
+          {/* Bank Grid */}
+          {activeTab ? (
+            <SimpleGrid columns={8} spacingX={0.5} spacingY={2} flex={1} overflow="auto">
+              {activeTab.items.map((item, index) => (
+                <ItemSlot
+                  key={`${item.id}-${index}`}
+                  item={item}
+                  index={index}
+                  tabId={activeBankTab}
+                  moveItem={moveItem}
+                  onClick={() => handleItemClick(item)}
+                />
+              ))}
+              {!searchTerm && emptySlots.map((_, index) => (
+                <ItemSlot
+                  key={`empty-${index}`}
+                  index={activeTab.items.length + index}
+                  tabId={activeBankTab}
+                  moveItem={moveItem}
+                />
+              ))}
+            </SimpleGrid>
+          ) : (
+            <Flex flex={1} align="center" justify="center">
+              <Text color="gray.500" fontSize="md">
+                No items found matching "{searchTerm}"
+              </Text>
+            </Flex>
+          )}
+
+          {/* Tab Info */}
+          <HStack justify="space-between" color="gray.400" fontSize="xs">
+            {activeTab ? (
+              <Text>
+                Tab: {activeTab.name} ({activeTab.items.length}/{searchTerm ? activeTab.items.length : totalSlots} items)
+                {searchTerm && (
+                  <Text as="span" color="blue.400" ml={2}>
+                    (filtered)
+                  </Text>
                 )}
-              </AnimatePresence>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </VStack>
+              </Text>
+            ) : (
+              <Text>No matching items</Text>
+            )}
+            <Text>
+              Total items: {searchTerm ? 
+                displayTabs.reduce((sum, tab) => sum + tab.items.length, 0) :
+                bankTabs.reduce((sum, tab) => sum + tab.items.length, 0)
+              }
+            </Text>
+          </HStack>
+        </VStack>
+
+        {/* Item Details Panel */}
+        {selectedItem && (
+          <ItemDetailsPanel
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            onSell={handleSell}
+            onEat={handleEat}
+            onEquip={handleEquip}
+          />
+        )}
+      </Box>
     </DndProvider>
   );
 }; 

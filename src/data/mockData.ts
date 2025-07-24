@@ -310,6 +310,29 @@ export const mockLocations: Location[] = [
     ]
   },
   {
+    id: 'bank',
+    name: 'Bank',
+    description: 'A secure bank where you can organize and manage all your items.',
+    type: 'city',
+    levelRequired: 1,
+    resources: [],
+    category: 'bank',
+    icon: '/assets/LocationThumbnail/Bank_Thumbnail.png',
+    actions: [
+      {
+        id: 'bank_access',
+        name: 'Bank Access',
+        type: 'store',
+        skill: 'none',
+        levelRequired: 1,
+        experience: 0,
+        baseTime: 0,
+        itemReward: { id: '', name: '', quantity: 0 },
+        storeItems: []
+      }
+    ]
+  },
+  {
     id: 'forest',
     name: 'Forest',
     description: 'A dense forest filled with various trees and fishing spots.',
@@ -341,7 +364,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'bronze_axe'
+            category: 'axe'
           }
         ]
       },
@@ -367,7 +390,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'bronze_axe'
+            category: 'axe'
           }
         ]
       },
@@ -393,7 +416,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'bronze_axe'
+            category: 'axe'
           }
         ]
       },
@@ -419,7 +442,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'steel_axe'
+            category: 'axe'
           }
         ]
       },
@@ -445,7 +468,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'mithril_axe'
+            category: 'axe'
           }
         ]
       },
@@ -471,7 +494,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'adamant_axe'
+            category: 'axe'
           }
         ]
       },
@@ -497,7 +520,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'rune_axe'
+            category: 'axe'
           }
         ]
       },
@@ -523,7 +546,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'rune_axe'
+            category: 'axe'
           }
         ]
       },
@@ -549,7 +572,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'rune_axe'
+            category: 'axe'
           }
         ]
       },
@@ -956,7 +979,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'bronze_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -982,7 +1005,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'bronze_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1008,7 +1031,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'bronze_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1034,7 +1057,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'steel_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1060,7 +1083,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'steel_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1086,7 +1109,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'steel_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1112,7 +1135,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'mithril_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1138,7 +1161,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'adamant_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1164,7 +1187,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'rune_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -1190,7 +1213,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'equipment',
-            itemId: 'rune_pickaxe'
+            category: 'pickaxe'
           }
         ]
       },
@@ -4311,7 +4334,7 @@ export const mockCharacter: Character = {
     weapon: { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1, type: 'tool', category: 'Tools', icon: '/assets/items/bronze_axe.png' },
     shield: { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1, type: 'tool', category: 'Tools', icon: '/assets/items/bronze_pickaxe.png' }
   },
-  combatLevel: 3,
+  combatLevel: 3, // Will be recalculated on first skill gain
   hitpoints: 10,
   maxHitpoints: 10, // Max hitpoints equals hitpoints skill level (10)
   prayer: 1,
