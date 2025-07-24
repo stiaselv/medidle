@@ -113,8 +113,8 @@ const ItemSlot: React.FC<ItemSlotProps> = ({ item, index, tabId, moveItem, onCli
       opacity={isDragging ? 0.5 : 1}
     >
       <ItemIcon
-        item={item || ''}
-        size={48}
+        item={item ? item : ''}
+        size={36}
         onClick={onClick}
         borderColor={borderColor}
         showQuantity={true}
@@ -276,7 +276,7 @@ const ItemDetailsPanel: React.FC<{
               Equip
             </Button>
           )}
-
+          
           {/* Sell Section */}
           <VStack spacing={2} align="stretch">
             <Text fontSize="sm" color="gray.300">
@@ -413,7 +413,7 @@ const BankTabButton: React.FC<BankTabButtonProps> = ({
         display="flex"
         alignItems="center"
         justifyContent="center"
-      >
+          >
         {firstItem ? (
           <ItemIcon
             item={firstItem}
@@ -429,7 +429,7 @@ const BankTabButton: React.FC<BankTabButtonProps> = ({
       </Box>
       <Text fontSize="xs" textAlign="center" maxW="48px" noOfLines={1}>
         {tab.name}
-      </Text>
+          </Text>
     </VStack>
   );
 };
@@ -484,8 +484,8 @@ export const BankPanel = () => {
 
   const { tabs: displayTabs, activeTab } = filteredBankData;
   
-  const totalSlots = 28;
-  const emptySlots = Array(Math.max(0, totalSlots - activeTab.items.length)).fill(null);
+  const totalSlots = 56;
+  const emptySlots = Array(Math.max(0, totalSlots - (activeTab?.items?.length || 0))).fill(null);
 
   const moveItem = useCallback((fromTabId: string, fromIndex: number, toTabId: string, toIndex: number) => {
     moveBankItem(fromTabId, fromIndex, toTabId, toIndex);
@@ -504,7 +504,7 @@ export const BankPanel = () => {
       }
     }, 10);
   }, [createBankTab, moveBankItem, bankTabs.length]);
-
+  
   const moveToExistingTab = useCallback((draggedItem: { item: ItemReward; tabId: string; index: number }, targetTabId: string) => {
     const targetTab = bankTabs.find(tab => tab.id === targetTabId);
     if (targetTab) {
@@ -554,17 +554,17 @@ export const BankPanel = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Box position="relative" w="100%" h="450px">
-        <VStack spacing={4} align="stretch" h="100%">
+      <Box position="relative" w="40%" h="350px" mx="auto">
+        <VStack spacing={2} align="stretch" h="100%">
           {/* Search Bar */}
           <InputGroup size="sm">
             <InputLeftElement pointerEvents="none">
               <FaSearch color="gray.300" />
             </InputLeftElement>
-            <Input
-              placeholder="Search items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+        <Input
+          placeholder="Search items..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
               bg={useColorModeValue('white', 'gray.700')}
               borderColor={useColorModeValue('gray.300', 'gray.600')}
               _hover={{
@@ -595,22 +595,22 @@ export const BankPanel = () => {
                 onSelect={() => {}}
                 onDrop={createNewTab}
               />
-            )}
+                    )}
           </HStack>
 
           <Divider borderColor="rgba(255,255,255,0.2)" />
 
           {/* Bank Grid */}
           {activeTab ? (
-            <SimpleGrid columns={8} spacingX={0.5} spacingY={2} flex={1} overflow="auto">
+            <SimpleGrid columns={8} spacingX={1} spacingY={1} flex={1} overflow="auto">
               {activeTab.items.map((item, index) => (
                 <ItemSlot
                   key={`${item.id}-${index}`}
-                  item={item}
+                          item={item}
                   index={index}
                   tabId={activeBankTab}
                   moveItem={moveItem}
-                  onClick={() => handleItemClick(item)}
+                          onClick={() => handleItemClick(item)}
                 />
               ))}
               {!searchTerm && emptySlots.map((_, index) => (
@@ -618,8 +618,8 @@ export const BankPanel = () => {
                   key={`empty-${index}`}
                   index={activeTab.items.length + index}
                   tabId={activeBankTab}
-                  moveItem={moveItem}
-                />
+                          moveItem={moveItem}
+                        />
               ))}
             </SimpleGrid>
           ) : (
@@ -651,7 +651,7 @@ export const BankPanel = () => {
               }
             </Text>
           </HStack>
-        </VStack>
+      </VStack>
 
         {/* Item Details Panel */}
         {selectedItem && (

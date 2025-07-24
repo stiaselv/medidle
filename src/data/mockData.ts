@@ -354,7 +354,7 @@ export const mockLocations: Location[] = [
           id: 'logs',
           name: 'Logs',
           quantity: 1,
-          thumbnail: '/assets/items/logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Normal_Log.png'
         },
         requirements: [
           {
@@ -380,7 +380,7 @@ export const mockLocations: Location[] = [
           id: 'oak_logs',
           name: 'Oak Logs',
           quantity: 1,
-          thumbnail: '/assets/items/oak_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Oak_Log.png'
         },
         requirements: [
           {
@@ -406,7 +406,7 @@ export const mockLocations: Location[] = [
           id: 'willow_logs',
           name: 'Willow Logs',
           quantity: 1,
-          thumbnail: '/assets/items/willow_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Willow_Log.png'
         },
         requirements: [
           {
@@ -432,7 +432,7 @@ export const mockLocations: Location[] = [
           id: 'teak_logs',
           name: 'Teak Logs',
           quantity: 1,
-          thumbnail: '/assets/items/teak_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Teak_Log.png'
         },
         requirements: [
           {
@@ -458,7 +458,7 @@ export const mockLocations: Location[] = [
           id: 'maple_logs',
           name: 'Maple Logs',
           quantity: 1,
-          thumbnail: '/assets/items/maple_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Maple_Log.png'
         },
         requirements: [
           {
@@ -484,7 +484,7 @@ export const mockLocations: Location[] = [
           id: 'mahogany_logs',
           name: 'Mahogany Logs',
           quantity: 1,
-          thumbnail: '/assets/items/mahogany_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Mahogany_Log.png'
         },
         requirements: [
           {
@@ -510,7 +510,7 @@ export const mockLocations: Location[] = [
           id: 'yew_logs',
           name: 'Yew Logs',
           quantity: 1,
-          thumbnail: '/assets/items/yew_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Yew_Log.png'
         },
         requirements: [
           {
@@ -536,7 +536,7 @@ export const mockLocations: Location[] = [
           id: 'magic_logs',
           name: 'Magic Logs',
           quantity: 1,
-          thumbnail: '/assets/items/magic_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/Magic_Log.png'
         },
         requirements: [
           {
@@ -562,7 +562,7 @@ export const mockLocations: Location[] = [
           id: 'redwood_logs',
           name: 'Redwood Logs',
           quantity: 1,
-          thumbnail: '/assets/items/redwood_logs.png'
+          thumbnail: '/assets/ItemThumbnail/Woodcutting/RedWood_Log.png'
         },
         requirements: [
           {
@@ -588,7 +588,7 @@ export const mockLocations: Location[] = [
           id: 'raw_shrimp',
           name: 'Raw Shrimp',
           quantity: 1,
-          thumbnail: '/assets/items/raw_shrimp.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_shrimp.png'
         },
         requirements: [
           {
@@ -614,39 +614,13 @@ export const mockLocations: Location[] = [
           id: 'raw_sardine',
           name: 'Raw Sardine',
           quantity: 1,
-          thumbnail: '/assets/items/raw_sardine.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_sardine.png'
         },
         requirements: [
           {
             type: 'level',
             skill: 'fishing',
             level: 5
-          },
-          {
-            type: 'equipment',
-            itemId: 'small_fishing_net'
-          }
-        ]
-      },
-      {
-        id: 'fish_trout',
-        name: 'Fish Trout',
-        type: 'fishing',
-        skill: 'fishing',
-        levelRequired: 20,
-        experience: 50,
-        baseTime: 5000,
-        itemReward: {
-          id: 'raw_trout',
-          name: 'Raw Trout',
-          quantity: 1,
-          thumbnail: '/assets/items/raw_trout.png'
-        },
-        requirements: [
-          {
-            type: 'level',
-            skill: 'fishing',
-            level: 20
           },
           {
             type: 'equipment',
@@ -666,7 +640,7 @@ export const mockLocations: Location[] = [
           id: 'raw_herring',
           name: 'Raw Herring',
           quantity: 1,
-          thumbnail: '/assets/items/raw_herring.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_herring.png'
         },
         requirements: [
           {
@@ -677,6 +651,32 @@ export const mockLocations: Location[] = [
           {
             type: 'equipment',
             itemId: 'fishing_rod'
+          }
+        ]
+      },
+      {
+        id: 'fish_trout',
+        name: 'Fish Trout',
+        type: 'fishing',
+        skill: 'fishing',
+        levelRequired: 20,
+        experience: 50,
+        baseTime: 5000,
+        itemReward: {
+          id: 'raw_trout',
+          name: 'Raw Trout',
+          quantity: 1,
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_trout.png'
+        },
+        requirements: [
+          {
+            type: 'level',
+            skill: 'fishing',
+            level: 20
+          },
+          {
+            type: 'equipment',
+            itemId: 'small_fishing_net'
           }
         ]
       },
@@ -692,7 +692,7 @@ export const mockLocations: Location[] = [
           id: 'raw_pike',
           name: 'Raw Pike',
           quantity: 1,
-          thumbnail: '/assets/items/raw_pike.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_pike.png'
         },
         requirements: [
           {
@@ -718,7 +718,7 @@ export const mockLocations: Location[] = [
           id: 'raw_salmon',
           name: 'Raw Salmon',
           quantity: 1,
-          thumbnail: '/assets/items/raw_salmon.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_salmon.png'
         },
         requirements: [
           {
@@ -749,7 +749,7 @@ export const mockLocations: Location[] = [
           id: 'raw_tuna',
           name: 'Raw Tuna',
           quantity: 1,
-          thumbnail: '/assets/items/raw_tuna.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_tuna.png'
         },
         requirements: [
           {
@@ -775,7 +775,7 @@ export const mockLocations: Location[] = [
           id: 'raw_lobster',
           name: 'Raw Lobster',
           quantity: 1,
-          thumbnail: '/assets/items/raw_lobster.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_lobster.png'
         },
         requirements: [
           {
@@ -801,7 +801,7 @@ export const mockLocations: Location[] = [
           id: 'raw_bass',
           name: 'Raw Bass',
           quantity: 1,
-          thumbnail: '/assets/items/raw_bass.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_bass.png'
         },
         requirements: [
           {
@@ -827,7 +827,7 @@ export const mockLocations: Location[] = [
           id: 'raw_swordfish',
           name: 'Raw Swordfish',
           quantity: 1,
-          thumbnail: '/assets/items/raw_swordfish.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw swordfish.png'
         },
         requirements: [
           {
@@ -853,7 +853,7 @@ export const mockLocations: Location[] = [
           id: 'raw_monkfish',
           name: 'Raw Monkfish',
           quantity: 1,
-          thumbnail: '/assets/items/raw_monkfish.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_monkfish.png'
         },
         requirements: [
           {
@@ -879,7 +879,7 @@ export const mockLocations: Location[] = [
           id: 'raw_shark',
           name: 'Raw Shark',
           quantity: 1,
-          thumbnail: '/assets/items/raw_shark.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_shark.png'
         },
         requirements: [
           {
@@ -905,7 +905,7 @@ export const mockLocations: Location[] = [
           id: 'raw_anglerfish',
           name: 'Raw Anglerfish',
           quantity: 1,
-          thumbnail: '/assets/items/raw_anglerfish.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_anglerfish.png'
         },
         requirements: [
           {
@@ -931,7 +931,7 @@ export const mockLocations: Location[] = [
           id: 'raw_dark_crab',
           name: 'Raw Dark Crab',
           quantity: 1,
-          thumbnail: '/assets/items/raw_dark_crab.png'
+          thumbnail: '/assets/ItemThumbnail/Fishing/raw_dark_carb.png'
         },
         requirements: [
           {
@@ -1054,6 +1054,32 @@ export const mockLocations: Location[] = [
             type: 'level',
             skill: 'mining',
             level: 20
+          },
+          {
+            type: 'equipment',
+            category: 'pickaxe'
+          }
+        ]
+      },
+      {
+        id: 'mine_coal',
+        name: 'Mine Coal',
+        type: 'mining',
+        skill: 'mining',
+        levelRequired: 30,
+        experience: 50,
+        baseTime: 5000,
+        itemReward: {
+          id: 'coal_ore',
+          name: 'Coal Ore',
+          quantity: 1,
+          thumbnail: '/assets/ItemThumbnail/Mining/Coal_Ore.png'
+        },
+        requirements: [
+          {
+            type: 'level',
+            skill: 'mining',
+            level: 30
           },
           {
             type: 'equipment',
@@ -1330,7 +1356,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'item',
-            itemId: 'coal',
+            itemId: 'coal_ore',
             quantity: 2
           }
         ]
@@ -1389,7 +1415,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'item',
-            itemId: 'coal',
+            itemId: 'coal_ore',
             quantity: 4
           }
         ]
@@ -1421,7 +1447,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'item',
-            itemId: 'coal',
+            itemId: 'coal_ore',
             quantity: 6
           }
         ]
@@ -1453,7 +1479,7 @@ export const mockLocations: Location[] = [
           },
           {
             type: 'item',
-            itemId: 'coal',
+            itemId: 'coal_ore',
             quantity: 8
           }
         ]

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, HStack, Icon, Text, Tooltip, VStack } from '@chakra-ui/react';
+import { Button, HStack, Icon, Text, Tooltip, VStack, Image, Box } from '@chakra-ui/react';
 import { GiWoodAxe, GiFishingPole, GiMiningHelmet, GiAnvil, GiCampfire, GiCampCookingPot } from 'react-icons/gi';
 import type { SkillAction } from '../../types/game';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -65,11 +65,31 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
         className={theme === 'medieval' ? 'medieval-paper' : ''}
       >
         <HStack width="100%" spacing={4} justify="flex-start">
-          <Icon
-            as={ActionIcon}
-            boxSize={6}
-            color={isActive ? "white" : "gray.300"}
-          />
+          {action.itemReward && action.itemReward.thumbnail ? (
+            <Box
+              w="24px"
+              h="24px"
+              borderRadius="md"
+              overflow="hidden"
+              border="1px solid"
+              borderColor={isActive ? "whiteAlpha.400" : "whiteAlpha.200"}
+            >
+              <Image
+                src={action.itemReward.thumbnail}
+                alt={action.itemReward.name}
+                w="100%"
+                h="100%"
+                objectFit="contain"
+                fallbackSrc="/assets/items/placeholder.png"
+              />
+            </Box>
+          ) : (
+            <Icon
+              as={ActionIcon}
+              boxSize={6}
+              color={isActive ? "white" : "gray.300"}
+            />
+          )}
           <VStack align="flex-start" spacing={0} flex={1}>
             <Text
               color="white"

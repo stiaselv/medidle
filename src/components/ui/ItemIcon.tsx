@@ -48,7 +48,7 @@ export const ItemIcon: React.FC<ItemIconProps> = ({
 }) => {
   // Extract item data
   const itemData = typeof item === 'string' ? getItemById(item) : item;
-  const fullItemData = typeof item === 'string' ? getItemById(item) : getItemById(item.id);
+  const fullItemData = typeof item === 'string' ? getItemById(item) : (item ? getItemById(item.id) : null);
   
   if (!itemData || !fullItemData) {
     return (

@@ -1,5 +1,5 @@
 import { keyframes } from '@chakra-ui/react';
-import { Box, Button, Flex, Grid, Heading, Text, VStack, useBreakpointValue, Icon, Tooltip, Progress, HStack } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Heading, Text, VStack, useBreakpointValue, Icon, Tooltip, Progress, HStack, Image } from '@chakra-ui/react';
 import { GiWoodAxe, GiFishingPole } from 'react-icons/gi';
 import { motion } from 'framer-motion';
 import { useGameStore, calculateLevel, getNextLevelExperience } from '../../store/gameStore';
@@ -161,17 +161,42 @@ const ActionButton: React.FC<{
             aria-pressed={isActive}
             aria-disabled={buttonDisabled}
           >
-            <Icon
-              as={icon} 
-              boxSize={8} 
-              color={!allRequirementsMet ? "red.300" : isActive ? "blue.300" : "green.300"}
-              mb={2}
-              sx={{
-                animation: isActive ? `${bounce} 1s infinite` : 'none',
-                filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none',
-              }}
-              aria-hidden="true"
-            />
+            {action.itemReward && action.itemReward.thumbnail ? (
+              <Box
+                w="32px"
+                h="32px"
+                borderRadius="md"
+                overflow="hidden"
+                border="1px solid"
+                borderColor={!allRequirementsMet ? "red.300" : isActive ? "blue.300" : "green.300"}
+                mb={2}
+                sx={{
+                  animation: isActive ? `${bounce} 1s infinite` : 'none',
+                  filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none',
+                }}
+              >
+                <Image
+                  src={action.itemReward.thumbnail}
+                  alt={action.itemReward.name}
+                  w="100%"
+                  h="100%"
+                  objectFit="contain"
+                  fallbackSrc="/assets/items/placeholder.png"
+                />
+              </Box>
+            ) : (
+              <Icon
+                as={icon} 
+                boxSize={8} 
+                color={!allRequirementsMet ? "red.300" : isActive ? "blue.300" : "green.300"}
+                mb={2}
+                sx={{
+                  animation: isActive ? `${bounce} 1s infinite` : 'none',
+                  filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none',
+                }}
+                aria-hidden="true"
+              />
+            )}
             
             <Heading
               size="sm" 

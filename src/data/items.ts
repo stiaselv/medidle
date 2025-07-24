@@ -278,12 +278,27 @@ export const getEquipmentSlot = (template: SmithingTemplate): string => {
   return EQUIPMENT_SLOTS.WEAPON;
 };
 
+// Items that are defined statically and should not be generated
+const STATIC_SMITHING_ITEMS = [
+  'bronze_medium_helm', 'iron_medium_helm', 'steel_medium_helm', 'mithril_medium_helm', 'adamant_medium_helm', 'rune_medium_helm', 'dragon_medium_helm',
+  'steel_full_helm', 'mithril_full_helm',
+  'iron_kiteshield', 'mithril_kiteshield',
+  'iron_platelegs', 'steel_platelegs', 'mithril_platelegs',
+  'iron_platebody', 'steel_platebody', 'mithril_platebody'
+];
+
 const generateSmithingItems = (metalType: string) => {
   const items: Record<string, Item> = {};
   const metalTier = getMetalTier(metalType);
   
   SMITHING_TEMPLATES.forEach(template => {
     const itemId = `${metalType}_${template.id}`;
+    
+    // Skip items that are defined statically
+    if (STATIC_SMITHING_ITEMS.includes(itemId)) {
+      return;
+    }
+    
     const itemName = `${capitalize(metalType)} ${template.name}`;
     const level = getSmithingLevel(metalType as keyof typeof SMITHING_BASE_LEVELS, template.levelOver);
     const { buyPrice, sellPrice } = calculateSmithingItemPrice(metalType as keyof typeof METAL_PRICE_MULTIPLIERS, template.bars);
@@ -656,6 +671,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Copper_Ore.png',
+    buyPrice: 15,
+    sellPrice: 10,
   },
   tin_ore: {
     id: 'tin_ore',
@@ -663,6 +680,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Tin_Ore.png',
+    buyPrice: 20,
+    sellPrice: 15,
   },
   iron_ore: {
     id: 'iron_ore',
@@ -670,6 +689,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Iron_Ore.png',
+    buyPrice: 35,
+    sellPrice: 25,
   },
   silver_ore: {
     id: 'silver_ore',
@@ -677,6 +698,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Silver_Ore.png',
+    buyPrice: 50,
+    sellPrice: 35,
   },
   gold_ore: {
     id: 'gold_ore',
@@ -684,6 +707,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Gold_Ore.png',
+    buyPrice: 80,
+    sellPrice: 60,
   },
   mithril_ore: {
     id: 'mithril_ore',
@@ -691,6 +716,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Mithril_Ore.png',
+    buyPrice: 150,
+    sellPrice: 120,
   },
   adamantite_ore: {
     id: 'adamantite_ore',
@@ -698,6 +725,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Adamant_Ore.png',
+    buyPrice: 300,
+    sellPrice: 240,
   },
   runite_ore: {
     id: 'runite_ore',
@@ -705,6 +734,26 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Rune_Ore.png',
+    buyPrice: 800,
+    sellPrice: 640,
+  },
+  coal_ore: {
+    id: 'coal_ore',
+    name: 'Coal Ore',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Mining/Coal_Ore.png',
+    buyPrice: 25,
+    sellPrice: 20,
+  },
+  pure_essence: {
+    id: 'pure_essence',
+    name: 'Pure Essence',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Mining/Pure_Essence.png',
+    buyPrice: 15,
+    sellPrice: 10,
   },
   coal: {
     id: 'coal',
@@ -712,6 +761,8 @@ export const ITEMS: Record<string, Item> = {
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Mining/Coal_Ore.png',
+    buyPrice: 25,
+    sellPrice: 20,
   },
 
   // Resources - Bars
@@ -792,14 +843,14 @@ export const ITEMS: Record<string, Item> = {
     name: 'Oak Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png' // Placeholder, update later
+    icon: '/assets/ItemThumbnail/Woodcutting/Oak_Log.png'
   },
   willow_logs: {
     id: 'willow_logs',
     name: 'Willow Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png' // Placeholder, update later
+    icon: '/assets/ItemThumbnail/Woodcutting/Willow_Log.png'
   },
   maple_logs: {
     id: 'maple_logs',
@@ -813,7 +864,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Yew Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png' // Placeholder, update later
+    icon: '/assets/ItemThumbnail/Woodcutting/Yew_Log.png'
   },
   magic_logs: {
     id: 'magic_logs',
@@ -827,7 +878,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Redwood Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png' // Placeholder, update later
+    icon: '/assets/ItemThumbnail/Woodcutting/RedWood_Log.png'
   },
   teak_logs: {
     id: 'teak_logs',

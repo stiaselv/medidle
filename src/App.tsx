@@ -37,9 +37,20 @@ const App = () => {
       if (rewards && (rewards.xp > 0 || (rewards.item && rewards.item.quantity > 0))) {
         setOfflineRewards(rewards);
         setShowOfflineProgress(true);
+      } else if (character.lastLogin) {
+        // Check if enough time passed but no rewards (due to missing requirements)
+        const now = new Date();
+        const lastLogin = new Date(character.lastLogin);
+        const timeDifference = now.getTime() - lastLogin.getTime();
+        const MIN_OFFLINE_TIME = 60 * 1000; // 1 minute
+        
+        if (timeDifference >= MIN_OFFLINE_TIME) {
+          setOfflineRewards(null);
+          setShowOfflineProgress(true);
+        }
       }
     }
-  }, [character, processOfflineProgress]);
+  }, [character?.id]); // Only run when character ID changes, not on every character update
 
   const renderContent = () => {
     if (isLoading) {
@@ -54,6 +65,7 @@ const App = () => {
             isOpen={showOfflineProgress}
             onClose={() => setShowOfflineProgress(false)}
             rewards={offlineRewards}
+            timePassed={character?.lastLogin ? new Date().getTime() - new Date(character.lastLogin).getTime() : undefined}
           />
         </GameLayout>
       );
@@ -87,6 +99,7 @@ const App = () => {
                       isOpen={showOfflineProgress}
                       onClose={() => setShowOfflineProgress(false)}
                       rewards={offlineRewards}
+                      timePassed={character?.lastLogin ? new Date().getTime() - new Date(character.lastLogin).getTime() : undefined}
                     />
                   </GameLayout>
                 ) : (

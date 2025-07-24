@@ -247,10 +247,20 @@ const createStore = () => create<GameState>()(
       const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
       const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
       
-      set({ character: { ...rest, id, maxHitpoints } });
-      // Here you might want to save the ID of the last selected character
-      // to local storage or the user's profile on the server, so you can
-      // auto-select it on next login.
+      // Update lastLogin to current time when selecting character
+      const updatedCharacter = { 
+        ...rest, 
+        id, 
+        maxHitpoints,
+        lastLogin: new Date()
+      };
+      
+      set({ character: updatedCharacter });
+      
+      // Save the updated character with new login time
+      if (id) {
+        get().saveCharacter(updatedCharacter);
+      }
     },
     setCharacter: (character: Character | null) => {
       if (!character) {
@@ -387,6 +397,20 @@ const createStore = () => create<GameState>()(
       if (state.actionInterval !== null) {
         clearInterval(state.actionInterval as unknown as number);
       }
+      // Update character's last action for offline tracking (only for skill actions)
+      if (state.character && 'skill' in action && action.type !== 'combat') {
+        const updatedCharacter = {
+          ...state.character,
+          lastAction: {
+            type: action.type as any,
+            location: state.currentLocation?.id || '',
+            id: action.id
+          },
+          lastActionTime: Date.now()
+        };
+        get().setCharacter(updatedCharacter);
+      }
+
       // Set up new action
       set({ currentAction: action, isActionInProgress: true, actionProgress: 0 });
       let startTime = Date.now();
@@ -1148,8 +1172,250 @@ const createStore = () => create<GameState>()(
 
     // Offline progress
     processOfflineProgress: () => {
-      // Implementation needed
-      return null;
+      const state = get();
+      const { character } = state;
+      
+      if (!character || !character.lastLogin) {
+        return null;
+      }
+
+      const now = new Date();
+      const lastLogin = new Date(character.lastLogin);
+      const timeDifference = now.getTime() - lastLogin.getTime();
+      
+      // Minimum offline time: 1 minute (60,000ms)
+      // Maximum offline time: 8 hours (28,800,000ms)
+      const MIN_OFFLINE_TIME = 60 * 1000; // 1 minute
+      const MAX_OFFLINE_TIME = 8 * 60 * 60 * 1000; // 8 hours
+      
+      if (timeDifference < MIN_OFFLINE_TIME) {
+        return null;
+      }
+      
+      // Cap the offline time to maximum
+      const cappedTime = Math.min(timeDifference, MAX_OFFLINE_TIME);
+      
+      // Check if character has a last action that can be continued offline
+      if (!character.lastAction || character.lastAction.type === 'none' || character.lastAction.type === 'combat') {
+        return null;
+      }
+      
+      // Find the last action from mock data
+      const location = mockLocations.find(loc => loc.id === character.lastAction.location);
+      if (!location) return null;
+      
+      const lastAction = location.actions.find(action => action.id === character.lastAction.id);
+      if (!lastAction || lastAction.type === 'combat' || lastAction.type === 'combat_selection') {
+        return null;
+      }
+      
+      const skillAction = lastAction as SkillAction;
+      
+      // Check if character can still perform this action (includes requirements like items, levels, equipment)
+      if (!get().canPerformAction(skillAction)) {
+        // Character can't perform the action anymore (e.g., ran out of required items)
+        // This prevents offline progression when requirements are no longer met
+        return null;
+      }
+      
+      // Calculate action time (including tool modifications)
+      const actionTime = getModifiedActionTime(skillAction, character);
+      
+      // Calculate how many actions could be completed in the offline time
+      let actionsCompleted = Math.floor(cappedTime / actionTime);
+      
+      if (actionsCompleted <= 0) {
+        return null;
+      }
+      
+      // Check item requirements and limit actions based on available resources
+      if (skillAction.requirements) {
+        for (const requirement of skillAction.requirements) {
+          if (requirement.type === 'item' && requirement.itemId && requirement.quantity) {
+            const bankItem = character.bank.find(item => item.id === requirement.itemId);
+            if (!bankItem) {
+              actionsCompleted = 0; // No items available
+              break;
+            }
+            
+            // Calculate how many actions can be performed with available items
+            const maxActionsFromItem = Math.floor(bankItem.quantity / requirement.quantity);
+            actionsCompleted = Math.min(actionsCompleted, maxActionsFromItem);
+          }
+        }
+      }
+      
+      if (actionsCompleted <= 0) {
+        return null;
+      }
+      
+      // Calculate rewards
+      const totalXp = skillAction.experience * actionsCompleted;
+      const totalItems = skillAction.itemReward.quantity * actionsCompleted;
+      
+      // Apply rewards to character
+      const updatedCharacter = { ...character };
+      
+      // Add XP
+      const oldSkill = updatedCharacter.skills[skillAction.skill];
+      if (oldSkill) {
+        const newExp = oldSkill.experience + totalXp;
+        const newLevel = calculateLevel(newExp);
+        updatedCharacter.skills[skillAction.skill] = {
+          ...oldSkill,
+          experience: newExp,
+          level: newLevel,
+          nextLevelExperience: getNextLevelExperience(newLevel)
+        };
+        
+        // Update max hitpoints if hitpoints skill was trained
+        if (skillAction.skill === 'hitpoints') {
+          const oldLevel = calculateLevel(oldSkill.experience);
+          updatedCharacter.maxHitpoints = calculateMaxHitpoints(newLevel);
+          // Heal proportionally if leveled up
+          if (newLevel > oldLevel) {
+            const hitpointsGained = updatedCharacter.maxHitpoints - character.maxHitpoints;
+            updatedCharacter.hitpoints = Math.min(updatedCharacter.hitpoints + hitpointsGained, updatedCharacter.maxHitpoints);
+          }
+        }
+        
+        // Update combat level if relevant skill
+        const combatSkills = ['attack', 'strength', 'defence', 'hitpoints', 'prayer', 'ranged', 'magic'];
+        if (combatSkills.includes(skillAction.skill)) {
+          updatedCharacter.combatLevel = calculateCombatLevel(updatedCharacter);
+        }
+      }
+      
+      // Consume required items from bank
+      if (skillAction.requirements) {
+        for (const requirement of skillAction.requirements) {
+          if (requirement.type === 'item' && requirement.itemId && requirement.quantity) {
+            const bankItem = updatedCharacter.bank.find(item => item.id === requirement.itemId);
+            if (bankItem) {
+              const itemsToConsume = requirement.quantity * actionsCompleted;
+              bankItem.quantity -= itemsToConsume;
+              
+              // Remove item from bank if quantity reaches 0
+              if (bankItem.quantity <= 0) {
+                const itemIndex = updatedCharacter.bank.findIndex(item => item.id === requirement.itemId);
+                if (itemIndex !== -1) {
+                  updatedCharacter.bank.splice(itemIndex, 1);
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // Add items to bank
+      const bankItem = updatedCharacter.bank.find(item => item.id === skillAction.itemReward.id);
+      if (bankItem) {
+        bankItem.quantity += totalItems;
+      } else {
+        updatedCharacter.bank.push({
+          id: skillAction.itemReward.id,
+          name: skillAction.itemReward.name,
+          quantity: totalItems
+        });
+      }
+      
+      // Update character stats
+      if (!updatedCharacter.stats.totalOfflineTime) {
+        updatedCharacter.stats.totalOfflineTime = 0;
+      }
+      updatedCharacter.stats.totalOfflineTime += cappedTime;
+      
+      // Track actions performed
+      if (!updatedCharacter.stats.actionsPerformed) {
+        updatedCharacter.stats.actionsPerformed = {};
+      }
+      updatedCharacter.stats.actionsPerformed[skillAction.id] = 
+        (updatedCharacter.stats.actionsPerformed[skillAction.id] || 0) + actionsCompleted;
+      
+      // Track resources gathered
+      if (!updatedCharacter.stats.resourcesGathered) {
+        updatedCharacter.stats.resourcesGathered = {};
+      }
+      const currentCount = Number(updatedCharacter.stats.resourcesGathered[skillAction.itemReward.id]) || 0;
+      updatedCharacter.stats.resourcesGathered[skillAction.itemReward.id] = (currentCount + totalItems) as any;
+      
+      // Track specific stats based on action type
+      switch (skillAction.type) {
+        case 'woodcutting':
+          updatedCharacter.stats.logsChopped = (updatedCharacter.stats.logsChopped || 0) + actionsCompleted;
+          break;
+        case 'mining':
+          updatedCharacter.stats.oresMined = (updatedCharacter.stats.oresMined || 0) + actionsCompleted;
+          break;
+        case 'fishing':
+          updatedCharacter.stats.fishCaught = (updatedCharacter.stats.fishCaught || 0) + actionsCompleted;
+          break;
+        case 'farming':
+          updatedCharacter.stats.cropsHarvested = (updatedCharacter.stats.cropsHarvested || 0) + actionsCompleted;
+          break;
+        case 'crafting':
+          updatedCharacter.stats.itemsCrafted = (updatedCharacter.stats.itemsCrafted || 0) + actionsCompleted;
+          break;
+        case 'fletching':
+          updatedCharacter.stats.arrowsFletched = (updatedCharacter.stats.arrowsFletched || 0) + actionsCompleted;
+          break;
+        case 'smithing':
+          updatedCharacter.stats.barsSmelted = (updatedCharacter.stats.barsSmelted || 0) + actionsCompleted;
+          break;
+        case 'cooking':
+          updatedCharacter.stats.foodCooked = (updatedCharacter.stats.foodCooked || 0) + actionsCompleted;
+          break;
+        case 'firemaking':
+          updatedCharacter.stats.logsBurned = (updatedCharacter.stats.logsBurned || 0) + actionsCompleted;
+          break;
+        case 'prayer':
+          updatedCharacter.stats.bonesBuried = (updatedCharacter.stats.bonesBuried || 0) + actionsCompleted;
+          break;
+        case 'runecrafting':
+          updatedCharacter.stats.runesCrafted = (updatedCharacter.stats.runesCrafted || 0) + actionsCompleted;
+          break;
+      }
+      
+      // Track coins earned if the reward was coins
+      if (skillAction.itemReward.id === 'coins') {
+        updatedCharacter.stats.coinsEarned = (updatedCharacter.stats.coinsEarned || 0) + totalItems;
+      }
+      
+      // Update character with offline progress (but don't trigger another processOfflineProgress)
+      // Use direct state update to avoid infinite loop
+      set({ character: updatedCharacter });
+      
+      // Calculate consumed items for display
+      const consumedItems: Array<{id: string, name: string, quantity: number}> = [];
+      if (skillAction.requirements) {
+        for (const requirement of skillAction.requirements) {
+          if (requirement.type === 'item' && requirement.itemId && requirement.quantity) {
+            const originalBankItem = character.bank.find(item => item.id === requirement.itemId);
+            if (originalBankItem) {
+              const itemsConsumed = requirement.quantity * actionsCompleted;
+              consumedItems.push({
+                id: requirement.itemId,
+                name: originalBankItem.name,
+                quantity: itemsConsumed
+              });
+            }
+          }
+        }
+      }
+      
+      // Return the rewards for display
+      return {
+        xp: totalXp,
+        item: {
+          id: skillAction.itemReward.id,
+          name: skillAction.itemReward.name,
+          quantity: totalItems
+        },
+        skill: skillAction.skill,
+        timePassed: cappedTime,
+        actionsCompleted,
+        consumedItems
+      };
     },
     clearActionReward: () => set({ lastActionReward: null }),
 
@@ -1217,8 +1483,15 @@ const createStore = () => create<GameState>()(
 
       if (itemIndexInBank === -1) return; // Item not in bank
 
-      // Remove from bank
-      const [itemToEquip] = newBank.splice(itemIndexInBank, 1);
+      // Reduce quantity by 1 instead of removing the entire item
+      const bankItem = newBank[itemIndexInBank];
+      if (bankItem.quantity <= 1) {
+        // If only 1 item left, remove it entirely
+        newBank.splice(itemIndexInBank, 1);
+      } else {
+        // Reduce quantity by 1
+        bankItem.quantity -= 1;
+      }
 
       // Add previously equipped item back to bank, if there was one
       if (currentEquippedItem) {

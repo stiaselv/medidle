@@ -10,6 +10,8 @@ import debounce from 'lodash.debounce';
 import type { Character } from '../../types/game';
 import { SettingsModal } from '../settings/SettingsModal';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useOfflineTracking } from '../../hooks/useOfflineTracking';
+import { OfflineTestHelper } from '../testing/OfflineTestHelper';
 
 export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const { character, signOut, stopAction, saveCharacter } = useGameStore();
@@ -20,6 +22,9 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const locations = useGameStore(state => state.locations);
   const { theme } = useTheme();
+
+  // Track offline status for offline progression
+  useOfflineTracking();
 
 
   // Debounced auto-save logic
@@ -365,6 +370,9 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Settings Modal */}
       <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
+
+      {/* Offline Testing Helper (Development Only) */}
+      {import.meta.env.DEV && <OfflineTestHelper />}
     </Box>
   );
 }; 
