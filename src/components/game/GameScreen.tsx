@@ -16,6 +16,8 @@ import AgilityThievingLocation from './AgilityThievingLocation';
 import { FieldsLocation } from '../farming/FieldsLocation';
 import { BankLocation } from './BankLocation';
 import { AlchemyStationLocation } from './AlchemyStationLocation';
+import { COMBAT_LOCATIONS } from '../../data/locations/combat';
+import { SLAYER_CAVE_LOCATIONS } from '../../data/locations/slayerCaves';
 
 const MotionBox = motion(Box);
 
@@ -23,15 +25,13 @@ export const GameScreen = () => {
   const { currentLocation, setLocation, activeView, setView, character } = useGameStore();
   const [selectedMonster, setSelectedMonster] = useState<null | import('../../types/game').Monster>(null);
 
-  // List of custom combat area IDs
-  const combatAreas = [
-    'farm',
-    'lumbridge_swamp',
-    'ardougne_marketplace',
-    'ice_dungeon',
-    'goblin_village'
-  ];
-  const combatLocations = mockLocations.filter((l: import('../../types/game').Location) => combatAreas.includes(l.id));
+  // List of new combat sub-location IDs
+  const combatSubAreas = ['farm', 'lumbridge_swamp_cave', 'ice_dungeon'];
+  const combatSubLocations = Object.values(COMBAT_LOCATIONS).filter((l: import('../../types/game').Location) => combatSubAreas.includes(l.id));
+
+  // List of slayer cave sub-location IDs
+  const slayerSubAreas = ['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave'];
+  const slayerSubLocations = Object.values(SLAYER_CAVE_LOCATIONS).filter((l: import('../../types/game').Location) => slayerSubAreas.includes(l.id));
 
   // Add cave IDs to a list for easy checking
   const caveIds = ['easy_cave', 'medium_cave', 'hard_cave', 'nightmare_cave'];
@@ -44,8 +44,8 @@ export const GameScreen = () => {
     if (!currentLocation || autoSelectedRef.current.locationId !== currentLocation.id) {
       autoSelectedRef.current.locationId = null;
     }
-    // If we switched away from combat selection, clear selected monster
-    if (activeView !== 'location' && currentLocation && !combatAreas.includes(currentLocation.id)) {
+    // If we switched away from combat or slayer selection, clear selected monster
+    if (activeView !== 'location' && currentLocation && !combatSubAreas.includes(currentLocation.id) && !slayerSubAreas.includes(currentLocation.id)) {
       setSelectedMonster(null);
     }
   }, [currentLocation, activeView]);
@@ -83,7 +83,7 @@ export const GameScreen = () => {
     <Box p={6}>
       <Text fontSize="2xl" fontWeight="bold" mb={4}>Select a Combat Area</Text>
       <VStack spacing={4} align="stretch">
-        {combatLocations.map((location: import('../../types/game').Location) => (
+        {combatSubLocations.map((location: import('../../types/game').Location) => (
           <Button
             key={location.id}
             variant="outline"
@@ -96,7 +96,44 @@ export const GameScreen = () => {
             justifyContent="flex-start"
           >
             <Box mr={3} as="span" display="inline-block" minW="32px">
-              {/* Optionally add an icon or image here */}
+              <img
+                src={location.icon as string}
+                alt={location.name + ' icon'}
+                style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: 4 }}
+                onError={e => { (e.target as HTMLImageElement).src = '/assets/locations/placeholder.png'; }}
+              />
+            </Box>
+            <Text fontWeight="bold">{location.name}</Text>
+            <Text fontSize="sm" color="gray.500" ml={2}>{location.description}</Text>
+          </Button>
+        ))}
+      </VStack>
+    </Box>
+  );
+
+  const renderSlayerAreaSelector = () => (
+    <Box p={6}>
+      <Text fontSize="2xl" fontWeight="bold" mb={4}>Select Difficulty</Text>
+      <VStack spacing={4} align="stretch">
+        {slayerSubLocations.map((location: import('../../types/game').Location) => (
+          <Button
+            key={location.id}
+            variant="outline"
+            colorScheme="purple"
+            onClick={() => {
+              setLocation(location);
+              setView('location');
+            }}
+            w="100%"
+            justifyContent="flex-start"
+          >
+            <Box mr={3} as="span" display="inline-block" minW="32px">
+              <img
+                src={location.icon as string}
+                alt={location.name + ' icon'}
+                style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: 4 }}
+                onError={e => { (e.target as HTMLImageElement).src = '/assets/locations/placeholder.png'; }}
+              />
             </Box>
             <Text fontWeight="bold">{location.name}</Text>
             <Text fontSize="sm" color="gray.500" ml={2}>{location.description}</Text>
@@ -109,9 +146,17 @@ export const GameScreen = () => {
   const renderMonsterSelector = (location: import('../../types/game').Location) => (
     <Box p={6}>
       <Button mb={4} colorScheme="gray" onClick={() => {
-        setView('combat_selection');
+        // Determine if this is a combat or slayer area and go back appropriately
+        if (combatSubAreas.includes(location.id)) {
+          setView('combat_selection');
+        } else if (slayerSubAreas.includes(location.id)) {
+          // Go back to slayer cave hub
+          const slayerHub = mockLocations.find(loc => loc.id === 'slayer_cave');
+          if (slayerHub) {
+            setLocation(slayerHub);
+          }
+        }
         setSelectedMonster(null);
-        setLocation(undefined); // Go back to the combat area list
       }}>Back to Area List</Button>
       <Text fontSize="2xl" fontWeight="bold" mb={4}>Select a Monster</Text>
       <VStack spacing={4} align="stretch">
@@ -148,13 +193,23 @@ export const GameScreen = () => {
       return renderCombatAreaSelector();
     }
 
-    // If a combat area is selected but no monster is selected, show monster selector
-    if (currentLocation && combatAreas.includes(currentLocation.id) && !selectedMonster) {
+    // If a combat sub-area is selected but no monster is selected, show monster selector
+    if (currentLocation && combatSubAreas.includes(currentLocation.id) && !selectedMonster) {
       return renderMonsterSelector(currentLocation);
     }
 
-    // If a monster is selected in a combat area, show the combat screen
-    if (currentLocation && combatAreas.includes(currentLocation.id) && selectedMonster) {
+    // If a monster is selected in a combat sub-area, show the combat screen
+    if (currentLocation && combatSubAreas.includes(currentLocation.id) && selectedMonster) {
+      return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => setSelectedMonster(null)} />;
+    }
+
+    // If a slayer sub-area is selected but no monster is selected, show monster selector
+    if (currentLocation && slayerSubAreas.includes(currentLocation.id) && !selectedMonster) {
+      return renderMonsterSelector(currentLocation);
+    }
+
+    // If a monster is selected in a slayer sub-area, show the combat screen
+    if (currentLocation && slayerSubAreas.includes(currentLocation.id) && selectedMonster) {
       return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => setSelectedMonster(null)} />;
     }
 
@@ -167,8 +222,12 @@ export const GameScreen = () => {
     if (currentLocation && caveIds.includes(currentLocation.id) && selectedMonster) {
       return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => setSelectedMonster(null)} />;
     }
+
     // ... existing switch/case for other locations ...
     switch (currentLocation?.id) {
+      case 'combat':
+        // Show combat area selector when the main combat hub is selected
+        return renderCombatAreaSelector();
       case 'forest':
         return <ForestLocation />;
       case 'quarry':

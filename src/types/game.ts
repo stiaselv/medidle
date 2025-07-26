@@ -269,8 +269,10 @@ export interface Location {
   category: string;
   icon: string | IconType;
   actions: (SkillAction | StoreAction | CombatAction | CombatSelectionAction)[];
-  availableSkills?: SkillName[];
-  group?: 'World' | 'Dungeons' | 'Raids';
+          availableSkills?: SkillName[];
+        group?: 'World' | 'Dungeons' | 'Raids';
+        isCombatHub?: boolean; // Flag to indicate this is a combat hub location
+        isSlayerHub?: boolean; // Flag to indicate this is a slayer hub location
 }
 
 export interface Equipment {

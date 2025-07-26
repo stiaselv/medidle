@@ -155,10 +155,8 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
 
   const combatLocationIds = [
     'farm',
-    'lumbridge_swamp',
-    'ardougne_marketplace',
-    'ice_dungeon',
-    'goblin_village'
+    'lumbridge_swamp_cave',
+    'ice_dungeon'
   ];
 
   const mainLocations = mockLocations.filter(loc => 
@@ -324,7 +322,13 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                         colorScheme="red"
                         height="auto"
                         p={4}
-                        onClick={() => setView('combat_selection')}
+                        onClick={() => {
+                          const combatLocation = mockLocations.find(loc => loc.id === 'combat');
+                          if (combatLocation) {
+                            setLocation(combatLocation);
+                            setView('location');
+                          }
+                        }}
                         _hover={{ transform: 'scale(1.02)' }}
                         transition="all 0.2s"
                         w="100%"

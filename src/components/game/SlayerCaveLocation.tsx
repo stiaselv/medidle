@@ -14,6 +14,7 @@ import { useGameStore } from '../../store/gameStore';
 import type { CombatSelectionAction, SlayerTask } from '../../types/game';
 import slayerCaveBg from '../../assets/BG/slayer_cave.webp';
 import { EASY_MONSTERS, MEDIUM_MONSTERS, HARD_MONSTERS, NIGHTMARE_MONSTERS } from '../../data/monsters';
+import { SLAYER_CAVE_LOCATIONS } from '../../data/locations/slayerCaves';
 
 export const SlayerCaveLocation = () => {
   const { 
@@ -30,17 +31,29 @@ export const SlayerCaveLocation = () => {
 
   if (!character || !currentLocation) return null;
 
-  const [selectedDifficulty, setSelectedDifficulty] = React.useState<'Easy' | 'Medium' | 'Hard' | 'Nightmare'>('Easy');
-  const handleDifficultySelect = (action: CombatSelectionAction) => {
-    setSelectedDifficulty((action.difficulty as 'Easy' | 'Medium' | 'Hard' | 'Nightmare') || 'Easy');
-    startAction(action);
+  const [selectedDifficulty, setSelectedDifficulty] = React.useState<'easy_cave' | 'medium_cave' | 'hard_cave' | 'nightmare_cave'>('easy_cave');
+  const handleDifficultySelect = (caveId: string) => {
+    setSelectedDifficulty(caveId as 'easy_cave' | 'medium_cave' | 'hard_cave' | 'nightmare_cave');
+    // Navigate to the selected cave
+    const selectedCave = SLAYER_CAVE_LOCATIONS[caveId];
+    if (selectedCave) {
+      setLocation(selectedCave);
+    }
   };
 
   const handleNewTask = () => {
-    getNewSlayerTask(selectedDifficulty);
+    // Convert cave ID to difficulty string
+    const difficultyMap = {
+      'easy_cave': 'Easy',
+      'medium_cave': 'Medium', 
+      'hard_cave': 'Hard',
+      'nightmare_cave': 'Nightmare'
+    };
+    const difficulty = difficultyMap[selectedDifficulty] as 'Easy' | 'Medium' | 'Hard' | 'Nightmare';
+    getNewSlayerTask(difficulty);
     toast({
       title: "New Slayer Task Assigned!",
-      description: `You have been assigned a new ${selectedDifficulty} task.`,
+      description: `You have been assigned a new ${difficulty} task.`,
       status: "success",
       duration: 3000,
       isClosable: true,
@@ -190,35 +203,33 @@ export const SlayerCaveLocation = () => {
           >
             <Heading size="md" mb={4}>Select Difficulty</Heading>
             <VStack spacing={3}>
-              {currentLocation.actions
-                .filter(action => action.type === 'combat_selection')
-                .map((action) => (
-                  <Button
-                    key={action.id}
-                    w="full"
-                    bg="rgba(40,40,40,0.92)"
-                    color="white"
-                    borderWidth={2}
-                    borderColor="rgba(255,255,255,0.12)"
-                    boxShadow="0 2px 12px 0 rgba(0,0,0,0.18)"
-                    _hover={{
-                      bg: 'rgba(60,60,60,0.98)',
-                      boxShadow: '0 4px 24px 0 rgba(0,0,0,0.28)',
-                      borderColor: 'rgba(255,255,255,0.22)'
-                    }}
-                    _active={{
-                      bg: 'rgba(255,255,255,0.24)',
-                    }}
-                    variant="solid"
-                    onClick={() => handleDifficultySelect(action as CombatSelectionAction)}
-                    isDisabled={action.levelRequired > character.combatLevel}
-                  >
-                    {action.name}
-                    {action.levelRequired > character.combatLevel && 
-                      ` (Req. Level ${action.levelRequired})`
-                    }
-                  </Button>
-                ))}
+              {Object.entries(SLAYER_CAVE_LOCATIONS).map(([caveId, cave]) => (
+                <Button
+                  key={caveId}
+                  w="full"
+                  bg="rgba(40,40,40,0.92)"
+                  color="white"
+                  borderWidth={2}
+                  borderColor="rgba(255,255,255,0.12)"
+                  boxShadow="0 2px 12px 0 rgba(0,0,0,0.18)"
+                  _hover={{
+                    bg: 'rgba(60,60,60,0.98)',
+                    boxShadow: '0 4px 24px 0 rgba(0,0,0,0.28)',
+                    borderColor: 'rgba(255,255,255,0.22)'
+                  }}
+                  _active={{
+                    bg: 'rgba(255,255,255,0.24)',
+                  }}
+                  variant="solid"
+                  onClick={() => handleDifficultySelect(caveId)}
+                  isDisabled={cave.levelRequired > character.combatLevel}
+                >
+                  {cave.name}
+                  {cave.levelRequired > character.combatLevel && 
+                    ` (Req. Level ${cave.levelRequired})`
+                  }
+                </Button>
+              ))}
             </VStack>
           </Box>
 

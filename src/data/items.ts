@@ -1327,15 +1327,6 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 10,
     sellPrice: 2
   },
-  cabbage: {
-    id: 'cabbage',
-    name: 'Cabbage',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 12,
-    sellPrice: 3
-  },
   tomato: {
     id: 'tomato',
     name: 'Tomato',
@@ -1543,8 +1534,8 @@ export const ITEMS: Record<string, Item> = {
     id: 'nature_rune',
     name: 'Nature Rune',
     type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/nature_rune.png',
     buyPrice: 60,
     sellPrice: 15
   },
@@ -1552,8 +1543,8 @@ export const ITEMS: Record<string, Item> = {
     id: 'chaos_rune',
     name: 'Chaos Rune',
     type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/chaos_rune.png',
     buyPrice: 50,
     sellPrice: 13
   },
@@ -1561,11 +1552,93 @@ export const ITEMS: Record<string, Item> = {
     id: 'fire_rune',
     name: 'Fire Rune',
     type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/fire_rune.png',
     buyPrice: 10,
     sellPrice: 2
   },
+  air_rune: {
+    id: 'air_rune',
+    name: 'Air Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/air_rune.png',
+    buyPrice: 5,
+    sellPrice: 1
+  },
+  mind_rune: {
+    id: 'mind_rune',
+    name: 'Mind Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/mind_rune.png',
+    buyPrice: 8,
+    sellPrice: 2
+  },
+  body_rune: {
+    id: 'body_rune',
+    name: 'Body Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/body_rune.png',
+    buyPrice: 12,
+    sellPrice: 3
+  },
+  blood_rune: {
+    id: 'blood_rune',
+    name: 'Blood Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/blood_rune.png',
+    buyPrice: 200,
+    sellPrice: 50
+  },
+  death_rune: {
+    id: 'death_rune',
+    name: 'Death Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/death_rune.png',
+    buyPrice: 150,
+    sellPrice: 38
+  },
+  law_rune: {
+    id: 'law_rune',
+    name: 'Law Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/law_rune.png',
+    buyPrice: 100,
+    sellPrice: 25
+  },
+  soul_rune: {
+    id: 'soul_rune',
+    name: 'Soul Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/soul_rune.png',
+    buyPrice: 300,
+    sellPrice: 75
+  },
+  astral_rune: {
+    id: 'astral_rune',
+    name: 'Astral Rune',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RUNES,
+    icon: '/assets/ItemThumbnail/Runecrafting/astral_rune.png',
+    buyPrice: 80,
+    sellPrice: 20
+  },
+  rune_essence: {
+    id: 'rune_essence',
+    name: 'Rune Essence',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 5,
+    sellPrice: 1
+  },
+
   raw_meat: {
     id: 'raw_meat',
     name: 'Raw Meat',
@@ -2842,24 +2915,6 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 150000,
     sellPrice: 100000
   },
-  strength_potion: {
-    id: 'strength_potion',
-    name: 'Strength Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/strength_potion.png',
-    buyPrice: 200,
-    sellPrice: 50
-  },
-  defence_potion: {
-    id: 'defence_potion',
-    name: 'Defence Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/defence_potion.png',
-    buyPrice: 250,
-    sellPrice: 62
-  },
   ranging_potion: {
     id: 'ranging_potion',
     name: 'Ranging Potion',
@@ -2868,24 +2923,6 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Herblore/potions/ranging_potion.png',
     buyPrice: 300,
     sellPrice: 75
-  },
-  magic_potion: {
-    id: 'magic_potion',
-    name: 'Magic Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/magic_potion.png',
-    buyPrice: 350,
-    sellPrice: 88
-  },
-  prayer_potion: {
-    id: 'prayer_potion',
-    name: 'Prayer Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/prayer_potion.png',
-    buyPrice: 400,
-    sellPrice: 100
   },
   melee_potion: {
     id: 'melee_potion',
@@ -2896,42 +2933,6 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 500,
     sellPrice: 125
   },
-  bastion_potion: {
-    id: 'bastion_potion',
-    name: 'Bastion Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/bastion_potion.png',
-    buyPrice: 550,
-    sellPrice: 138
-  },
-  battlemage_potion: {
-    id: 'battlemage_potion',
-    name: 'Battlemage Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/battlemage_potion.png',
-    buyPrice: 600,
-    sellPrice: 150
-  },
-  super_strength_potion: {
-    id: 'super_strength_potion',
-    name: 'Super Strength Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/super_strength_potion.png',
-    buyPrice: 700,
-    sellPrice: 175
-  },
-  super_defence_potion: {
-    id: 'super_defence_potion',
-    name: 'Super Defence Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/super_defence_potion.png',
-    buyPrice: 750,
-    sellPrice: 188
-  },
   super_ranging_potion: {
     id: 'super_ranging_potion',
     name: 'Super Ranging Potion',
@@ -2941,15 +2942,6 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 800,
     sellPrice: 200
   },
-  super_magic_potion: {
-    id: 'super_magic_potion',
-    name: 'Super Magic Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/super_magic_potion.png',
-    buyPrice: 850,
-    sellPrice: 213
-  },
   prayer_regen_potion: {
     id: 'prayer_regen_potion',
     name: 'Prayer Regen Potion',
@@ -2958,15 +2950,6 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Herblore/potions/prayer_regen_potion.png',
     buyPrice: 900,
     sellPrice: 225
-  },
-  super_melee_potion: {
-    id: 'super_melee_potion',
-    name: 'Super Melee Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/ItemThumbnail/Herblore/potions/super_melee_potion.png',
-    buyPrice: 1000,
-    sellPrice: 250
   },
   super_bastion_potion: {
     id: 'super_bastion_potion',
