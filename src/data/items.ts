@@ -38,7 +38,8 @@ export const ITEM_CATEGORIES = {
   RUNES: 'Runes',
   FARMING: 'Farming',
   HERBLORE: 'Herblore',
-  JEWELRY: 'Jewelry'
+  JEWELRY: 'Jewelry',
+  CRAFTING: 'Crafting'
 } as const;
 
 // Equipment slots
@@ -231,7 +232,7 @@ const SMITHING_TEMPLATES: SmithingTemplate[] = [
   { id: 'dart_tips', name: 'Dart Tips', levelOver: 3, bars: 1, type: 'ammo' },
   { id: 'nails', name: 'Nails', levelOver: 3, bars: 1, type: 'resource' },
   { id: 'scimitar', name: 'Scimitar', levelOver: 4, bars: 2, type: 'weapon', weaponType: 'scimitar', speed: 2.4 },
-  { id: 'spear', name: 'Spear', levelOver: 4, bars: 1, type: 'weapon' },
+  { id: 'spear', name: 'Spear', levelOver: 4, bars: 1, type: 'weapon', weaponType: 'spear' },
   { id: 'arrowtips', name: 'Arrowtips', levelOver: 4, bars: 1, type: 'ammo' },
   { id: 'crossbow_limbs', name: 'Crossbow Limbs', levelOver: 5, bars: 1, type: 'resource' },
   { id: 'longsword', name: 'Longsword', levelOver: 5, bars: 2, type: 'weapon', weaponType: 'longsword', speed: 2.4 },
@@ -323,9 +324,45 @@ const generateSmithingItems = (metalType: string) => {
       combatStats = baseStats;
     }
 
-    const iconPath = template.weaponType
-      ? `/assets/ItemThumbnail/Gear/Weapons/${template.weaponType}/${metalType}_${template.weaponType}.png`
-      : `/assets/items/placeholder.png`;
+    // Generate icon path based on item type
+    let iconPath = '/assets/items/placeholder.png';
+    
+    if (template.type === 'weapon' && template.weaponType) {
+      // Map weapon types to directory names
+      const weaponTypeMap: Record<string, string> = {
+        'sword': 'sword',
+        'longsword': 'longsword',
+        'scimitar': 'scimitar',
+        'dagger': 'dagger',
+        'mace': 'mace',
+        'battleaxe': 'battleaxe',
+        'axe': 'axe',
+        'pickaxe': 'pickaxe',
+        'two_handed_sword': '2h_sword',
+        'spear': 'spear',
+        'bow': 'bow',
+        'staff': 'staff',
+        'warhammer': 'warhammer'
+      };
+      
+      const weaponDir = weaponTypeMap[template.weaponType] || template.weaponType;
+      iconPath = `/assets/ItemThumbnail/Gear/Weapons/${weaponDir}/${metalType}_${template.weaponType}.png`;
+    } else if (template.type === 'armor' && template.armorType) {
+      // Map armor types to directory names
+      const armorDirMap: Record<string, string> = {
+        'medium_helm': 'Med_helm',
+        'full_helm': 'Full_helm',
+        'chainbody': 'Chainbody',
+        'platebody': 'Platebody',
+        'platelegs': 'Platelegs',
+        'plateskirt': 'Plateskirt',
+        'kiteshield': 'Kiteshield',
+        'square_shield': 'Square_shield',
+        'boots': 'Boots'
+      };
+      const armorDir = armorDirMap[template.armorType] || template.armorType;
+      iconPath = `/assets/ItemThumbnail/Gear/${armorDir}/${metalType}_${template.armorType}.png`;
+    }
     
     items[itemId] = {
       id: itemId,
@@ -352,7 +389,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Coins',
     type: 'currency',
     category: ITEM_CATEGORIES.CURRENCY,
-    icon: '/assets/ItemThumbnail/Div/Coins.png'
+    icon: '/assets/ItemThumbnail/Div/coins.png'
   },
 
   // Tools - Woodcutting
@@ -564,24 +601,6 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/items/placeholder.png',
     buyPrice: 300,
     sellPrice: 120
-  },
-  prayer_potion: {
-    id: 'prayer_potion',
-    name: 'Prayer Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 100,
-    sellPrice: 40
-  },
-  super_strength_potion: {
-    id: 'super_strength_potion',
-    name: 'Super Strength Potion',
-    type: 'consumable',
-    category: ITEM_CATEGORIES.CONSUMABLES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 150,
-    sellPrice: 60
   },
   raw_fish: {
     id: 'raw_fish',
@@ -823,76 +842,96 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Smithing/Runite_Bar.png',
   },
 
-  // Resources - Logs
+  // Resources - Logs (Updated with correct image paths)
   logs: {
     id: 'logs',
     name: 'Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Normal_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/normal_log.png',
+    buyPrice: 10,
+    sellPrice: 4
   },
   normal_logs: {
     id: 'normal_logs',
     name: 'Normal Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Normal_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/normal_log.png',
+    buyPrice: 10,
+    sellPrice: 4
   },
   oak_logs: {
     id: 'oak_logs',
     name: 'Oak Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Oak_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/oak_log.png',
+    buyPrice: 25,
+    sellPrice: 10
   },
   willow_logs: {
     id: 'willow_logs',
     name: 'Willow Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Willow_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/willow_log.png',
+    buyPrice: 50,
+    sellPrice: 20
   },
   maple_logs: {
     id: 'maple_logs',
     name: 'Maple Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Maple_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/maple_log.png',
+    buyPrice: 100,
+    sellPrice: 40
   },
   yew_logs: {
     id: 'yew_logs',
     name: 'Yew Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Yew_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/yew_log.png',
+    buyPrice: 200,
+    sellPrice: 80
   },
   magic_logs: {
     id: 'magic_logs',
     name: 'Magic Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Magic_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/magic_log.png',
+    buyPrice: 500,
+    sellPrice: 200
   },
   redwood_logs: {
     id: 'redwood_logs',
     name: 'Redwood Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/RedWood_Log.png'
+    icon: '/assets/ItemThumbnail/Woodcutting/redwood_log.png',
+    buyPrice: 1000,
+    sellPrice: 400
   },
   teak_logs: {
     id: 'teak_logs',
     name: 'Teak Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Teak_Log.png',
+    icon: '/assets/ItemThumbnail/Woodcutting/teak_log.png',
+    buyPrice: 150,
+    sellPrice: 60
   },
   mahogany_logs: {
     id: 'mahogany_logs',
     name: 'Mahogany Logs',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/ItemThumbnail/Woodcutting/Mahogany_Log.png',
+    icon: '/assets/ItemThumbnail/Woodcutting/mahogany_log.png',
+    buyPrice: 300,
+    sellPrice: 120
   },
 
   // Resources - Fishing
@@ -1138,7 +1177,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Ashes',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/ashes.png',
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/ashes.png',
   },
 
   bones: {
@@ -1146,18 +1185,11 @@ export const ITEMS: Record<string, Item> = {
     name: 'Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Div/bones.png',
   },
   egg: {
     id: 'egg',
     name: 'Egg',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  cowhide: {
-    id: 'cowhide',
-    name: 'Cowhide',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
@@ -1188,7 +1220,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Big Bones',
     type: 'resource',
     category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Div/big_bones.png',
   },
   dragon_bones: {
     id: 'dragon_bones',
@@ -1260,125 +1292,6 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/items/placeholder.png',
   },
-  tomato_seed: {
-    id: 'tomato_seed',
-    name: 'Tomato Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  sweetcorn_seed: {
-    id: 'sweetcorn_seed',
-    name: 'Sweetcorn Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  strawberry_seed: {
-    id: 'strawberry_seed',
-    name: 'Strawberry Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  watermelon_seed: {
-    id: 'watermelon_seed',
-    name: 'Watermelon Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  guam_leaf: {
-    id: 'guam_leaf',
-    name: 'Guam Leaf',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  marrentill: {
-    id: 'marrentill',
-    name: 'Marrentill',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  tarromin: {
-    id: 'tarromin',
-    name: 'Tarromin',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  harralander: {
-    id: 'harralander',
-    name: 'Harralander',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  ranarr_weed: {
-    id: 'ranarr_weed',
-    name: 'Ranarr Weed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  irit_leaf: {
-    id: 'irit_leaf',
-    name: 'Irit Leaf',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  avantoe: {
-    id: 'avantoe',
-    name: 'Avantoe',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  kwuarm: {
-    id: 'kwuarm',
-    name: 'Kwuarm',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  cadantine: {
-    id: 'cadantine',
-    name: 'Cadantine',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  lantadyme: {
-    id: 'lantadyme',
-    name: 'Lantadyme',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  dwarf_weed: {
-    id: 'dwarf_weed',
-    name: 'Dwarf Weed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  death_rune: {
-    id: 'death_rune',
-    name: 'Death Rune',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
-  blood_rune: {
-    id: 'blood_rune',
-    name: 'Blood Rune',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-  },
   goblin: {
     id: 'goblin',
     name: 'Goblin',
@@ -1395,253 +1308,6 @@ export const ITEMS: Record<string, Item> = {
   ...generateSmithingItems('adamant'),
   ...generateSmithingItems('rune'),
 
-  // --- Thieving Reward Items ---
-  potato_seed: {
-    id: 'potato_seed',
-    name: 'Potato Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 10,
-    sellPrice: 2
-  },
-  onion_seed: {
-    id: 'onion_seed',
-    name: 'Onion Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 12,
-    sellPrice: 3
-  },
-  guam_seed: {
-    id: 'guam_seed',
-    name: 'Guam Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 20,
-    sellPrice: 5
-  },
-  cabbage_seed: {
-    id: 'cabbage_seed',
-    name: 'Cabbage Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 14,
-    sellPrice: 3
-  },
-  snape_grass_seed: {
-    id: 'snape_grass_seed',
-    name: 'Snape Grass Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 30,
-    sellPrice: 7
-  },
-  marentill_seed: {
-    id: 'marentill_seed',
-    name: 'Marentill Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 25,
-    sellPrice: 6
-  },
-  tarromin_seed: {
-    id: 'tarromin_seed',
-    name: 'Tarromin Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 28,
-    sellPrice: 7
-  },
-  harralander_seed: {
-    id: 'harralander_seed',
-    name: 'Harralander Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 32,
-    sellPrice: 8
-  },
-  ranarr_seed: {
-    id: 'ranarr_seed',
-    name: 'Ranarr Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 40,
-    sellPrice: 10
-  },
-  toadflax_seed: {
-    id: 'toadflax_seed',
-    name: 'Toadflax Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 38,
-    sellPrice: 9
-  },
-  irit_seed: {
-    id: 'irit_seed',
-    name: 'Irit Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 42,
-    sellPrice: 11
-  },
-  avantoe_seed: {
-    id: 'avantoe_seed',
-    name: 'Avantoe Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 44,
-    sellPrice: 12
-  },
-  kwuarm_seed: {
-    id: 'kwuarm_seed',
-    name: 'Kwuarm Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 46,
-    sellPrice: 13
-  },
-  snapdragon_seed: {
-    id: 'snapdragon_seed',
-    name: 'Snapdragon Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 48,
-    sellPrice: 14
-  },
-
-  snapegrass_seed: {
-    id: 'snapegrass_seed',
-    name: 'Snapegrass Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 120,
-    sellPrice: 80
-  },
-  cadantine_seed: {
-    id: 'cadantine_seed',
-    name: 'Cadantine Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 50,
-    sellPrice: 15
-  },
-  lantadyme_seed: {
-    id: 'lantadyme_seed',
-    name: 'Lantadyme Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 52,
-    sellPrice: 16
-  },
-  dwarf_weed_seed: {
-    id: 'dwarf_weed_seed',
-    name: 'Dwarf Weed Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 54,
-    sellPrice: 17
-  },
-  torstol_seed: {
-    id: 'torstol_seed',
-    name: 'Torstol Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 60,
-    sellPrice: 20
-  },
-
-  // Tree seeds
-  acorn: {
-    id: 'acorn',
-    name: 'Acorn',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 100,
-    sellPrice: 25
-  },
-  willow_seed: {
-    id: 'willow_seed',
-    name: 'Willow Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 200,
-    sellPrice: 50
-  },
-  teak_seed: {
-    id: 'teak_seed',
-    name: 'Teak Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 300,
-    sellPrice: 75
-  },
-  maple_seed: {
-    id: 'maple_seed',
-    name: 'Maple Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 500,
-    sellPrice: 125
-  },
-  mahogany_seed: {
-    id: 'mahogany_seed',
-    name: 'Mahogany Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 800,
-    sellPrice: 200
-  },
-  yew_seed: {
-    id: 'yew_seed',
-    name: 'Yew Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 1200,
-    sellPrice: 300
-  },
-  magic_seed: {
-    id: 'magic_seed',
-    name: 'Magic Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 2000,
-    sellPrice: 500
-  },
-  redwood_seed: {
-    id: 'redwood_seed',
-    name: 'Redwood Seed',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 5000,
-    sellPrice: 1250
-  },
   // Harvested crops
   potato: {
     id: 'potato',
@@ -1706,15 +1372,6 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 40,
     sellPrice: 10
   },
-  snape_grass: {
-    id: 'snape_grass',
-    name: 'Snape Grass',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 35,
-    sellPrice: 8
-  },
 
   bow_string: {
     id: 'bow_string',
@@ -1747,36 +1404,48 @@ export const ITEMS: Record<string, Item> = {
   bronze_boots: {
     id: 'bronze_boots',
     name: 'Bronze Boots',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Boots/bronze_boots.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.FEET,
+    stats: { defence: 2 },
     buyPrice: 40,
     sellPrice: 10
   },
   bronze_medium_helm: {
     id: 'bronze_medium_helm',
     name: 'Bronze Medium Helm',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Med_helm/bronze_medium_helm.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 3 },
     buyPrice: 45,
     sellPrice: 11
   },
   iron_kiteshield: {
     id: 'iron_kiteshield',
     name: 'Iron Kiteshield',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/iron_kiteshield.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 8 },
     buyPrice: 60,
     sellPrice: 15
   },
   iron_platebody: {
     id: 'iron_platebody',
     name: 'Iron Platebody',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/iron_platebody.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 15 },
     buyPrice: 80,
     sellPrice: 20
   },
@@ -1784,26 +1453,35 @@ export const ITEMS: Record<string, Item> = {
     id: 'steel_sword',
     name: 'Steel Sword',
     type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/items/placeholder.png',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/sword/steel_sword.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 12 },
     buyPrice: 100,
     sellPrice: 25
   },
   steel_platebody: {
     id: 'steel_platebody',
     name: 'Steel Platebody',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platebody/steel_platebody.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 20 },
     buyPrice: 120,
     sellPrice: 30
   },
   steel_platelegs: {
     id: 'steel_platelegs',
     name: 'Steel Platelegs',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/steel_platelegs.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 18 },
     buyPrice: 110,
     sellPrice: 28
   },
@@ -1811,8 +1489,11 @@ export const ITEMS: Record<string, Item> = {
     id: 'mithril_scimitar',
     name: 'Mithril Scimitar',
     type: 'tool',
-    category: ITEM_CATEGORIES.TOOLS,
-    icon: '/assets/items/placeholder.png',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/scimitar/mithril_scimitar.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 20 },
     buyPrice: 200,
     sellPrice: 50
   },
@@ -1837,18 +1518,24 @@ export const ITEMS: Record<string, Item> = {
   mithril_full_helm: {
     id: 'mithril_full_helm',
     name: 'Mithril Full Helm',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/mithril_full_helm.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 12 },
     buyPrice: 220,
     sellPrice: 55
   },
   mithril_kiteshield: {
     id: 'mithril_kiteshield',
     name: 'Mithril Kiteshield',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/mithril_kiteshield.png',
+    level: 20,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 10 },
     buyPrice: 230,
     sellPrice: 58
   },
@@ -1888,60 +1575,15 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 8,
     sellPrice: 2
   },
-  uncut_ruby: {
-    id: 'uncut_ruby',
-    name: 'Uncut Ruby',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 120,
-    sellPrice: 30
-  },
-  uncut_sapphire: {
-    id: 'uncut_sapphire',
-    name: 'Uncut Sapphire',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 80,
-    sellPrice: 20
-  },
-  uncut_emerald: {
-    id: 'uncut_emerald',
-    name: 'Uncut Emerald',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 100,
-    sellPrice: 25
-  },
-  uncut_diamond: {
-    id: 'uncut_diamond',
-    name: 'Uncut Diamond',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 200,
-    sellPrice: 50
-  },
 
   // Missing items for thieving loot tables
-  uncut_onyx: {
-    id: 'uncut_onyx',
-    name: 'Uncut Onyx',
-    type: 'resource',
-    category: ITEM_CATEGORIES.RESOURCES,
-    icon: '/assets/items/placeholder.png',
-    buyPrice: 50000,
-    sellPrice: 35000
-  },
 
   iron_platelegs: {
     id: 'iron_platelegs',
     name: 'Iron Platelegs',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/iron_platelegs.png',
     level: 1,
     slot: EQUIPMENT_SLOTS.LEGS,
     stats: { defence: 5 },
@@ -1954,7 +1596,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Full Helm',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/steel_full_helm.png',
     level: 5,
     slot: EQUIPMENT_SLOTS.HEAD,
     stats: { defence: 6 },
@@ -1967,7 +1609,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Steel Boots',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Boots/steel_boots.png',
     level: 5,
     slot: EQUIPMENT_SLOTS.FEET,
     stats: { defence: 4 },
@@ -1980,7 +1622,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Platebody',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Platebody/mithril_platebody.png',
     level: 20,
     slot: EQUIPMENT_SLOTS.BODY,
     stats: { defence: 25 },
@@ -1993,7 +1635,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Full Helm',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Full_helm/mithril_full_helm.png',
     level: 20,
     slot: EQUIPMENT_SLOTS.HEAD,
     stats: { defence: 12 },
@@ -2006,7 +1648,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Mithril Platelegs',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/mithril_platelegs.png',
     level: 20,
     slot: EQUIPMENT_SLOTS.LEGS,
     stats: { defence: 22 },
@@ -2029,7 +1671,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamantite Chainbody',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Chainbody/adamant_chainbody.png',
     level: 30,
     slot: EQUIPMENT_SLOTS.BODY,
     stats: { defence: 30 },
@@ -2042,7 +1684,7 @@ export const ITEMS: Record<string, Item> = {
     name: 'Adamantite Platelegs',
     type: 'tool',
     category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/items/placeholder.png',
+    icon: '/assets/ItemThumbnail/Gear/Platelegs/adamant_platelegs.png',
     level: 30,
     slot: EQUIPMENT_SLOTS.LEGS,
     stats: { defence: 33 },
@@ -2325,7 +1967,7 @@ export const ITEMS: Record<string, Item> = {
     sellPrice: 4000
   },
 
-  // === FARMING - SEEDS ===
+  // === FARMING - SEEDS (Updated with correct image paths) ===
   potato_seeds: {
     id: 'potato_seeds',
     name: 'Potato Seeds',
@@ -2335,808 +1977,861 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 5,
     sellPrice: 2
   },
-  marrentill_seed: {
-    id: 'marrentill_seed',
-    name: 'Marrentill Seed',
+  onion_seed: {
+    id: 'onion_seed',
+    name: 'Onion Seed',
     type: 'resource',
     category: ITEM_CATEGORIES.FARMING,
-    icon: '/assets/ItemThumbnail/Farming/marrentill_seed.png',
-    buyPrice: 25,
+    icon: '/assets/ItemThumbnail/Farming/onion_seed.png',
+    buyPrice: 12,
+    sellPrice: 3
+  },
+  cabbage_seed: {
+    id: 'cabbage_seed',
+    name: 'Cabbage Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/cabbage_seed.png',
+    buyPrice: 14,
+    sellPrice: 3
+  },
+  tomato_seed: {
+    id: 'tomato_seed',
+    name: 'Tomato Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/tomato_seed.png',
+    buyPrice: 15,
+    sellPrice: 4
+  },
+  sweetcorn_seed: {
+    id: 'sweetcorn_seed',
+    name: 'Sweetcorn Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/sweetcorn_seed.png',
+    buyPrice: 20,
+    sellPrice: 5
+  },
+  strawberry_seed: {
+    id: 'strawberry_seed',
+    name: 'Strawberry Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/strawberry_seed.png',
+    buyPrice: 30,
+    sellPrice: 7
+  },
+  watermelon_seed: {
+    id: 'watermelon_seed',
+    name: 'Watermelon Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/watermelon_seed.png',
+    buyPrice: 40,
     sellPrice: 10
   },
+  snapegrass_seed: {
+    id: 'snapegrass_seed',
+    name: 'Snapegrass Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/snapegrass_seed.png',
+    buyPrice: 120,
+    sellPrice: 80
+  },
+  acorn: {
+    id: 'acorn',
+    name: 'Acorn',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/acorn_seed.png',
+    buyPrice: 100,
+    sellPrice: 25
+  },
+  willow_seed: {
+    id: 'willow_seed',
+    name: 'Willow Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/willow_seed.png',
+    buyPrice: 200,
+    sellPrice: 50
+  },
+  teak_seed: {
+    id: 'teak_seed',
+    name: 'Teak Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/teak_seed.png',
+    buyPrice: 300,
+    sellPrice: 75
+  },
+  maple_seed: {
+    id: 'maple_seed',
+    name: 'Maple Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/maple_seed.png',
+    buyPrice: 500,
+    sellPrice: 125
+  },
+  mahogany_seed: {
+    id: 'mahogany_seed',
+    name: 'Mahogany Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/mahogany_seed.png',
+    buyPrice: 800,
+    sellPrice: 200
+  },
+  yew_seed: {
+    id: 'yew_seed',
+    name: 'Yew Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/yew_seed.png',
+    buyPrice: 1200,
+    sellPrice: 300
+  },
+  magic_seed: {
+    id: 'magic_seed',
+    name: 'Magic Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/magic_seed.png',
+    buyPrice: 2000,
+    sellPrice: 500
+  },
+  redwood_seed: {
+    id: 'redwood_seed',
+    name: 'Redwood Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/redwood_seed.png',
+    buyPrice: 5000,
+    sellPrice: 1250
+  },
 
-  // === HERBLORE - HERBS ===
-  ranarr: {
-    id: 'ranarr',
+  // === HERBLORE - HERBS (Updated with correct image paths) ===
+  guam_leaf: {
+    id: 'guam_leaf',
+    name: 'Guam Leaf',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/guam_leaf.png',
+    buyPrice: 50,
+    sellPrice: 20
+  },
+  marrentill: {
+    id: 'marrentill',
+    name: 'Marrentill',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/marrentill.png',
+    buyPrice: 75,
+    sellPrice: 30
+  },
+  tarromin: {
+    id: 'tarromin',
+    name: 'Tarromin',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/tarromin.png',
+    buyPrice: 100,
+    sellPrice: 40
+  },
+  harralander: {
+    id: 'harralander',
+    name: 'Harralander',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/harralander.png',
+    buyPrice: 125,
+    sellPrice: 50
+  },
+  ranarr_weed: {
+    id: 'ranarr_weed',
     name: 'Ranarr Weed',
     type: 'resource',
     category: ITEM_CATEGORIES.HERBLORE,
-    icon: '/assets/ItemThumbnail/Herblore/ranarr.png',
+    icon: '/assets/ItemThumbnail/Herblore/herbs/ranarr.png',
     buyPrice: 150,
     sellPrice: 60
+  },
+  irit_leaf: {
+    id: 'irit_leaf',
+    name: 'Irit Leaf',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/irit.png',
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  avantoe: {
+    id: 'avantoe',
+    name: 'Avantoe',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/avantoe.png',
+    buyPrice: 250,
+    sellPrice: 100
+  },
+  kwuarm: {
+    id: 'kwuarm',
+    name: 'Kwuarm',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/kwuarm.png',
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  cadantine: {
+    id: 'cadantine',
+    name: 'Cadantine',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/cadantine.png',
+    buyPrice: 350,
+    sellPrice: 140
+  },
+  lantadyme: {
+    id: 'lantadyme',
+    name: 'Lantadyme',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/lantadyme.png',
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  dwarf_weed: {
+    id: 'dwarf_weed',
+    name: 'Dwarf Weed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/dwarf_weed.png',
+    buyPrice: 450,
+    sellPrice: 180
+  },
+  toadflax: {
+    id: 'toadflax',
+    name: 'Toadflax',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/toadflax.png',
+    buyPrice: 275,
+    sellPrice: 110
   },
   snapdragon: {
     id: 'snapdragon',
     name: 'Snapdragon',
     type: 'resource',
     category: ITEM_CATEGORIES.HERBLORE,
-    icon: '/assets/ItemThumbnail/Herblore/snapdragon.png',
+    icon: '/assets/ItemThumbnail/Herblore/herbs/snapdragon.png',
     buyPrice: 300,
     sellPrice: 120
   },
-
-  // === WEAPONS - DAGGERS ===
-  bronze_dagger: {
-    id: 'bronze_dagger',
-    name: 'Bronze Dagger',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/bronze_dagger.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 1, strength: 1 },
-    buyPrice: 100,
-    sellPrice: 40
-  },
-  iron_dagger: {
-    id: 'iron_dagger',
-    name: 'Iron Dagger',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/iron_dagger.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 2, strength: 1 },
-    buyPrice: 200,
-    sellPrice: 80
-  },
-  steel_dagger: {
-    id: 'steel_dagger',
-    name: 'Steel Dagger',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/steel_dagger.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 4, strength: 2 },
-    buyPrice: 400,
-    sellPrice: 160
-  },
-  mithril_dagger: {
-    id: 'mithril_dagger',
-    name: 'Mithril Dagger',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/mithril_dagger.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 8, strength: 4 },
-    buyPrice: 800,
-    sellPrice: 320
-  },
-  adamant_dagger: {
-    id: 'adamant_dagger',
-    name: 'Adamant Dagger',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/adamant_dagger.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 16, strength: 8 },
-    buyPrice: 1600,
-    sellPrice: 640
-  },
-  rune_dagger: {
-    id: 'rune_dagger',
-    name: 'Rune Dagger',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/rune_dagger.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 32, strength: 16 },
-    buyPrice: 3200,
-    sellPrice: 1280
-  },
-  dragon_dagger: {
-    id: 'dragon_dagger',
-    name: 'Dragon Dagger',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/dagger/dragon_dagger.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 64, strength: 32 },
-    buyPrice: 6400,
-    sellPrice: 2560
-  },
-
-  // === ARMOR - MEDIUM HELMS ===
-  bronze_medium_helm: {
-    id: 'bronze_medium_helm',
-    name: 'Bronze Medium Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Med_helm/bronze_med_helm.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 2 },
-    buyPrice: 150,
-    sellPrice: 60
-  },
-  iron_medium_helm: {
-    id: 'iron_medium_helm',
-    name: 'Iron Medium Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Med_helm/iron_med_helm.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 4 },
-    buyPrice: 300,
-    sellPrice: 120
-  },
-  steel_medium_helm: {
-    id: 'steel_medium_helm',
-    name: 'Steel Medium Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Med_helm/steel_med_helm.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 6 },
-    buyPrice: 600,
-    sellPrice: 240
-  },
-  mithril_medium_helm: {
-    id: 'mithril_medium_helm',
-    name: 'Mithril Medium Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Med_helm/mithril_med_helm.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 8 },
-    buyPrice: 1200,
-    sellPrice: 480
-  },
-  adamant_medium_helm: {
-    id: 'adamant_medium_helm',
-    name: 'Adamant Medium Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Med_helm/adamant_med_helm.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 10 },
-    buyPrice: 2400,
-    sellPrice: 960
-  },
-  rune_medium_helm: {
-    id: 'rune_medium_helm',
-    name: 'Rune Medium Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Med_helm/rune_med_helm.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 12 },
-    buyPrice: 4800,
-    sellPrice: 1920
-  },
-  dragon_medium_helm: {
-    id: 'dragon_medium_helm',
-    name: 'Dragon Medium Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Med_helm/dragon_med_helm.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 16 },
-    buyPrice: 9600,
-    sellPrice: 3840
-  },
-
-  // === WEAPONS - SPEARS ===
-  bronze_spear: {
-    id: 'bronze_spear',
-    name: 'Bronze Spear',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/bronze_spear.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 2, strength: 2 },
-    buyPrice: 150,
-    sellPrice: 60
-  },
-  iron_spear: {
-    id: 'iron_spear',
-    name: 'Iron Spear',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/iron_spear.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 4, strength: 2 },
-    buyPrice: 300,
-    sellPrice: 120
-  },
-  steel_spear: {
-    id: 'steel_spear',
-    name: 'Steel Spear',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/steel_spear.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 6, strength: 4 },
-    buyPrice: 600,
-    sellPrice: 240
-  },
-  mithril_spear: {
-    id: 'mithril_spear',
-    name: 'Mithril Spear',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/mithril_spear.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 12, strength: 8 },
-    buyPrice: 1200,
-    sellPrice: 480
-  },
-  adamant_spear: {
-    id: 'adamant_spear',
-    name: 'Adamant Spear',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/adamant_spear.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 24, strength: 16 },
-    buyPrice: 2400,
-    sellPrice: 960
-  },
-  rune_spear: {
-    id: 'rune_spear',
-    name: 'Rune Spear',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/rune_spear.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 48, strength: 32 },
-    buyPrice: 4800,
-    sellPrice: 1920
-  },
-  dragon_spear: {
-    id: 'dragon_spear',
-    name: 'Dragon Spear',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/spear/dragon_spear.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 96, strength: 64 },
-    buyPrice: 9600,
-    sellPrice: 3840
-  },
-
-  // === ARMOR - FULL HELMS ===
-  bronze_full_helm: {
-    id: 'bronze_full_helm',
-    name: 'Bronze Full Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Full_helm/bronze_full_helm.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 4 },
-    buyPrice: 200,
-    sellPrice: 80
-  },
-  iron_full_helm: {
-    id: 'iron_full_helm',
-    name: 'Iron Full Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Full_helm/iron_full_helm.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 8 },
-    buyPrice: 400,
-    sellPrice: 160
-  },
-  steel_full_helm: {
-    id: 'steel_full_helm',
-    name: 'Steel Full Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Full_helm/steel_full_helm.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 12 },
-    buyPrice: 800,
-    sellPrice: 320
-  },
-  mithril_full_helm: {
-    id: 'mithril_full_helm',
-    name: 'Mithril Full Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Full_helm/mithril_full_helm.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 16 },
-    buyPrice: 1600,
-    sellPrice: 640
-  },
-  adamant_full_helm: {
-    id: 'adamant_full_helm',
-    name: 'Adamant Full Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Full_helm/adamant_full_helm.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 20 },
-    buyPrice: 3200,
-    sellPrice: 1280
-  },
-  rune_full_helm: {
-    id: 'rune_full_helm',
-    name: 'Rune Full Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Full_helm/rune_full_helm.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 24 },
-    buyPrice: 6400,
-    sellPrice: 2560
-  },
-  dragon_full_helm: {
-    id: 'dragon_full_helm',
-    name: 'Dragon Full Helm',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Full_helm/dragon_full_helm.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.HEAD,
-    stats: { defence: 32 },
-    buyPrice: 12800,
-    sellPrice: 5120
-  },
-
-  // === ARMOR - SQUARE SHIELDS ===
-  bronze_square_shield: {
-    id: 'bronze_square_shield',
-    name: 'Bronze Square Shield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Square_shield/bronze_square_shield.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 3 },
-    buyPrice: 200,
-    sellPrice: 80
-  },
-  iron_square_shield: {
-    id: 'iron_square_shield',
-    name: 'Iron Square Shield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Square_shield/iron_square_shield.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 6 },
-    buyPrice: 400,
-    sellPrice: 160
-  },
-  steel_square_shield: {
-    id: 'steel_square_shield',
-    name: 'Steel Square Shield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Square_shield/steel_square_shield.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 9 },
-    buyPrice: 800,
-    sellPrice: 320
-  },
-  mithril_square_shield: {
-    id: 'mithril_square_shield',
-    name: 'Mithril Square Shield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Square_shield/mithril_square_shield.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 12 },
-    buyPrice: 1600,
-    sellPrice: 640
-  },
-  adamant_square_shield: {
-    id: 'adamant_square_shield',
-    name: 'Adamant Square Shield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Square_shield/adamant_square_shield.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 15 },
-    buyPrice: 3200,
-    sellPrice: 1280
-  },
-  rune_square_shield: {
-    id: 'rune_square_shield',
-    name: 'Rune Square Shield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Square_shield/rune_square_shield.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 18 },
-    buyPrice: 6400,
-    sellPrice: 2560
-  },
-  dragon_square_shield: {
-    id: 'dragon_square_shield',
-    name: 'Dragon Square Shield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Square_shield/dragon_square_shield.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 24 },
-    buyPrice: 12800,
-    sellPrice: 5120
-  },
-
-  // === ARMOR - KITESHIELDS ===
-  bronze_kiteshield: {
-    id: 'bronze_kiteshield',
-    name: 'Bronze Kiteshield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Kiteshield/bronze_kiteshield.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 5 },
-    buyPrice: 300,
-    sellPrice: 120
-  },
-  iron_kiteshield: {
-    id: 'iron_kiteshield',
-    name: 'Iron Kiteshield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Kiteshield/iron_kiteshield.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 10 },
-    buyPrice: 600,
-    sellPrice: 240
-  },
-  steel_kiteshield: {
-    id: 'steel_kiteshield',
-    name: 'Steel Kiteshield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Kiteshield/steel_kiteshield.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 15 },
-    buyPrice: 1200,
-    sellPrice: 480
-  },
-  mithril_kiteshield: {
-    id: 'mithril_kiteshield',
-    name: 'Mithril Kiteshield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Kiteshield/mithril_kiteshield.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 20 },
-    buyPrice: 2400,
-    sellPrice: 960
-  },
-  adamant_kiteshield: {
-    id: 'adamant_kiteshield',
-    name: 'Adamant Kiteshield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Kiteshield/adamant_kiteshield.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 25 },
-    buyPrice: 4800,
-    sellPrice: 1920
-  },
-  rune_kiteshield: {
-    id: 'rune_kiteshield',
-    name: 'Rune Kiteshield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Kiteshield/rune_kiteshield.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 30 },
-    buyPrice: 9600,
-    sellPrice: 3840
-  },
-  dragon_kiteshield: {
-    id: 'dragon_kiteshield',
-    name: 'Dragon Kiteshield',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Kiteshield/dragon_kiteshield.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.SHIELD,
-    stats: { defence: 40 },
-    buyPrice: 19200,
-    sellPrice: 7680
-  },
-
-  // === WEAPONS - TWO-HANDED SWORDS ===
-  bronze_two_handed_sword: {
-    id: 'bronze_two_handed_sword',
-    name: 'Bronze Two-handed Sword',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/bronze_two_handed_sword.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 6, strength: 6 },
-    buyPrice: 300,
-    sellPrice: 120
-  },
-  iron_two_handed_sword: {
-    id: 'iron_two_handed_sword',
-    name: 'Iron Two-handed Sword',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/iron_two_handed_sword.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 12, strength: 6 },
-    buyPrice: 600,
-    sellPrice: 240
-  },
-  steel_two_handed_sword: {
-    id: 'steel_two_handed_sword',
-    name: 'Steel Two-handed Sword',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/steel_two_handed_sword.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 18, strength: 12 },
-    buyPrice: 1200,
-    sellPrice: 480
-  },
-  mithril_two_handed_sword: {
-    id: 'mithril_two_handed_sword',
-    name: 'Mithril Two-handed Sword',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/mithril_two_handed_sword.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 36, strength: 24 },
-    buyPrice: 2400,
-    sellPrice: 960
-  },
-  adamant_two_handed_sword: {
-    id: 'adamant_two_handed_sword',
-    name: 'Adamant Two-handed Sword',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/adamant_two_handed_sword.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 72, strength: 48 },
-    buyPrice: 4800,
-    sellPrice: 1920
-  },
-  rune_two_handed_sword: {
-    id: 'rune_two_handed_sword',
-    name: 'Rune Two-handed Sword',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/rune_two_handed_sword.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 144, strength: 96 },
-    buyPrice: 9600,
-    sellPrice: 3840
-  },
-  dragon_two_handed_sword: {
-    id: 'dragon_two_handed_sword',
-    name: 'Dragon Two-handed Sword',
-    type: 'weapon',
-    category: ITEM_CATEGORIES.WEAPONS,
-    icon: '/assets/ItemThumbnail/Gear/Weapons/2h_sword/dragon_two_handed_sword.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { attack: 288, strength: 192 },
-    buyPrice: 19200,
-    sellPrice: 7680
-  },
-
-  // === ARMOR - PLATELEGS ===
-  bronze_platelegs: {
-    id: 'bronze_platelegs',
-    name: 'Bronze Platelegs',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platelegs/bronze_platelegs.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    stats: { defence: 4 },
-    buyPrice: 300,
-    sellPrice: 120
-  },
-  iron_platelegs: {
-    id: 'iron_platelegs',
-    name: 'Iron Platelegs',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platelegs/iron_platelegs.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    stats: { defence: 8 },
-    buyPrice: 600,
-    sellPrice: 240
-  },
-  steel_platelegs: {
-    id: 'steel_platelegs',
-    name: 'Steel Platelegs',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platelegs/steel_platelegs.png',
-    level: 5,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    stats: { defence: 12 },
-    buyPrice: 1200,
-    sellPrice: 480
-  },
-  mithril_platelegs: {
-    id: 'mithril_platelegs',
-    name: 'Mithril Platelegs',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platelegs/mithril_platelegs.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    stats: { defence: 16 },
-    buyPrice: 2400,
-    sellPrice: 960
-  },
-  adamant_platelegs: {
-    id: 'adamant_platelegs',
-    name: 'Adamant Platelegs',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platelegs/adamant_platelegs.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    stats: { defence: 20 },
-    buyPrice: 4800,
-    sellPrice: 1920
-  },
-  rune_platelegs: {
-    id: 'rune_platelegs',
-    name: 'Rune Platelegs',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platelegs/rune_platelegs.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    stats: { defence: 24 },
-    buyPrice: 9600,
-    sellPrice: 3840
-  },
-  dragon_platelegs: {
-    id: 'dragon_platelegs',
-    name: 'Dragon Platelegs',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platelegs/dragon_platelegs.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.LEGS,
-    stats: { defence: 32 },
-    buyPrice: 19200,
-    sellPrice: 7680
-  },
-
-  // === ARMOR - PLATEBODIES ===
-  bronze_platebody: {
-    id: 'bronze_platebody',
-    name: 'Bronze Platebody',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platebody/bronze_platebody.png',
-    level: 1,
-    slot: EQUIPMENT_SLOTS.BODY,
-    stats: { defence: 8 },
+  torstol: {
+    id: 'torstol',
+    name: 'Torstol',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/herbs/torstol.png',
     buyPrice: 500,
     sellPrice: 200
   },
-  iron_platebody: {
-    id: 'iron_platebody',
-    name: 'Iron Platebody',
+
+  // === HERBLORE - POTIONS ===
+  vial_of_water: {
+    id: 'vial_of_water',
+    name: 'Vial of Water',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/vial_of_water.png',
+    buyPrice: 5,
+    sellPrice: 2
+  },
+  attack_potion: {
+    id: 'attack_potion',
+    name: 'Attack Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/attack_potion.png',
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  strength_potion: {
+    id: 'strength_potion',
+    name: 'Strength Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/strength_potion.png',
+    buyPrice: 250,
+    sellPrice: 100
+  },
+  defence_potion: {
+    id: 'defence_potion',
+    name: 'Defence Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/defence_potion.png',
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  super_attack_potion: {
+    id: 'super_attack_potion',
+    name: 'Super Attack Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_attack_potion.png',
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  super_strength_potion: {
+    id: 'super_strength_potion',
+    name: 'Super Strength Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_strength_potion.png',
+    buyPrice: 450,
+    sellPrice: 180
+  },
+  super_defence_potion: {
+    id: 'super_defence_potion',
+    name: 'Super Defence Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_defence_potion.png',
+    buyPrice: 500,
+    sellPrice: 200
+  },
+  prayer_potion: {
+    id: 'prayer_potion',
+    name: 'Prayer Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/prayer_potion.png',
+    buyPrice: 100,
+    sellPrice: 40
+  },
+  antipoison: {
+    id: 'antipoison',
+    name: 'Antipoison',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/antipoison.png',
+    buyPrice: 150,
+    sellPrice: 60
+  },
+  antifire: {
+    id: 'antifire',
+    name: 'Antifire Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/antifire.png',
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  magic_potion: {
+    id: 'magic_potion',
+    name: 'Magic Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/magic_potion.png',
+    buyPrice: 350,
+    sellPrice: 140
+  },
+  super_magic_potion: {
+    id: 'super_magic_potion',
+    name: 'Super Magic Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_magic_potion.png',
+    buyPrice: 550,
+    sellPrice: 220
+  },
+  ranged_potion: {
+    id: 'ranged_potion',
+    name: 'Ranged Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/ranged_potion.png',
+    buyPrice: 350,
+    sellPrice: 140
+  },
+  super_range_potion: {
+    id: 'super_range_potion',
+    name: 'Super Range Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_range_potion.png',
+    buyPrice: 550,
+    sellPrice: 220
+  },
+  super_melee_potion: {
+    id: 'super_melee_potion',
+    name: 'Super Melee Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_melee_potion.png',
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  bastion_potion: {
+    id: 'bastion_potion',
+    name: 'Bastion Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/bastion_potion.png',
+    buyPrice: 700,
+    sellPrice: 280
+  },
+  battlemage_potion: {
+    id: 'battlemage_potion',
+    name: 'Battlemage Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/potions/battlemage_potion.png',
+    buyPrice: 700,
+    sellPrice: 280
+  },
+
+  // === HERBLORE - SECONDARIES ===
+  eye_of_newt: {
+    id: 'eye_of_newt',
+    name: 'Eye of Newt',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/eye_of_newt.png',
+    buyPrice: 10,
+    sellPrice: 4
+  },
+  limpwurt_root: {
+    id: 'limpwurt_root',
+    name: 'Limpwurt Root',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/limpwurt_root.png',
+    buyPrice: 50,
+    sellPrice: 20
+  },
+  red_spiders_eggs: {
+    id: 'red_spiders_eggs',
+    name: 'Red Spiders Eggs',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/red_spiders_eggs.png',
+    buyPrice: 30,
+    sellPrice: 12
+  },
+  snape_grass: {
+    id: 'snape_grass',
+    name: 'Snape Grass',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/snapegrass.png',
+    buyPrice: 35,
+    sellPrice: 8
+  },
+  white_berries: {
+    id: 'white_berries',
+    name: 'White Berries',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/white_berries.png',
+    buyPrice: 40,
+    sellPrice: 16
+  },
+  red_berries: {
+    id: 'red_berries',
+    name: 'Red Berries',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/red_berries.png',
+    buyPrice: 25,
+    sellPrice: 10
+  },
+  blue_berries: {
+    id: 'blue_berries',
+    name: 'Blue Berries',
+    type: 'resource',
+    category: ITEM_CATEGORIES.HERBLORE,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/blue_berries.png',
+    buyPrice: 30,
+    sellPrice: 12
+  },
+
+  // === CRAFTING - HIDE ITEMS ===
+  cowhide: {
+    id: 'cowhide',
+    name: 'Cowhide',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/cowhide.png',
+    buyPrice: 20,
+    sellPrice: 8
+  },
+  leather_body: {
+    id: 'leather_body',
+    name: 'Leather Body',
     type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platebody/iron_platebody.png',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/leather_body.png',
     level: 1,
     slot: EQUIPMENT_SLOTS.BODY,
-    stats: { defence: 16 },
-    buyPrice: 1000,
-    sellPrice: 400
+    stats: { defence: 2 },
+    buyPrice: 100,
+    sellPrice: 40
   },
-  steel_platebody: {
-    id: 'steel_platebody',
-    name: 'Steel Platebody',
+  leather_chaps: {
+    id: 'leather_chaps',
+    name: 'Leather Chaps',
     type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platebody/steel_platebody.png',
-    level: 5,
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/leather_chaps.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 2 },
+    buyPrice: 80,
+    sellPrice: 32
+  },
+  leather_coif: {
+    id: 'leather_coif',
+    name: 'Leather Coif',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/leather_coif.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 1 },
+    buyPrice: 60,
+    sellPrice: 24
+  },
+  leather_vambraces: {
+    id: 'leather_vambraces',
+    name: 'Leather Vambraces',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/leather_vambraces.png',
+    level: 1,
+    slot: EQUIPMENT_SLOTS.HANDS,
+    stats: { defence: 1 },
+    buyPrice: 40,
+    sellPrice: 16
+  },
+  green_dragonhide: {
+    id: 'green_dragonhide',
+    name: 'Green Dragonhide',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/green_dragonhide.png',
+    buyPrice: 100,
+    sellPrice: 40
+  },
+  green_dragonhide_body: {
+    id: 'green_dragonhide_body',
+    name: 'Green Dragonhide Body',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/green_dragonhide_body.png',
+    level: 40,
     slot: EQUIPMENT_SLOTS.BODY,
-    stats: { defence: 24 },
+    stats: { defence: 15 },
+    buyPrice: 500,
+    sellPrice: 200
+  },
+  green_dragonhide_chaps: {
+    id: 'green_dragonhide_chaps',
+    name: 'Green Dragonhide Chaps',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/green_dragonhide_chaps.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 12 },
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  green_dragonhide_coif: {
+    id: 'green_dragonhide_coif',
+    name: 'Green Dragonhide Coif',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/green_dragonhide_coif.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 8 },
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  green_dragonhide_vambraces: {
+    id: 'green_dragonhide_vambraces',
+    name: 'Green Dragonhide Vambraces',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/green_dragonhide_vambraces.png',
+    level: 40,
+    slot: EQUIPMENT_SLOTS.HANDS,
+    stats: { defence: 6 },
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  blue_dragonhide: {
+    id: 'blue_dragonhide',
+    name: 'Blue Dragonhide',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/blue_dragonhide.png',
+    buyPrice: 200,
+    sellPrice: 80
+  },
+  blue_dragonhide_body: {
+    id: 'blue_dragonhide_body',
+    name: 'Blue Dragonhide Body',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/blue_dragonhide_body.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 20 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+  blue_dragonhide_chaps: {
+    id: 'blue_dragonhide_chaps',
+    name: 'Blue Dragonhide Chaps',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/blue_dragonhide_chaps.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 16 },
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  blue_dragonhide_vambraces: {
+    id: 'blue_dragonhide_vambraces',
+    name: 'Blue Dragonhide Vambraces',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/blue_dragonhide_vambraces.png',
+    level: 50,
+    slot: EQUIPMENT_SLOTS.HANDS,
+    stats: { defence: 10 },
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  red_dragonhide: {
+    id: 'red_dragonhide',
+    name: 'Red Dragonhide',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/red_dragonhide.png',
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  red_dragonhide_body: {
+    id: 'red_dragonhide_body',
+    name: 'Red Dragonhide Body',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/red_dragonhide_body.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 25 },
+    buyPrice: 1200,
+    sellPrice: 480
+  },
+  red_dragonhide_chaps: {
+    id: 'red_dragonhide_chaps',
+    name: 'Red Dragonhide Chaps',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/red_dragonhide_chaps.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 20 },
+    buyPrice: 900,
+    sellPrice: 360
+  },
+  red_dragonhide_vambraces: {
+    id: 'red_dragonhide_vambraces',
+    name: 'Red Dragonhide Vambraces',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/red_dragonhide_vambraces.png',
+    level: 60,
+    slot: EQUIPMENT_SLOTS.HANDS,
+    stats: { defence: 15 },
+    buyPrice: 600,
+    sellPrice: 240
+  },
+  black_dragonhide: {
+    id: 'black_dragonhide',
+    name: 'Black Dragonhide',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/black_dragonhide.png',
+    buyPrice: 800,
+    sellPrice: 320
+  },
+  black_dragonhide_body: {
+    id: 'black_dragonhide_body',
+    name: 'Black Dragonhide Body',
+    type: 'armor',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/black_dragonhide_body.png',
+    level: 70,
+    slot: EQUIPMENT_SLOTS.BODY,
+    stats: { defence: 30 },
     buyPrice: 2000,
     sellPrice: 800
   },
-  mithril_platebody: {
-    id: 'mithril_platebody',
-    name: 'Mithril Platebody',
+  black_dragonhide_chaps: {
+    id: 'black_dragonhide_chaps',
+    name: 'Black Dragonhide Chaps',
     type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platebody/mithril_platebody.png',
-    level: 20,
-    slot: EQUIPMENT_SLOTS.BODY,
-    stats: { defence: 32 },
-    buyPrice: 4000,
-    sellPrice: 1600
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/black_dragonhide_chaps.png',
+    level: 70,
+    slot: EQUIPMENT_SLOTS.LEGS,
+    stats: { defence: 25 },
+    buyPrice: 1500,
+    sellPrice: 600
   },
-  adamant_platebody: {
-    id: 'adamant_platebody',
-    name: 'Adamant Platebody',
+  black_dragonhide_coif: {
+    id: 'black_dragonhide_coif',
+    name: 'Black Dragonhide Coif',
     type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platebody/adamant_platebody.png',
-    level: 30,
-    slot: EQUIPMENT_SLOTS.BODY,
-    stats: { defence: 40 },
-    buyPrice: 8000,
-    sellPrice: 3200
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/black_dragonhide_coif.png',
+    level: 70,
+    slot: EQUIPMENT_SLOTS.HEAD,
+    stats: { defence: 15 },
+    buyPrice: 900,
+    sellPrice: 360
   },
-  rune_platebody: {
-    id: 'rune_platebody',
-    name: 'Rune Platebody',
+  black_dragonhide_vambraces: {
+    id: 'black_dragonhide_vambraces',
+    name: 'Black Dragonhide Vambraces',
     type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platebody/rune_platebody.png',
-    level: 40,
-    slot: EQUIPMENT_SLOTS.BODY,
-    stats: { defence: 48 },
-    buyPrice: 16000,
-    sellPrice: 6400
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Hide/black_dragonhide_vambraces.png',
+    level: 70,
+    slot: EQUIPMENT_SLOTS.HANDS,
+    stats: { defence: 20 },
+    buyPrice: 1200,
+    sellPrice: 480
   },
-  dragon_platebody: {
-    id: 'dragon_platebody',
-    name: 'Dragon Platebody',
-    type: 'armor',
-    category: ITEM_CATEGORIES.ARMOR,
-    icon: '/assets/ItemThumbnail/Gear/Platebody/dragon_platebody.png',
-    level: 60,
-    slot: EQUIPMENT_SLOTS.BODY,
-    stats: { defence: 64 },
-    buyPrice: 32000,
-    sellPrice: 12800
+
+  // === CRAFTING - GEMS (Updated with correct image paths) ===
+  uncut_sapphire: {
+    id: 'uncut_sapphire',
+    name: 'Uncut Sapphire',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/uncut_sapphire.png',
+    buyPrice: 80,
+    sellPrice: 20
+  },
+  sapphire: {
+    id: 'sapphire',
+    name: 'Sapphire',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/sapphire.png',
+    buyPrice: 120,
+    sellPrice: 30
+  },
+  uncut_emerald: {
+    id: 'uncut_emerald',
+    name: 'Uncut Emerald',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/uncut_emerald.png',
+    buyPrice: 100,
+    sellPrice: 25
+  },
+  emerald: {
+    id: 'emerald',
+    name: 'Emerald',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/emerald.png',
+    buyPrice: 150,
+    sellPrice: 40
+  },
+  uncut_ruby: {
+    id: 'uncut_ruby',
+    name: 'Uncut Ruby',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/uncut_ruby.png',
+    buyPrice: 120,
+    sellPrice: 30
+  },
+  ruby: {
+    id: 'ruby',
+    name: 'Ruby',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/ruby.png',
+    buyPrice: 180,
+    sellPrice: 45
+  },
+  uncut_diamond: {
+    id: 'uncut_diamond',
+    name: 'Uncut Diamond',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/uncut_diamond.png',
+    buyPrice: 200,
+    sellPrice: 50
+  },
+  diamond: {
+    id: 'diamond',
+    name: 'Diamond',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/diamond.png',
+    buyPrice: 300,
+    sellPrice: 75
+  },
+  uncut_onyx: {
+    id: 'uncut_onyx',
+    name: 'Uncut Onyx',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/uncut_onyx.png',
+    buyPrice: 50000,
+    sellPrice: 35000
+  },
+  onyx: {
+    id: 'onyx',
+    name: 'Onyx',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/onyx.png',
+    buyPrice: 75000,
+    sellPrice: 50000
+  },
+  uncut_zenyte: {
+    id: 'uncut_zenyte',
+    name: 'Uncut Zenyte',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/uncut_zenyte.png',
+    buyPrice: 100000,
+    sellPrice: 70000
+  },
+  zenyte: {
+    id: 'zenyte',
+    name: 'Zenyte',
+    type: 'resource',
+    category: ITEM_CATEGORIES.CRAFTING,
+    icon: '/assets/ItemThumbnail/Crafting/Gems/zenyte.png',
+    buyPrice: 150000,
+    sellPrice: 100000
   },
 };
 
