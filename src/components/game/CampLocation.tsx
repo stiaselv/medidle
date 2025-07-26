@@ -6,6 +6,8 @@ import { useGameStore, calculateLevel, getNextLevelExperience } from '../../stor
 import type { SkillAction } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
+import { ItemIcon } from '../ui/ItemIcon';
+import { getItemById } from '../../data/items';
 import campBg from '../../assets/BG/camp.webp';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -48,7 +50,7 @@ const ActionButton = ({
   isActive?: boolean;
 }) => {
   const icon = getActionIcon(action.type);
-  const { completeAction, stopAction, canPerformAction } = useGameStore();
+  const { character, completeAction, stopAction, canPerformAction } = useGameStore();
   const currentAction = useGameStore(state => state.currentAction);
   
   const allRequirementsMet = canPerformAction(action);
@@ -186,6 +188,35 @@ const ActionButton = ({
             >
               Level {action.levelRequired} {action.skill}
             </Text>
+            
+            {/* Required Items */}
+            {action.requirements?.filter(req => req.type === 'item').length > 0 && (
+              <VStack spacing={2} w="100%">
+                <Text fontSize="sm" color="gray.300" fontWeight="semibold">Required Items:</Text>
+                {action.requirements?.filter(req => req.type === 'item').map((req, index) => {
+                  const itemData = getItemById(req.itemId || '');
+                  const bankItem = character?.bank.find(item => item.id === req.itemId);
+                  const bankQuantity = bankItem?.quantity || 0;
+                  const hasEnough = bankQuantity >= (req.quantity || 0);
+                  
+                  return (
+                    <HStack key={index} spacing={2} w="100%" justify="space-between">
+                      <HStack spacing={2}>
+                        <Text fontSize="sm" color="gray.400">Need:</Text>
+                        <ItemIcon item={req.itemId || ''} size={20} />
+                        <Text fontSize="sm" color="gray.300">{req.quantity}x {itemData?.name || req.itemId}</Text>
+                      </HStack>
+                      <HStack spacing={2}>
+                        <Text fontSize="sm" color="gray.400">Have:</Text>
+                        <ItemIcon item={req.itemId || ''} size={20} />
+                        <Text fontSize="sm" color={hasEnough ? "green.300" : "red.300"}>{bankQuantity}x</Text>
+                      </HStack>
+                    </HStack>
+                  );
+                })}
+              </VStack>
+            )}
+            
             <HStack spacing={2} mt={1}>
               <Text 
                 fontSize="xs" 

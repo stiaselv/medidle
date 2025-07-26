@@ -6,10 +6,12 @@ import { useGameStore, calculateLevel, getNextLevelExperience } from '../../stor
 import type { SkillAction, Requirement } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
+import { ItemIcon } from '../ui/ItemIcon';
+import { getItemById } from '../../data/items';
 import workbenchBg from '../../assets/BG/workbench.webp';
 
 const FLETCHING_TABS = ['Arrows', 'Bows', 'Javelins', 'Bolts'];
-const CRAFTING_TABS = ['Staves', 'Armor', 'Jewelry', 'Tan'];
+const CRAFTING_TABS = ['Armor', 'Jewelry', 'Staves', 'Gems'];
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -32,10 +34,10 @@ function getFletchingTab(action: SkillAction): string {
 
 function getCraftingTab(action: SkillAction): string {
   const name = action.name.toLowerCase();
-  if (name.includes('staff')) return 'Staves';
-  if (name.includes('armor')) return 'Armor';
-  if (name.includes('jewel')) return 'Jewelry';
-  if (name.includes('tan')) return 'Tan';
+  if (name.includes('leather') || name.includes('dragonhide') || name.includes('armor')) return 'Armor';
+  if (name.includes('ring') || name.includes('amulet') || name.includes('jewel')) return 'Jewelry';
+  if (name.includes('staff') || name.includes('battlestaff')) return 'Staves';
+  if (name.includes('sapphire') || name.includes('emerald') || name.includes('ruby') || name.includes('diamond') || name.includes('dragonstone') || name.includes('onyx') || name.includes('zenyte') || name.includes('uncut')) return 'Gems';
   return 'Other';
 }
 
@@ -194,6 +196,37 @@ const ActionButton: React.FC<{
               >
                 Level {action.levelRequired} {action.skill}
               </Text>
+              
+              {/* Required Items */}
+              {action.requirements?.filter(req => req.type === 'item').length > 0 && (
+                <VStack spacing={2} w="100%">
+                  <Text fontSize="sm" color="gray.300" fontWeight="semibold">Required Items:</Text>
+                  {action.requirements?.filter(req => req.type === 'item').map((req, index) => {
+                    const itemData = getItemById(req.itemId || '');
+                    const bankItem = character?.bank.find(item => item.id === req.itemId);
+                    const bankQuantity = bankItem?.quantity || 0;
+                    const requiredQuantity = req.quantity || 0;
+                    const hasEnough = bankQuantity >= requiredQuantity;
+                    
+                    return (
+                      <HStack key={index} spacing={2} w="100%" justify="space-between">
+                        <HStack spacing={2}>
+                          <Text fontSize="xs" color="gray.400">Need:</Text>
+                          <ItemIcon itemId={req.itemId || ''} size="sm" />
+                          <Text fontSize="xs" color="gray.300">{requiredQuantity}x</Text>
+                        </HStack>
+                        <HStack spacing={2}>
+                          <Text fontSize="xs" color="gray.400">Have:</Text>
+                          <ItemIcon itemId={req.itemId || ''} size="sm" />
+                          <Text fontSize="xs" color={hasEnough ? "green.300" : "red.300"}>
+                            {bankQuantity}x
+                          </Text>
+                        </HStack>
+                      </HStack>
+                    );
+                  })}
+                </VStack>
+              )}
               
               <HStack spacing={2} mt={1}>
                 <Text 

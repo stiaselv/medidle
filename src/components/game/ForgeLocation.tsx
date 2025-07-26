@@ -49,7 +49,7 @@ const ActionButton = ({
   isDisabled: boolean;
   isActive?: boolean;
 }) => {
-  const { canPerformAction, stopAction } = useGameStore();
+  const { character, canPerformAction, stopAction } = useGameStore();
   const shouldReduceMotion = useReducedMotion();
   const currentAction = useGameStore(state => state.currentAction);
   
@@ -149,6 +149,35 @@ const ActionButton = ({
         >
           Level {action.levelRequired} {action.skill}
         </Text>
+        
+        {/* Required Items */}
+        {action.requirements?.filter(req => req.type === 'item').length > 0 && (
+          <VStack spacing={2} w="100%">
+            <Text fontSize="sm" color="gray.300" fontWeight="semibold">Required Items:</Text>
+            {action.requirements?.filter(req => req.type === 'item').map((req, index) => {
+              const itemData = getItemById(req.itemId || '');
+              const bankItem = character?.bank.find(item => item.id === req.itemId);
+              const bankQuantity = bankItem?.quantity || 0;
+              const hasEnough = bankQuantity >= (req.quantity || 0);
+              
+              return (
+                <VStack key={index} spacing={1} w="100%" align="center">
+                  <HStack spacing={2}>
+                    <Text fontSize="sm" color="gray.400">Need:</Text>
+                    <ItemIcon item={req.itemId || ''} size={20} />
+                    <Text fontSize="sm" color="gray.300">{req.quantity}x</Text>
+                  </HStack>
+                  <HStack spacing={2}>
+                    <Text fontSize="sm" color="gray.400">Have:</Text>
+                    <ItemIcon item={req.itemId || ''} size={20} />
+                    <Text fontSize="sm" color={hasEnough ? "green.300" : "red.300"}>{bankQuantity}x</Text>
+                  </HStack>
+                </VStack>
+              );
+            })}
+          </VStack>
+        )}
+        
         <HStack spacing={2} mt={1}>
           <Text 
             fontSize="xs" 

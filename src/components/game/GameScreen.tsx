@@ -15,6 +15,7 @@ import { TempleLocation } from './TempleLocation';
 import AgilityThievingLocation from './AgilityThievingLocation';
 import { FieldsLocation } from '../farming/FieldsLocation';
 import { BankLocation } from './BankLocation';
+import { AlchemyStationLocation } from './AlchemyStationLocation';
 
 const MotionBox = motion(Box);
 
@@ -188,6 +189,8 @@ export const GameScreen = () => {
         return <AgilityThievingLocation />;
       case 'fields':
         return <FieldsLocation />;
+      case 'alchemy_station':
+        return <AlchemyStationLocation />;
       case 'bank':
         return <BankLocation />;
       default:

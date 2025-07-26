@@ -2419,25 +2419,25 @@ export const ITEMS: Record<string, Item> = {
     id: 'red_spiders_eggs',
     name: 'Red Spiders Eggs',
     type: 'resource',
-    category: ITEM_CATEGORIES.HERBLORE,
+    category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Herblore/secondaries/red_spiders_eggs.png',
-    buyPrice: 30,
-    sellPrice: 12
+    buyPrice: 60,
+    sellPrice: 15
   },
   snape_grass: {
     id: 'snape_grass',
     name: 'Snape Grass',
     type: 'resource',
-    category: ITEM_CATEGORIES.HERBLORE,
+    category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Herblore/secondaries/snapegrass.png',
-    buyPrice: 35,
-    sellPrice: 8
+    buyPrice: 70,
+    sellPrice: 18
   },
   white_berries: {
     id: 'white_berries',
     name: 'White Berries',
     type: 'resource',
-    category: ITEM_CATEGORIES.HERBLORE,
+    category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Herblore/secondaries/white_berries.png',
     buyPrice: 40,
     sellPrice: 16
@@ -2446,7 +2446,7 @@ export const ITEMS: Record<string, Item> = {
     id: 'red_berries',
     name: 'Red Berries',
     type: 'resource',
-    category: ITEM_CATEGORIES.HERBLORE,
+    category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Herblore/secondaries/red_berries.png',
     buyPrice: 25,
     sellPrice: 10
@@ -2455,10 +2455,19 @@ export const ITEMS: Record<string, Item> = {
     id: 'blue_berries',
     name: 'Blue Berries',
     type: 'resource',
-    category: ITEM_CATEGORIES.HERBLORE,
+    category: ITEM_CATEGORIES.RESOURCES,
     icon: '/assets/ItemThumbnail/Herblore/secondaries/blue_berries.png',
+    buyPrice: 40,
+    sellPrice: 10
+  },
+  cabbage: {
+    id: 'cabbage',
+    name: 'Cabbage',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/ItemThumbnail/Herblore/secondaries/cabbage.png',
     buyPrice: 30,
-    sellPrice: 12
+    sellPrice: 8
   },
 
   // === CRAFTING - HIDE ITEMS ===
@@ -2833,6 +2842,150 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 150000,
     sellPrice: 100000
   },
+  strength_potion: {
+    id: 'strength_potion',
+    name: 'Strength Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/strength_potion.png',
+    buyPrice: 200,
+    sellPrice: 50
+  },
+  defence_potion: {
+    id: 'defence_potion',
+    name: 'Defence Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/defence_potion.png',
+    buyPrice: 250,
+    sellPrice: 62
+  },
+  ranging_potion: {
+    id: 'ranging_potion',
+    name: 'Ranging Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/ranging_potion.png',
+    buyPrice: 300,
+    sellPrice: 75
+  },
+  magic_potion: {
+    id: 'magic_potion',
+    name: 'Magic Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/magic_potion.png',
+    buyPrice: 350,
+    sellPrice: 88
+  },
+  prayer_potion: {
+    id: 'prayer_potion',
+    name: 'Prayer Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/prayer_potion.png',
+    buyPrice: 400,
+    sellPrice: 100
+  },
+  melee_potion: {
+    id: 'melee_potion',
+    name: 'Melee Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/melee_potion.png',
+    buyPrice: 500,
+    sellPrice: 125
+  },
+  bastion_potion: {
+    id: 'bastion_potion',
+    name: 'Bastion Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/bastion_potion.png',
+    buyPrice: 550,
+    sellPrice: 138
+  },
+  battlemage_potion: {
+    id: 'battlemage_potion',
+    name: 'Battlemage Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/battlemage_potion.png',
+    buyPrice: 600,
+    sellPrice: 150
+  },
+  super_strength_potion: {
+    id: 'super_strength_potion',
+    name: 'Super Strength Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_strength_potion.png',
+    buyPrice: 700,
+    sellPrice: 175
+  },
+  super_defence_potion: {
+    id: 'super_defence_potion',
+    name: 'Super Defence Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_defence_potion.png',
+    buyPrice: 750,
+    sellPrice: 188
+  },
+  super_ranging_potion: {
+    id: 'super_ranging_potion',
+    name: 'Super Ranging Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_ranging_potion.png',
+    buyPrice: 800,
+    sellPrice: 200
+  },
+  super_magic_potion: {
+    id: 'super_magic_potion',
+    name: 'Super Magic Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_magic_potion.png',
+    buyPrice: 850,
+    sellPrice: 213
+  },
+  prayer_regen_potion: {
+    id: 'prayer_regen_potion',
+    name: 'Prayer Regen Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/prayer_regen_potion.png',
+    buyPrice: 900,
+    sellPrice: 225
+  },
+  super_melee_potion: {
+    id: 'super_melee_potion',
+    name: 'Super Melee Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_melee_potion.png',
+    buyPrice: 1000,
+    sellPrice: 250
+  },
+  super_bastion_potion: {
+    id: 'super_bastion_potion',
+    name: 'Super Bastion Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_bastion_potion.png',
+    buyPrice: 1100,
+    sellPrice: 275
+  },
+  super_battlemage_potion: {
+    id: 'super_battlemage_potion',
+    name: 'Super Battlemage Potion',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Herblore/potions/super_battlemage_potion.png',
+    buyPrice: 1200,
+    sellPrice: 300
+  }
 };
 
 // Helper functions

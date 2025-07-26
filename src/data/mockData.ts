@@ -3168,6 +3168,900 @@ export const mockLocations: Location[] = [
       // TODO: Add actions for Armor
       // TODO: Add actions for Jewelry
       // TODO: Add actions for Tan
+      
+      // --- Armor Crafting ---
+      {
+        id: 'craft_leather_gloves',
+        name: 'Leather Gloves',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 1,
+        experience: 13.8,
+        baseTime: 2000,
+        itemReward: { id: 'leather_gloves', name: 'Leather Gloves', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'cowhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_leather_boots',
+        name: 'Leather Boots',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 5,
+        experience: 16.5,
+        baseTime: 2000,
+        itemReward: { id: 'leather_boots', name: 'Leather Boots', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'cowhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_leather_coif',
+        name: 'Leather Coif',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 9,
+        experience: 18.5,
+        baseTime: 2000,
+        itemReward: { id: 'leather_coif', name: 'Leather Coif', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'cowhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_leather_vambraces',
+        name: 'Leather Vambraces',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 11,
+        experience: 22.0,
+        baseTime: 2000,
+        itemReward: { id: 'leather_vambraces', name: 'Leather Vambraces', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'cowhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_leather_body',
+        name: 'Leather Body',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 14,
+        experience: 25.0,
+        baseTime: 3000,
+        itemReward: { id: 'leather_body', name: 'Leather Body', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'cowhide', quantity: 3 }
+        ]
+      },
+      {
+        id: 'craft_leather_chaps',
+        name: 'Leather Chaps',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 18,
+        experience: 27.0,
+        baseTime: 3000,
+        itemReward: { id: 'leather_chaps', name: 'Leather Chaps', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'cowhide', quantity: 3 }
+        ]
+      },
+      {
+        id: 'craft_green_dragonhide_coif',
+        name: 'Green Dragonhide Coif',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 53,
+        experience: 124.0,
+        baseTime: 3000,
+        itemReward: { id: 'green_dragonhide_coif', name: 'Green Dragonhide Coif', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'green_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_green_dragonhide_vambraces',
+        name: 'Green Dragonhide Vambraces',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 57,
+        experience: 136.0,
+        baseTime: 3000,
+        itemReward: { id: 'green_dragonhide_vambraces', name: 'Green Dragonhide Vambraces', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'green_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_green_dragonhide_chaps',
+        name: 'Green Dragonhide Chaps',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 60,
+        experience: 150.0,
+        baseTime: 3000,
+        itemReward: { id: 'green_dragonhide_chaps', name: 'Green Dragonhide Chaps', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'green_dragonhide', quantity: 2 }
+        ]
+      },
+      {
+        id: 'craft_green_dragonhide_shield',
+        name: 'Green Dragonhide Shield',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 62,
+        experience: 158.0,
+        baseTime: 4000,
+        itemReward: { id: 'green_dragonhide_shield', name: 'Green Dragonhide Shield', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'green_dragonhide', quantity: 2 },
+          { type: 'item', itemId: 'maple_shield', quantity: 1 },
+          { type: 'item', itemId: 'steel_nails', quantity: 15 }
+        ]
+      },
+      {
+        id: 'craft_green_dragonhide_body',
+        name: 'Green Dragonhide Body',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 63,
+        experience: 186.0,
+        baseTime: 4000,
+        itemReward: { id: 'green_dragonhide_body', name: 'Green Dragonhide Body', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'green_dragonhide', quantity: 3 }
+        ]
+      },
+      {
+        id: 'craft_blue_dragonhide_coif',
+        name: 'Blue Dragonhide Coif',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 66,
+        experience: 140.0,
+        baseTime: 3000,
+        itemReward: { id: 'blue_dragonhide_coif', name: 'Blue Dragonhide Coif', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'blue_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_blue_dragonhide_vambraces',
+        name: 'Blue Dragonhide Vambraces',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 68,
+        experience: 156.0,
+        baseTime: 3000,
+        itemReward: { id: 'blue_dragonhide_vambraces', name: 'Blue Dragonhide Vambraces', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'blue_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_blue_dragonhide_chaps',
+        name: 'Blue Dragonhide Chaps',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 70,
+        experience: 170.0,
+        baseTime: 3000,
+        itemReward: { id: 'blue_dragonhide_chaps', name: 'Blue Dragonhide Chaps', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'blue_dragonhide', quantity: 2 }
+        ]
+      },
+      {
+        id: 'craft_blue_dragonhide_shield',
+        name: 'Blue Dragonhide Shield',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 71,
+        experience: 178.0,
+        baseTime: 4000,
+        itemReward: { id: 'blue_dragonhide_shield', name: 'Blue Dragonhide Shield', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'blue_dragonhide', quantity: 2 },
+          { type: 'item', itemId: 'yew_shield', quantity: 1 },
+          { type: 'item', itemId: 'mithril_nails', quantity: 15 }
+        ]
+      },
+      {
+        id: 'craft_blue_dragonhide_body',
+        name: 'Blue Dragonhide Body',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 73,
+        experience: 210.0,
+        baseTime: 4000,
+        itemReward: { id: 'blue_dragonhide_body', name: 'Blue Dragonhide Body', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'blue_dragonhide', quantity: 3 }
+        ]
+      },
+      {
+        id: 'craft_red_dragonhide_coif',
+        name: 'Red Dragonhide Coif',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 75,
+        experience: 156.0,
+        baseTime: 3000,
+        itemReward: { id: 'red_dragonhide_coif', name: 'Red Dragonhide Coif', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'red_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_red_dragonhide_vambraces',
+        name: 'Red Dragonhide Vambraces',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 76,
+        experience: 168.0,
+        baseTime: 3000,
+        itemReward: { id: 'red_dragonhide_vambraces', name: 'Red Dragonhide Vambraces', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'red_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_red_dragonhide_chaps',
+        name: 'Red Dragonhide Chaps',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 77,
+        experience: 184.0,
+        baseTime: 3000,
+        itemReward: { id: 'red_dragonhide_chaps', name: 'Red Dragonhide Chaps', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'red_dragonhide', quantity: 2 }
+        ]
+      },
+      {
+        id: 'craft_red_dragonhide_shield',
+        name: 'Red Dragonhide Shield',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 79,
+        experience: 194.0,
+        baseTime: 4000,
+        itemReward: { id: 'red_dragonhide_shield', name: 'Red Dragonhide Shield', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'red_dragonhide', quantity: 2 },
+          { type: 'item', itemId: 'magic_shield', quantity: 1 },
+          { type: 'item', itemId: 'adamant_nails', quantity: 15 }
+        ]
+      },
+      {
+        id: 'craft_red_dragonhide_body',
+        name: 'Red Dragonhide Body',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 81,
+        experience: 234.0,
+        baseTime: 4000,
+        itemReward: { id: 'red_dragonhide_body', name: 'Red Dragonhide Body', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'red_dragonhide', quantity: 3 }
+        ]
+      },
+      {
+        id: 'craft_black_dragonhide_coif',
+        name: 'Black Dragonhide Coif',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 83,
+        experience: 172.0,
+        baseTime: 3000,
+        itemReward: { id: 'black_dragonhide_coif', name: 'Black Dragonhide Coif', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'black_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_black_dragonhide_vambraces',
+        name: 'Black Dragonhide Vambraces',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 85,
+        experience: 184.0,
+        baseTime: 3000,
+        itemReward: { id: 'black_dragonhide_vambraces', name: 'Black Dragonhide Vambraces', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'black_dragonhide', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_black_dragonhide_chaps',
+        name: 'Black Dragonhide Chaps',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 86,
+        experience: 202.0,
+        baseTime: 3000,
+        itemReward: { id: 'black_dragonhide_chaps', name: 'Black Dragonhide Chaps', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'black_dragonhide', quantity: 2 }
+        ]
+      },
+      {
+        id: 'craft_black_dragonhide_shield',
+        name: 'Black Dragonhide Shield',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 87,
+        experience: 212.0,
+        baseTime: 4000,
+        itemReward: { id: 'black_dragonhide_shield', name: 'Black Dragonhide Shield', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'black_dragonhide', quantity: 2 },
+          { type: 'item', itemId: 'redwood_shield', quantity: 1 },
+          { type: 'item', itemId: 'rune_nails', quantity: 15 }
+        ]
+      },
+      {
+        id: 'craft_black_dragonhide_body',
+        name: 'Black Dragonhide Body',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 89,
+        experience: 258.0,
+        baseTime: 4000,
+        itemReward: { id: 'black_dragonhide_body', name: 'Black Dragonhide Body', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'black_dragonhide', quantity: 3 }
+        ]
+      },
+      
+      // --- Jewelry Crafting ---
+      {
+        id: 'craft_sapphire_silver_ring',
+        name: 'Sapphire Silver Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 21,
+        experience: 17.5,
+        baseTime: 2000,
+        itemReward: { id: 'sapphire_silver_ring', name: 'Sapphire Silver Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'sapphire', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_sapphire_gold_ring',
+        name: 'Sapphire Gold Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 23,
+        experience: 17.5,
+        baseTime: 2000,
+        itemReward: { id: 'sapphire_gold_ring', name: 'Sapphire Gold Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'sapphire', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_sapphire_silver_amulet',
+        name: 'Sapphire Silver Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 25,
+        experience: 17.5,
+        baseTime: 2000,
+        itemReward: { id: 'sapphire_silver_amulet', name: 'Sapphire Silver Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'sapphire', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_sapphire_gold_amulet',
+        name: 'Sapphire Gold Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 27,
+        experience: 17.5,
+        baseTime: 2000,
+        itemReward: { id: 'sapphire_gold_amulet', name: 'Sapphire Gold Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'sapphire', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_emerald_silver_ring',
+        name: 'Emerald Silver Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 31,
+        experience: 37.5,
+        baseTime: 2000,
+        itemReward: { id: 'emerald_silver_ring', name: 'Emerald Silver Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'emerald', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_emerald_gold_ring',
+        name: 'Emerald Gold Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 33,
+        experience: 37.5,
+        baseTime: 2000,
+        itemReward: { id: 'emerald_gold_ring', name: 'Emerald Gold Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'emerald', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_emerald_silver_amulet',
+        name: 'Emerald Silver Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 35,
+        experience: 37.5,
+        baseTime: 2000,
+        itemReward: { id: 'emerald_silver_amulet', name: 'Emerald Silver Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'emerald', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_emerald_gold_amulet',
+        name: 'Emerald Gold Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 37,
+        experience: 37.5,
+        baseTime: 2000,
+        itemReward: { id: 'emerald_gold_amulet', name: 'Emerald Gold Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'emerald', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_ruby_silver_ring',
+        name: 'Ruby Silver Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 41,
+        experience: 59.0,
+        baseTime: 2000,
+        itemReward: { id: 'ruby_silver_ring', name: 'Ruby Silver Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'ruby', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_ruby_gold_ring',
+        name: 'Ruby Gold Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 43,
+        experience: 59.0,
+        baseTime: 2000,
+        itemReward: { id: 'ruby_gold_ring', name: 'Ruby Gold Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'ruby', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_ruby_silver_amulet',
+        name: 'Ruby Silver Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 45,
+        experience: 59.0,
+        baseTime: 2000,
+        itemReward: { id: 'ruby_silver_amulet', name: 'Ruby Silver Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'ruby', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_ruby_gold_amulet',
+        name: 'Ruby Gold Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 47,
+        experience: 59.0,
+        baseTime: 2000,
+        itemReward: { id: 'ruby_gold_amulet', name: 'Ruby Gold Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'ruby', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_diamond_silver_ring',
+        name: 'Diamond Silver Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 51,
+        experience: 67.5,
+        baseTime: 2000,
+        itemReward: { id: 'diamond_silver_ring', name: 'Diamond Silver Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'diamond', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_diamond_gold_ring',
+        name: 'Diamond Gold Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 53,
+        experience: 67.5,
+        baseTime: 2000,
+        itemReward: { id: 'diamond_gold_ring', name: 'Diamond Gold Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'diamond', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_diamond_silver_amulet',
+        name: 'Diamond Silver Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 55,
+        experience: 67.5,
+        baseTime: 2000,
+        itemReward: { id: 'diamond_silver_amulet', name: 'Diamond Silver Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'diamond', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_diamond_gold_amulet',
+        name: 'Diamond Gold Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 57,
+        experience: 67.5,
+        baseTime: 2000,
+        itemReward: { id: 'diamond_gold_amulet', name: 'Diamond Gold Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'diamond', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_dragonstone_silver_ring',
+        name: 'Dragonstone Silver Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 71,
+        experience: 100.0,
+        baseTime: 2000,
+        itemReward: { id: 'dragonstone_silver_ring', name: 'Dragonstone Silver Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'dragonstone', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_dragonstone_gold_ring',
+        name: 'Dragonstone Gold Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 73,
+        experience: 100.0,
+        baseTime: 2000,
+        itemReward: { id: 'dragonstone_gold_ring', name: 'Dragonstone Gold Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'dragonstone', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_dragonstone_silver_amulet',
+        name: 'Dragonstone Silver Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 77,
+        experience: 100.0,
+        baseTime: 2000,
+        itemReward: { id: 'dragonstone_silver_amulet', name: 'Dragonstone Silver Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'dragonstone', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_dragonstone_gold_amulet',
+        name: 'Dragonstone Gold Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 80,
+        experience: 100.0,
+        baseTime: 2000,
+        itemReward: { id: 'dragonstone_gold_amulet', name: 'Dragonstone Gold Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'dragonstone', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_onyx_silver_ring',
+        name: 'Onyx Silver Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 84,
+        experience: 115.0,
+        baseTime: 2000,
+        itemReward: { id: 'onyx_silver_ring', name: 'Onyx Silver Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'onyx', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_onyx_gold_ring',
+        name: 'Onyx Gold Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 87,
+        experience: 115.0,
+        baseTime: 2000,
+        itemReward: { id: 'onyx_gold_ring', name: 'Onyx Gold Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'onyx', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_onyx_silver_amulet',
+        name: 'Onyx Silver Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 88,
+        experience: 115.0,
+        baseTime: 2000,
+        itemReward: { id: 'onyx_silver_amulet', name: 'Onyx Silver Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'onyx', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_onyx_gold_amulet',
+        name: 'Onyx Gold Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 90,
+        experience: 115.0,
+        baseTime: 2000,
+        itemReward: { id: 'onyx_gold_amulet', name: 'Onyx Gold Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'onyx', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_zenyte_silver_ring',
+        name: 'Zenyte Silver Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 92,
+        experience: 150.0,
+        baseTime: 2000,
+        itemReward: { id: 'zenyte_silver_ring', name: 'Zenyte Silver Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'zenyte', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_zenyte_gold_ring',
+        name: 'Zenyte Gold Ring',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 93,
+        experience: 150.0,
+        baseTime: 2000,
+        itemReward: { id: 'zenyte_gold_ring', name: 'Zenyte Gold Ring', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'zenyte', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_zenyte_silver_amulet',
+        name: 'Zenyte Silver Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 97,
+        experience: 150.0,
+        baseTime: 2000,
+        itemReward: { id: 'zenyte_silver_amulet', name: 'Zenyte Silver Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'zenyte', quantity: 1 },
+          { type: 'item', itemId: 'silver_bar', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_zenyte_gold_amulet',
+        name: 'Zenyte Gold Amulet',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 98,
+        experience: 150.0,
+        baseTime: 2000,
+        itemReward: { id: 'zenyte_gold_amulet', name: 'Zenyte Gold Amulet', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'zenyte', quantity: 1 },
+          { type: 'item', itemId: 'gold_bar', quantity: 1 }
+        ]
+      },
+      
+      // --- Staves Crafting ---
+      {
+        id: 'craft_water_battlestaff',
+        name: 'Water Battlestaff',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 54,
+        experience: 100.0,
+        baseTime: 3000,
+        itemReward: { id: 'water_battlestaff', name: 'Water Battlestaff', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'battlestaff', quantity: 1 },
+          { type: 'item', itemId: 'water_orb', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_earth_battlestaff',
+        name: 'Earth Battlestaff',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 58,
+        experience: 112.5,
+        baseTime: 3000,
+        itemReward: { id: 'earth_battlestaff', name: 'Earth Battlestaff', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'battlestaff', quantity: 1 },
+          { type: 'item', itemId: 'earth_orb', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_fire_battlestaff',
+        name: 'Fire Battlestaff',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 62,
+        experience: 125.0,
+        baseTime: 3000,
+        itemReward: { id: 'fire_battlestaff', name: 'Fire Battlestaff', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'battlestaff', quantity: 1 },
+          { type: 'item', itemId: 'fire_orb', quantity: 1 }
+        ]
+      },
+      {
+        id: 'craft_air_battlestaff',
+        name: 'Air Battlestaff',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 66,
+        experience: 137.5,
+        baseTime: 3000,
+        itemReward: { id: 'air_battlestaff', name: 'Air Battlestaff', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'battlestaff', quantity: 1 },
+          { type: 'item', itemId: 'air_orb', quantity: 1 }
+        ]
+      },
+      
+      // --- Gems Crafting ---
+      {
+        id: 'cut_sapphire',
+        name: 'Cut Sapphire',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 20,
+        experience: 50.0,
+        baseTime: 2000,
+        itemReward: { id: 'sapphire', name: 'Sapphire', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'uncut_sapphire', quantity: 1 }
+        ]
+      },
+      {
+        id: 'cut_emerald',
+        name: 'Cut Emerald',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 30,
+        experience: 67.5,
+        baseTime: 2000,
+        itemReward: { id: 'emerald', name: 'Emerald', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'uncut_emerald', quantity: 1 }
+        ]
+      },
+      {
+        id: 'cut_ruby',
+        name: 'Cut Ruby',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 36,
+        experience: 85.0,
+        baseTime: 2000,
+        itemReward: { id: 'ruby', name: 'Ruby', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'uncut_ruby', quantity: 1 }
+        ]
+      },
+      {
+        id: 'cut_diamond',
+        name: 'Cut Diamond',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 45,
+        experience: 107.5,
+        baseTime: 2000,
+        itemReward: { id: 'diamond', name: 'Diamond', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'uncut_diamond', quantity: 1 }
+        ]
+      },
+      {
+        id: 'cut_dragonstone',
+        name: 'Cut Dragonstone',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 65,
+        experience: 137.5,
+        baseTime: 2000,
+        itemReward: { id: 'dragonstone', name: 'Dragonstone', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'uncut_dragonstone', quantity: 1 }
+        ]
+      },
+      {
+        id: 'cut_onyx',
+        name: 'Cut Onyx',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 77,
+        experience: 167.5,
+        baseTime: 2000,
+        itemReward: { id: 'onyx', name: 'Onyx', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'uncut_onyx', quantity: 1 }
+        ]
+      },
+      {
+        id: 'cut_zenyte',
+        name: 'Cut Zenyte',
+        type: 'crafting',
+        skill: 'crafting',
+        levelRequired: 90,
+        experience: 200.0,
+        baseTime: 2000,
+        itemReward: { id: 'zenyte', name: 'Zenyte', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'onyx', quantity: 1 },
+          { type: 'item', itemId: 'uncut_zenyte', quantity: 1 }
+        ]
+      }
     ]
   },
   {
@@ -4318,6 +5212,291 @@ export const mockLocations: Location[] = [
     resources: [],
     category: 'farming',
     icon: '/assets/BG/fields.webp'
+  },
+  {
+    id: 'alchemy_station',
+    name: 'Alchemy Station',
+    description: 'A mystical laboratory where you can brew powerful potions using herbs and secondary ingredients.',
+    type: 'resource',
+    levelRequired: 1,
+    resources: [],
+    category: 'herblore',
+    icon: '/assets/locations/alchemy_station.png',
+    actions: [
+      {
+        id: 'make_attack_potion',
+        name: 'Make Attack Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 1,
+        experience: 25,
+        baseTime: 3000,
+        itemReward: { id: 'attack_potion', name: 'Attack Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'eye_of_newt', quantity: 1 },
+          { type: 'item', itemId: 'guam_leaf', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_strength_potion',
+        name: 'Make Strength Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 10,
+        experience: 50,
+        baseTime: 4000,
+        itemReward: { id: 'strength_potion', name: 'Strength Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'limpwurt_root', quantity: 1 },
+          { type: 'item', itemId: 'tarromin', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_antipoison',
+        name: 'Make Antipoison',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 13,
+        experience: 65,
+        baseTime: 4500,
+        itemReward: { id: 'antipoison', name: 'Antipoison', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'marrentill', quantity: 1 },
+          { type: 'item', itemId: 'unicorn_horn_dust', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_defence_potion',
+        name: 'Make Defence Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 20,
+        experience: 100,
+        baseTime: 5000,
+        itemReward: { id: 'defence_potion', name: 'Defence Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'ranarr_weed', quantity: 1 },
+          { type: 'item', itemId: 'white_berries', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_ranging_potion',
+        name: 'Make Ranging Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 32,
+        experience: 160,
+        baseTime: 6000,
+        itemReward: { id: 'ranging_potion', name: 'Ranging Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'dwarf_weed', quantity: 1 },
+          { type: 'item', itemId: 'ashes', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_magic_potion',
+        name: 'Make Magic Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 40,
+        experience: 200,
+        baseTime: 7000,
+        itemReward: { id: 'magic_potion', name: 'Magic Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'avantoe', quantity: 1 },
+          { type: 'item', itemId: 'red_spiders_eggs', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_prayer_potion',
+        name: 'Make Prayer Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 46,
+        experience: 230,
+        baseTime: 7500,
+        itemReward: { id: 'prayer_potion', name: 'Prayer Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'ranarr', quantity: 1 },
+          { type: 'item', itemId: 'snape_grass', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_melee_potion',
+        name: 'Make Melee Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 50,
+        experience: 250,
+        baseTime: 8000,
+        itemReward: { id: 'melee_potion', name: 'Melee Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'attack_potion', quantity: 1 },
+          { type: 'item', itemId: 'strength_potion', quantity: 1 },
+          { type: 'item', itemId: 'defence_potion', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_bastion_potion',
+        name: 'Make Bastion Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 56,
+        experience: 280,
+        baseTime: 8500,
+        itemReward: { id: 'bastion_potion', name: 'Bastion Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'ranging_potion', quantity: 1 },
+          { type: 'item', itemId: 'defence_potion', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_battlemage_potion',
+        name: 'Make Battlemage Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 61,
+        experience: 305,
+        baseTime: 9000,
+        itemReward: { id: 'battlemage_potion', name: 'Battlemage Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'magic_potion', quantity: 1 },
+          { type: 'item', itemId: 'defence_potion', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_attack_potion',
+        name: 'Make Super Attack Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 70,
+        experience: 350,
+        baseTime: 10000,
+        itemReward: { id: 'super_attack_potion', name: 'Super Attack Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'irit', quantity: 1 },
+          { type: 'item', itemId: 'eye_of_newt', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_strength_potion',
+        name: 'Make Super Strength Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 74,
+        experience: 370,
+        baseTime: 11000,
+        itemReward: { id: 'super_strength_potion', name: 'Super Strength Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'kwuarm', quantity: 1 },
+          { type: 'item', itemId: 'cabbage', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_defence_potion',
+        name: 'Make Super Defence Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 79,
+        experience: 395,
+        baseTime: 12000,
+        itemReward: { id: 'super_defence_potion', name: 'Super Defence Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'toadflax', quantity: 1 },
+          { type: 'item', itemId: 'white_berries', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_ranging_potion',
+        name: 'Make Super Ranging Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 81,
+        experience: 405,
+        baseTime: 13000,
+        itemReward: { id: 'super_ranging_potion', name: 'Super Ranging Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'cadantine', quantity: 1 },
+          { type: 'item', itemId: 'snapegrass', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_magic_potion',
+        name: 'Make Super Magic Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 84,
+        experience: 420,
+        baseTime: 14000,
+        itemReward: { id: 'super_magic_potion', name: 'Super Magic Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'snapdragon', quantity: 1 },
+          { type: 'item', itemId: 'blue_berries', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_prayer_regen_potion',
+        name: 'Make Prayer Regen Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 88,
+        experience: 440,
+        baseTime: 15000,
+        itemReward: { id: 'prayer_regen_potion', name: 'Prayer Regen Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'harralander', quantity: 1 },
+          { type: 'item', itemId: 'silver_dust', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_melee_potion',
+        name: 'Make Super Melee Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 90,
+        experience: 450,
+        baseTime: 16000,
+        itemReward: { id: 'super_melee_potion', name: 'Super Melee Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'super_attack_potion', quantity: 1 },
+          { type: 'item', itemId: 'super_strength_potion', quantity: 1 },
+          { type: 'item', itemId: 'super_defence_potion', quantity: 1 },
+          { type: 'item', itemId: 'torstol', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_bastion_potion',
+        name: 'Make Super Bastion Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 94,
+        experience: 470,
+        baseTime: 17000,
+        itemReward: { id: 'super_bastion_potion', name: 'Super Bastion Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'super_ranging_potion', quantity: 1 },
+          { type: 'item', itemId: 'super_defence_potion', quantity: 1 },
+          { type: 'item', itemId: 'dwarf_weed', quantity: 1 }
+        ]
+      },
+      {
+        id: 'make_super_battlemage_potion',
+        name: 'Make Super Battlemage Potion',
+        type: 'herblore',
+        skill: 'herblore',
+        levelRequired: 97,
+        experience: 485,
+        baseTime: 18000,
+        itemReward: { id: 'super_battlemage_potion', name: 'Super Battlemage Potion', quantity: 1 },
+        requirements: [
+          { type: 'item', itemId: 'super_magic_potion', quantity: 1 },
+          { type: 'item', itemId: 'super_defence_potion', quantity: 1 },
+          { type: 'item', itemId: 'lantadyme', quantity: 1 }
+        ]
+      }
+    ],
+    availableSkills: ['herblore'],
+    group: 'World'
   },
 ];
 

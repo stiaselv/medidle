@@ -70,6 +70,7 @@ export type ActionType =
   | 'cooking'
   | 'firemaking'
   | 'farming'
+  | 'herblore'
   | 'combat'
   | 'combat_selection'  // For selecting combat difficulty
   | 'store'
@@ -169,7 +170,7 @@ export interface BaseAction {
 }
 
 export interface SkillAction extends BaseAction {
-  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category' | 'crafting' | 'fletching' | 'prayer' | 'runecrafting' | 'agility' | 'thieving' | 'farming';
+  type: 'woodcutting' | 'mining' | 'fishing' | 'cooking' | 'firemaking' | 'smithing' | 'smithing_category' | 'crafting' | 'fletching' | 'prayer' | 'runecrafting' | 'agility' | 'thieving' | 'farming' | 'herblore';
   skill: SkillName;
   levelRequired: number;
   experience: number;
