@@ -213,6 +213,17 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                   <Divider my={4} />
                   <StatGroup>
                     <Stat>
+                      <StatLabel>Combat Level</StatLabel>
+                      <StatNumber>{getSafeStat('combatLevel')}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Favourite Action</StatLabel>
+                      <StatNumber>{character?.stats?.favouriteAction || 'None'}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <Divider my={4} />
+                  <StatGroup>
+                    <Stat>
                       <StatLabel>Coins Earned</StatLabel>
                       <StatNumber>{getSafeStat('coinsEarned').toLocaleString()}</StatNumber>
                     </Stat>
@@ -232,6 +243,17 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                       <StatNumber>{getSafeStat('slayerPointsSpent').toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
+                  <Divider my={4} />
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Top 5 Skills</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {character?.stats?.topSkills?.map((skill, index) => (
+                        <Text key={skill.skill}>
+                          {index + 1}. {skill.skill.charAt(0).toUpperCase() + skill.skill.slice(1)}: Level {skill.level}
+                        </Text>
+                      )) || <Text>No skills tracked yet</Text>}
+                    </VStack>
+                  </Box>
                 </TabPanel>
                 <TabPanel>
                   <StatGroup mb={4}>
@@ -252,6 +274,16 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                     <Stat>
                       <StatLabel>Crops Harvested</StatLabel>
                       <StatNumber>{getSafeStat('cropsHarvested').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <StatGroup mb={4}>
+                    <Stat>
+                      <StatLabel>Items Pickpocketed</StatLabel>
+                      <StatNumber>{getSafeStat('itemsPickpocketed').toLocaleString()}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Agility Laps</StatLabel>
+                      <StatNumber>{Object.values(character?.stats?.agilityLaps || {}).reduce((sum, count) => sum + count, 0).toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
                   <Divider my={4} />
@@ -276,6 +308,30 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                     <VStack align="start" spacing={1} ml={4}>
                       {fishingFish.map(fish => (
                         <Text key={fish.id}>{fish.name}: {fishStats[fish.id] || 0}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Farming</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      <Text>Patches Planted: {Object.keys(character?.stats?.farmingPatchesPlanted || {}).length}</Text>
+                      <Text>Crops Planted: {Object.values(character?.stats?.farmingCropsPlanted || {}).reduce((sum, count) => sum + count, 0)}</Text>
+                      <Text>Crops Harvested: {Object.values(character?.stats?.farmingHarvests || {}).reduce((sum, count) => sum + count, 0)}</Text>
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Thieving</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.thievingActions || {}).map(([actionId, count]) => (
+                        <Text key={actionId}>{actionId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Agility</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.agilityLaps || {}).map(([courseId, laps]) => (
+                        <Text key={courseId}>{courseId}: {laps} laps</Text>
                       ))}
                     </VStack>
                   </Box>
@@ -324,9 +380,91 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                       {smithingBars.map(bar => (
                         <Text key={bar.id}>{bar.name}: {barsStats[bar.id] || 0}</Text>
                       ))}
+                      <Text>Total Smithing Actions: {Object.values(character?.stats?.smithingActions || {}).reduce((sum, count) => sum + count, 0)}</Text>
                     </VStack>
                   </Box>
-                  {/* Add similar sections for Cooking, Firemaking, etc. as needed */}
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Cooking</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.cookingActions || {}).map(([foodId, count]) => (
+                        <Text key={foodId}>{foodId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Firemaking</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.firemakingLogs || {}).map(([logId, count]) => (
+                        <Text key={logId}>{logId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Fletching</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      <Text>Arrows:</Text>
+                      {Object.entries(character?.stats?.fletchingArrows || {}).map(([arrowId, count]) => (
+                        <Text key={arrowId} ml={4}>{arrowId}: {count}</Text>
+                      ))}
+                      <Text>Bows (Unstrung):</Text>
+                      {Object.entries(character?.stats?.fletchingBows || {}).map(([bowId, count]) => (
+                        <Text key={bowId} ml={4}>{bowId}: {count}</Text>
+                      ))}
+                      <Text>Bows (Strung):</Text>
+                      {Object.entries(character?.stats?.fletchingBowsStrung || {}).map(([bowId, count]) => (
+                        <Text key={bowId} ml={4}>{bowId}: {count}</Text>
+                      ))}
+                      <Text>Javelins:</Text>
+                      {Object.entries(character?.stats?.fletchingJavelins || {}).map(([javelinId, count]) => (
+                        <Text key={javelinId} ml={4}>{javelinId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Crafting</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      <Text>Armor:</Text>
+                      {Object.entries(character?.stats?.craftingArmor || {}).map(([armorId, count]) => (
+                        <Text key={armorId} ml={4}>{armorId}: {count}</Text>
+                      ))}
+                      <Text>Jewelry:</Text>
+                      {Object.entries(character?.stats?.craftingJewelry || {}).map(([jewelryId, count]) => (
+                        <Text key={jewelryId} ml={4}>{jewelryId}: {count}</Text>
+                      ))}
+                      <Text>Staves:</Text>
+                      {Object.entries(character?.stats?.craftingStaves || {}).map(([staffId, count]) => (
+                        <Text key={staffId} ml={4}>{staffId}: {count}</Text>
+                      ))}
+                      <Text>Gems:</Text>
+                      {Object.entries(character?.stats?.craftingGems || {}).map(([gemId, count]) => (
+                        <Text key={gemId} ml={4}>{gemId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Herblore</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.herblorePotions || {}).map(([potionId, count]) => (
+                        <Text key={potionId}>{potionId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Prayer</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.prayerBones || {}).map(([boneId, count]) => (
+                        <Text key={boneId}>{boneId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Runecrafting</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.runecraftingRunes || {}).map(([runeId, count]) => (
+                        <Text key={runeId}>{runeId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
                 </TabPanel>
                 <TabPanel>
                   <StatGroup>
@@ -361,6 +499,26 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                       <StatNumber>{getSafeStat('slayerPointsEarned').toLocaleString()}</StatNumber>
                     </Stat>
                   </StatGroup>
+                  <Divider my={4} />
+                  <StatGroup>
+                    <Stat>
+                      <StatLabel>Monsters Killed</StatLabel>
+                      <StatNumber>{getSafeStat('monstersKilled').toLocaleString()}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel>Slayer Tasks Completed</StatLabel>
+                      <StatNumber>{getSafeStat('slayerTasksCompleted').toLocaleString()}</StatNumber>
+                    </Stat>
+                  </StatGroup>
+                  <Divider my={4} />
+                  <Box mb={4}>
+                    <Text fontWeight="bold" fontSize="lg">Monsters Killed</Text>
+                    <VStack align="start" spacing={1} ml={4}>
+                      {Object.entries(character?.stats?.monstersKilledByType || {}).map(([monsterId, count]) => (
+                        <Text key={monsterId}>{monsterId}: {count}</Text>
+                      ))}
+                    </VStack>
+                  </Box>
                 </TabPanel>
               </TabPanels>
             </Tabs>

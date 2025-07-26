@@ -315,6 +315,9 @@ export interface CharacterStats {
   slayerPointsEarned: number;
   totalActiveTime: number; // ms
   totalOfflineTime: number; // ms
+  combatLevel: number;
+  favouriteAction: string;
+  topSkills: Array<{ skill: string; level: number; experience: number }>;
 
   // --- Gathering ---
   logsChopped: number;
@@ -340,11 +343,39 @@ export interface CharacterStats {
   totalDamageTaken: number;
   favouriteFoodEaten: number;
   totalHealthHealed: number;
+  slayerTasksCompleted: number;
 
   // --- Detailed tracking ---
   resourcesGathered: StrictResourceMap;
   actionsPerformed: Record<string, number>;
   monstersKilledByType: Record<string, number>;
+  
+  // --- Farming tracking ---
+  farmingPatchesPlanted: Record<string, number>; // patchId -> count
+  farmingCropsPlanted: Record<string, number>; // cropId -> count
+  farmingHarvests: Record<string, number>; // cropId -> total harvested
+  
+  // --- Thieving tracking ---
+  thievingActions: Record<string, number>; // actionId -> count
+  
+  // --- Agility tracking ---
+  agilityLaps: Record<string, number>; // courseId -> laps completed
+  
+  // --- Processing detailed tracking ---
+  smithingActions: Record<string, number>; // actionId -> count (includes forge and smelting)
+  cookingActions: Record<string, number>; // foodId -> count
+  firemakingLogs: Record<string, number>; // logType -> count burned
+  fletchingArrows: Record<string, number>; // arrowType -> count
+  fletchingBows: Record<string, number>; // bowType -> count (unstrung)
+  fletchingBowsStrung: Record<string, number>; // bowType -> count (strung)
+  fletchingJavelins: Record<string, number>; // javelinType -> count
+  craftingArmor: Record<string, number>; // armorType -> count
+  craftingJewelry: Record<string, number>; // jewelryType -> count
+  craftingStaves: Record<string, number>; // staffType -> count
+  craftingGems: Record<string, number>; // gemType -> count
+  herblorePotions: Record<string, number>; // potionType -> count
+  prayerBones: Record<string, number>; // boneType -> count
+  runecraftingRunes: Record<string, number>; // runeType -> count
 }
 
 export interface Character {

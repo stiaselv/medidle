@@ -650,6 +650,9 @@ const createStore = () => create<GameState>()(
               slayerPointsEarned: 0,
               totalActiveTime: 0,
               totalOfflineTime: 0,
+              combatLevel: character.combatLevel,
+              favouriteAction: '',
+              topSkills: [],
 
               // Gathering
               logsChopped: 0,
@@ -675,11 +678,39 @@ const createStore = () => create<GameState>()(
               totalDamageTaken: 0,
               favouriteFoodEaten: 0,
               totalHealthHealed: 0,
+              slayerTasksCompleted: 0,
 
               // Detailed tracking
               resourcesGathered: {} as import('../types/game').StrictResourceMap,
               actionsPerformed: {} as Record<string, number>,
-              monstersKilledByType: {} as Record<string, number>
+              monstersKilledByType: {} as Record<string, number>,
+              
+              // Farming tracking
+              farmingPatchesPlanted: {},
+              farmingCropsPlanted: {},
+              farmingHarvests: {},
+              
+              // Thieving tracking
+              thievingActions: {},
+              
+              // Agility tracking
+              agilityLaps: {},
+              
+              // Processing detailed tracking
+              smithingActions: {},
+              cookingActions: {},
+              firemakingLogs: {},
+              fletchingArrows: {},
+              fletchingBows: {},
+              fletchingBowsStrung: {},
+              fletchingJavelins: {},
+              craftingArmor: {},
+              craftingJewelry: {},
+              craftingStaves: {},
+              craftingGems: {},
+              herblorePotions: {},
+              prayerBones: {},
+              runecraftingRunes: {}
             };
           }
 
@@ -692,6 +723,65 @@ const createStore = () => create<GameState>()(
           }
           if (!character.stats.monstersKilledByType) {
             character.stats.monstersKilledByType = {} as Record<string, number>;
+          }
+          
+          // Initialize new tracking objects
+          if (!character.stats.farmingPatchesPlanted) {
+            character.stats.farmingPatchesPlanted = {};
+          }
+          if (!character.stats.farmingCropsPlanted) {
+            character.stats.farmingCropsPlanted = {};
+          }
+          if (!character.stats.farmingHarvests) {
+            character.stats.farmingHarvests = {};
+          }
+          if (!character.stats.thievingActions) {
+            character.stats.thievingActions = {};
+          }
+          if (!character.stats.agilityLaps) {
+            character.stats.agilityLaps = {};
+          }
+          if (!character.stats.smithingActions) {
+            character.stats.smithingActions = {};
+          }
+          if (!character.stats.cookingActions) {
+            character.stats.cookingActions = {};
+          }
+          if (!character.stats.firemakingLogs) {
+            character.stats.firemakingLogs = {};
+          }
+          if (!character.stats.fletchingArrows) {
+            character.stats.fletchingArrows = {};
+          }
+          if (!character.stats.fletchingBows) {
+            character.stats.fletchingBows = {};
+          }
+          if (!character.stats.fletchingBowsStrung) {
+            character.stats.fletchingBowsStrung = {};
+          }
+          if (!character.stats.fletchingJavelins) {
+            character.stats.fletchingJavelins = {};
+          }
+          if (!character.stats.craftingArmor) {
+            character.stats.craftingArmor = {};
+          }
+          if (!character.stats.craftingJewelry) {
+            character.stats.craftingJewelry = {};
+          }
+          if (!character.stats.craftingStaves) {
+            character.stats.craftingStaves = {};
+          }
+          if (!character.stats.craftingGems) {
+            character.stats.craftingGems = {};
+          }
+          if (!character.stats.herblorePotions) {
+            character.stats.herblorePotions = {};
+          }
+          if (!character.stats.prayerBones) {
+            character.stats.prayerBones = {};
+          }
+          if (!character.stats.runecraftingRunes) {
+            character.stats.runecraftingRunes = {};
           }
 
           // Update action count
@@ -751,6 +841,165 @@ const createStore = () => create<GameState>()(
             // For any other or unknown action types, do nothing or add future tracking here
             break;
         }
+      }
+
+              // --- Detailed tracking for specific action types ---
+        const character = get().character;
+        if (character) {
+        const actionId = state.currentAction.id;
+        const itemRewardId = state.currentAction.itemReward?.id;
+        
+        // Track specific action types
+        switch (state.currentAction.type) {
+          case 'thieving':
+            if (!character.stats.thievingActions[actionId]) {
+              character.stats.thievingActions[actionId] = 0;
+            }
+            character.stats.thievingActions[actionId]++;
+            break;
+            
+          case 'agility':
+            if (!character.stats.agilityLaps[actionId]) {
+              character.stats.agilityLaps[actionId] = 0;
+            }
+            character.stats.agilityLaps[actionId]++;
+            break;
+            
+          case 'smithing':
+            if (!character.stats.smithingActions[actionId]) {
+              character.stats.smithingActions[actionId] = 0;
+            }
+            character.stats.smithingActions[actionId]++;
+            break;
+            
+          case 'cooking':
+            if (itemRewardId && !character.stats.cookingActions[itemRewardId]) {
+              character.stats.cookingActions[itemRewardId] = 0;
+            }
+            if (itemRewardId) {
+              character.stats.cookingActions[itemRewardId]++;
+            }
+            break;
+            
+          case 'firemaking':
+            // Track which type of log was burned
+            const logRequirement = state.currentAction.requirements?.find(req => req.itemId?.includes('log'));
+            if (logRequirement?.itemId && !character.stats.firemakingLogs[logRequirement.itemId]) {
+              character.stats.firemakingLogs[logRequirement.itemId] = 0;
+            }
+            if (logRequirement?.itemId) {
+              character.stats.firemakingLogs[logRequirement.itemId]++;
+            }
+            break;
+            
+          case 'fletching':
+            if (itemRewardId) {
+              if (itemRewardId.includes('arrow')) {
+                if (!character.stats.fletchingArrows[itemRewardId]) {
+                  character.stats.fletchingArrows[itemRewardId] = 0;
+                }
+                character.stats.fletchingArrows[itemRewardId]++;
+              } else if (itemRewardId.includes('javelin')) {
+                if (!character.stats.fletchingJavelins[itemRewardId]) {
+                  character.stats.fletchingJavelins[itemRewardId] = 0;
+                }
+                character.stats.fletchingJavelins[itemRewardId]++;
+              } else if (itemRewardId.includes('unstrung')) {
+                if (!character.stats.fletchingBows[itemRewardId]) {
+                  character.stats.fletchingBows[itemRewardId] = 0;
+                }
+                character.stats.fletchingBows[itemRewardId]++;
+              } else if (itemRewardId.includes('bow') && !itemRewardId.includes('unstrung')) {
+                if (!character.stats.fletchingBowsStrung[itemRewardId]) {
+                  character.stats.fletchingBowsStrung[itemRewardId] = 0;
+                }
+                character.stats.fletchingBowsStrung[itemRewardId]++;
+              }
+            }
+            break;
+            
+          case 'crafting':
+            if (itemRewardId) {
+              if (itemRewardId.includes('leather') || itemRewardId.includes('dragonhide')) {
+                if (!character.stats.craftingArmor[itemRewardId]) {
+                  character.stats.craftingArmor[itemRewardId] = 0;
+                }
+                character.stats.craftingArmor[itemRewardId]++;
+              } else if (itemRewardId.includes('ring') || itemRewardId.includes('amulet')) {
+                if (!character.stats.craftingJewelry[itemRewardId]) {
+                  character.stats.craftingJewelry[itemRewardId] = 0;
+                }
+                character.stats.craftingJewelry[itemRewardId]++;
+              } else if (itemRewardId.includes('battlestaff')) {
+                if (!character.stats.craftingStaves[itemRewardId]) {
+                  character.stats.craftingStaves[itemRewardId] = 0;
+                }
+                character.stats.craftingStaves[itemRewardId]++;
+              } else if (['sapphire', 'emerald', 'ruby', 'diamond', 'dragonstone', 'onyx', 'zenyte'].some(gem => itemRewardId.includes(gem))) {
+                if (!character.stats.craftingGems[itemRewardId]) {
+                  character.stats.craftingGems[itemRewardId] = 0;
+                }
+                character.stats.craftingGems[itemRewardId]++;
+              }
+            }
+            break;
+            
+          case 'herblore':
+            if (itemRewardId && !character.stats.herblorePotions[itemRewardId]) {
+              character.stats.herblorePotions[itemRewardId] = 0;
+            }
+            if (itemRewardId) {
+              character.stats.herblorePotions[itemRewardId]++;
+            }
+            break;
+            
+          case 'prayer':
+            // Track which type of bone was buried
+            const boneRequirement = state.currentAction.requirements?.find(req => req.itemId?.includes('bone'));
+            if (boneRequirement?.itemId && !character.stats.prayerBones[boneRequirement.itemId]) {
+              character.stats.prayerBones[boneRequirement.itemId] = 0;
+            }
+            if (boneRequirement?.itemId) {
+              character.stats.prayerBones[boneRequirement.itemId]++;
+            }
+            break;
+            
+          case 'runecrafting':
+            if (itemRewardId && !character.stats.runecraftingRunes[itemRewardId]) {
+              character.stats.runecraftingRunes[itemRewardId] = 0;
+            }
+            if (itemRewardId) {
+              character.stats.runecraftingRunes[itemRewardId]++;
+            }
+            break;
+        }
+        
+        // Update favourite action
+        const allActions = character.stats.actionsPerformed;
+        let maxCount = 0;
+        let favouriteAction = '';
+        for (const [action, count] of Object.entries(allActions)) {
+          if (count > maxCount) {
+            maxCount = count;
+            favouriteAction = action;
+          }
+        }
+        character.stats.favouriteAction = favouriteAction;
+        
+        // Update top 5 skills
+        const skillEntries = Object.entries(character.skills)
+          .filter(([skillName]) => skillName !== 'none')
+          .map(([skillName, skill]) => ({
+            skill: skillName,
+            level: skill.level,
+            experience: skill.experience
+          }))
+          .sort((a, b) => b.level - a.level || b.experience - a.experience)
+          .slice(0, 5);
+        character.stats.topSkills = skillEntries;
+        
+        // Update combat level
+        character.stats.combatLevel = character.combatLevel;
       }
 
       // Mark action as completed
@@ -1154,6 +1403,11 @@ const createStore = () => create<GameState>()(
       });
       // Award slayer points (example: 10 points)
       get().incrementStat('slayerPointsEarned', 10); // Replace 10 with actual awarded amount
+      
+      // Track slayer task completion
+      if (state.character.stats) {
+        state.character.stats.slayerTasksCompleted = (state.character.stats.slayerTasksCompleted || 0) + 1;
+      }
     },
 
     // Cancel the current slayer task for 30 slayer points
@@ -1697,6 +1951,21 @@ const createStore = () => create<GameState>()(
       get().setCharacter(updatedCharacter);
       set({ farmingPatches: newPatches });
       
+      // Track farming stats
+      if (updatedCharacter.stats) {
+        // Track patch planted
+        if (!updatedCharacter.stats.farmingPatchesPlanted[patchId]) {
+          updatedCharacter.stats.farmingPatchesPlanted[patchId] = 0;
+        }
+        updatedCharacter.stats.farmingPatchesPlanted[patchId]++;
+        
+        // Track crop planted
+        if (!updatedCharacter.stats.farmingCropsPlanted[cropId]) {
+          updatedCharacter.stats.farmingCropsPlanted[cropId] = 0;
+        }
+        updatedCharacter.stats.farmingCropsPlanted[cropId]++;
+      }
+      
       return true;
     },
 
@@ -1731,6 +2000,15 @@ const createStore = () => create<GameState>()(
       
       // Track farming stats
       get().incrementStat('cropsHarvested', 1);
+      
+      // Track specific crop harvested
+      if (state.character && state.character.stats && patch.plantedCrop) {
+        const cropId = patch.plantedCrop.cropId;
+        if (!state.character.stats.farmingHarvests[cropId]) {
+          state.character.stats.farmingHarvests[cropId] = 0;
+        }
+        state.character.stats.farmingHarvests[cropId]++;
+      }
     },
 
     updatePatchStatuses: () => {

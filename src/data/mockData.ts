@@ -227,6 +227,9 @@ export const mockCharacter: Character = {
     slayerPointsEarned: 0,
     totalActiveTime: 0,
     totalOfflineTime: 0,
+    combatLevel: 3,
+    favouriteAction: '',
+    topSkills: [],
 
     // Gathering
     logsChopped: 0,
@@ -252,10 +255,38 @@ export const mockCharacter: Character = {
     totalDamageTaken: 0,
     favouriteFoodEaten: 0,
     totalHealthHealed: 0,
+    slayerTasksCompleted: 0,
 
     // Detailed tracking
     resourcesGathered: {},
     actionsPerformed: {},
-    monstersKilledByType: {}
+    monstersKilledByType: {},
+    
+    // Farming tracking
+    farmingPatchesPlanted: {},
+    farmingCropsPlanted: {},
+    farmingHarvests: {},
+    
+    // Thieving tracking
+    thievingActions: {},
+    
+    // Agility tracking
+    agilityLaps: {},
+    
+    // Processing detailed tracking
+    smithingActions: {},
+    cookingActions: {},
+    firemakingLogs: {},
+    fletchingArrows: {},
+    fletchingBows: {},
+    fletchingBowsStrung: {},
+    fletchingJavelins: {},
+    craftingArmor: {},
+    craftingJewelry: {},
+    craftingStaves: {},
+    craftingGems: {},
+    herblorePotions: {},
+    prayerBones: {},
+    runecraftingRunes: {}
   }
 }; 
