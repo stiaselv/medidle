@@ -11,7 +11,7 @@ export const forestLocation: Location = {
   icon: '/assets/locations/forest.png',
   availableSkills: ['woodcutting', 'fishing'],
   actions: [
-    // Woodcutting actions
+    // Woodcutting actions - ordered by level required ascending
     {
       id: 'cut_normal_logs',
       name: 'Cut Normal Logs',
@@ -21,7 +21,10 @@ export const forestLocation: Location = {
       experience: 25,
       baseTime: 3000,
       itemReward: { id: 'logs', name: 'Logs', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 1 },
+        { type: 'equipment', category: 'axe' }
+      ]
     },
     {
       id: 'cut_oak_logs',
@@ -32,7 +35,10 @@ export const forestLocation: Location = {
       experience: 37.5,
       baseTime: 3000,
       itemReward: { id: 'oak_logs', name: 'Oak Logs', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 15 },
+        { type: 'equipment', category: 'axe' }
+      ]
     },
     {
       id: 'cut_willow_logs',
@@ -43,51 +49,10 @@ export const forestLocation: Location = {
       experience: 67.5,
       baseTime: 3000,
       itemReward: { id: 'willow_logs', name: 'Willow Logs', quantity: 1 },
-      requirements: []
-    },
-    {
-      id: 'cut_maple_logs',
-      name: 'Cut Maple Logs',
-      type: 'woodcutting',
-      skill: 'woodcutting',
-      levelRequired: 45,
-      experience: 100,
-      baseTime: 3000,
-      itemReward: { id: 'maple_logs', name: 'Maple Logs', quantity: 1 },
-      requirements: []
-    },
-    {
-      id: 'cut_yew_logs',
-      name: 'Cut Yew Logs',
-      type: 'woodcutting',
-      skill: 'woodcutting',
-      levelRequired: 60,
-      experience: 175,
-      baseTime: 3000,
-      itemReward: { id: 'yew_logs', name: 'Yew Logs', quantity: 1 },
-      requirements: []
-    },
-    {
-      id: 'cut_magic_logs',
-      name: 'Cut Magic Logs',
-      type: 'woodcutting',
-      skill: 'woodcutting',
-      levelRequired: 75,
-      experience: 250,
-      baseTime: 3000,
-      itemReward: { id: 'magic_logs', name: 'Magic Logs', quantity: 1 },
-      requirements: []
-    },
-    {
-      id: 'cut_redwood_logs',
-      name: 'Cut Redwood Logs',
-      type: 'woodcutting',
-      skill: 'woodcutting',
-      levelRequired: 90,
-      experience: 380,
-      baseTime: 3000,
-      itemReward: { id: 'redwood_logs', name: 'Redwood Logs', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 30 },
+        { type: 'equipment', category: 'axe' }
+      ]
     },
     {
       id: 'cut_teak_logs',
@@ -98,7 +63,24 @@ export const forestLocation: Location = {
       experience: 85,
       baseTime: 3000,
       itemReward: { id: 'teak_logs', name: 'Teak Logs', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 35 },
+        { type: 'equipment', category: 'axe' }
+      ]
+    },
+    {
+      id: 'cut_maple_logs',
+      name: 'Cut Maple Logs',
+      type: 'woodcutting',
+      skill: 'woodcutting',
+      levelRequired: 45,
+      experience: 100,
+      baseTime: 3000,
+      itemReward: { id: 'maple_logs', name: 'Maple Logs', quantity: 1 },
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 45 },
+        { type: 'equipment', category: 'axe' }
+      ]
     },
     {
       id: 'cut_mahogany_logs',
@@ -109,10 +91,55 @@ export const forestLocation: Location = {
       experience: 125,
       baseTime: 3000,
       itemReward: { id: 'mahogany_logs', name: 'Mahogany Logs', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 50 },
+        { type: 'equipment', category: 'axe' }
+      ]
+    },
+    {
+      id: 'cut_yew_logs',
+      name: 'Cut Yew Logs',
+      type: 'woodcutting',
+      skill: 'woodcutting',
+      levelRequired: 60,
+      experience: 175,
+      baseTime: 3000,
+      itemReward: { id: 'yew_logs', name: 'Yew Logs', quantity: 1 },
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 60 },
+        { type: 'equipment', category: 'axe' }
+      ]
+    },
+    {
+      id: 'cut_magic_logs',
+      name: 'Cut Magic Logs',
+      type: 'woodcutting',
+      skill: 'woodcutting',
+      levelRequired: 75,
+      experience: 250,
+      baseTime: 3000,
+      itemReward: { id: 'magic_logs', name: 'Magic Logs', quantity: 1 },
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 75 },
+        { type: 'equipment', category: 'axe' }
+      ]
+    },
+    {
+      id: 'cut_redwood_logs',
+      name: 'Cut Redwood Logs',
+      type: 'woodcutting',
+      skill: 'woodcutting',
+      levelRequired: 90,
+      experience: 380,
+      baseTime: 3000,
+      itemReward: { id: 'redwood_logs', name: 'Redwood Logs', quantity: 1 },
+      requirements: [
+        { type: 'level', skill: 'woodcutting', level: 90 },
+        { type: 'equipment', category: 'axe' }
+      ]
     },
 
-    // Fishing actions
+    // Fishing actions - ordered by level required ascending
     {
       id: 'fish_shrimp',
       name: 'Fish Shrimp',
@@ -123,7 +150,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_shrimp', name: 'Raw Shrimp', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'small_fishing_net', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 1 },
+        { type: 'equipment', itemId: 'small_fishing_net' }
       ]
     },
     {
@@ -136,7 +164,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_sardine', name: 'Raw Sardine', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'small_fishing_net', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 5 },
+        { type: 'equipment', itemId: 'small_fishing_net' }
       ]
     },
     {
@@ -149,7 +178,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_herring', name: 'Raw Herring', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'fishing_rod', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 10 },
+        { type: 'equipment', itemId: 'fishing_rod' }
       ]
     },
     {
@@ -162,7 +192,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_trout', name: 'Raw Trout', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'small_fishing_net', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 20 },
+        { type: 'equipment', itemId: 'small_fishing_net' }
       ]
     },
     {
@@ -175,7 +206,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_pike', name: 'Raw Pike', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'fishing_rod', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 25 },
+        { type: 'equipment', itemId: 'fishing_rod' }
       ]
     },
     {
@@ -188,7 +220,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_salmon', name: 'Raw Salmon', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'harpoon', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 30 },
+        { type: 'equipment', itemId: 'harpoon' }
       ]
     },
     {
@@ -201,7 +234,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_tuna', name: 'Raw Tuna', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'harpoon', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 35 },
+        { type: 'equipment', itemId: 'harpoon' }
       ]
     },
     {
@@ -214,7 +248,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_lobster', name: 'Raw Lobster', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'lobster_pot', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 40 },
+        { type: 'equipment', itemId: 'lobster_pot' }
       ]
     },
     {
@@ -227,7 +262,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_bass', name: 'Raw Bass', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'big_net', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 46 },
+        { type: 'equipment', itemId: 'big_fishing_net' }
       ]
     },
     {
@@ -240,7 +276,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_swordfish', name: 'Raw Swordfish', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'harpoon', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 50 },
+        { type: 'equipment', itemId: 'harpoon' }
       ]
     },
     {
@@ -253,7 +290,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_monkfish', name: 'Raw Monkfish', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'small_fishing_net', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 62 },
+        { type: 'equipment', itemId: 'small_fishing_net' }
       ]
     },
     {
@@ -266,7 +304,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_shark', name: 'Raw Shark', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'harpoon', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 76 },
+        { type: 'equipment', itemId: 'harpoon' }
       ]
     },
     {
@@ -279,7 +318,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_anglerfish', name: 'Raw Anglerfish', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'harpoon', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 82 },
+        { type: 'equipment', itemId: 'harpoon' }
       ]
     },
     {
@@ -292,7 +332,8 @@ export const forestLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'raw_dark_crab', name: 'Raw Dark Crab', quantity: 1 },
       requirements: [
-        { type: 'item', itemId: 'lobster_pot', quantity: 1 }
+        { type: 'level', skill: 'fishing', level: 85 },
+        { type: 'equipment', itemId: 'lobster_pot' }
       ]
     }
   ]

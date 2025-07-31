@@ -11,7 +11,7 @@ export const campLocation: Location = {
   icon: '/assets/locations/camp.png',
   availableSkills: ['cooking', 'firemaking'],
   actions: [
-    // Cooking actions
+    // Cooking actions - ordered by level required ascending
     {
       id: 'cook_shrimp',
       name: 'Cook Shrimp',
@@ -22,6 +22,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_shrimp', name: 'Cooked Shrimp', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 1 },
         { type: 'item', itemId: 'raw_shrimp', quantity: 1 }
       ]
     },
@@ -35,6 +36,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_sardine', name: 'Cooked Sardine', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 1 },
         { type: 'item', itemId: 'raw_sardine', quantity: 1 }
       ]
     },
@@ -48,6 +50,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_anchovies', name: 'Cooked Anchovies', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 1 },
         { type: 'item', itemId: 'raw_anchovies', quantity: 1 }
       ]
     },
@@ -61,6 +64,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_herring', name: 'Cooked Herring', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 5 },
         { type: 'item', itemId: 'raw_herring', quantity: 1 }
       ]
     },
@@ -74,6 +78,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_trout', name: 'Cooked Trout', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 15 },
         { type: 'item', itemId: 'raw_trout', quantity: 1 }
       ]
     },
@@ -87,6 +92,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_salmon', name: 'Cooked Salmon', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 25 },
         { type: 'item', itemId: 'raw_salmon', quantity: 1 }
       ]
     },
@@ -100,6 +106,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_tuna', name: 'Cooked Tuna', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 30 },
         { type: 'item', itemId: 'raw_tuna', quantity: 1 }
       ]
     },
@@ -113,6 +120,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_lobster', name: 'Cooked Lobster', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 40 },
         { type: 'item', itemId: 'raw_lobster', quantity: 1 }
       ]
     },
@@ -126,6 +134,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_swordfish', name: 'Cooked Swordfish', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 45 },
         { type: 'item', itemId: 'raw_swordfish', quantity: 1 }
       ]
     },
@@ -139,6 +148,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_monkfish', name: 'Cooked Monkfish', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 62 },
         { type: 'item', itemId: 'raw_monkfish', quantity: 1 }
       ]
     },
@@ -152,6 +162,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_shark', name: 'Cooked Shark', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 80 },
         { type: 'item', itemId: 'raw_shark', quantity: 1 }
       ]
     },
@@ -165,6 +176,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_anglerfish', name: 'Cooked Anglerfish', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 84 },
         { type: 'item', itemId: 'raw_anglerfish', quantity: 1 }
       ]
     },
@@ -178,11 +190,12 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'cooked_dark_crab', name: 'Cooked Dark Crab', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'cooking', level: 90 },
         { type: 'item', itemId: 'raw_dark_crab', quantity: 1 }
       ]
     },
     
-    // Firemaking actions
+    // Firemaking actions - ordered by level required ascending
     {
       id: 'light_logs',
       name: 'Light Logs',
@@ -193,6 +206,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'ashes', name: 'Ashes', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'firemaking', level: 1 },
         { type: 'item', itemId: 'logs', quantity: 1 }
       ]
     },
@@ -206,6 +220,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'ashes', name: 'Ashes', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'firemaking', level: 15 },
         { type: 'item', itemId: 'oak_logs', quantity: 1 }
       ]
     },
@@ -219,6 +234,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'ashes', name: 'Ashes', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'firemaking', level: 30 },
         { type: 'item', itemId: 'willow_logs', quantity: 1 }
       ]
     },
@@ -232,6 +248,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'ashes', name: 'Ashes', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'firemaking', level: 45 },
         { type: 'item', itemId: 'maple_logs', quantity: 1 }
       ]
     },
@@ -245,6 +262,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'ashes', name: 'Ashes', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'firemaking', level: 60 },
         { type: 'item', itemId: 'yew_logs', quantity: 1 }
       ]
     },
@@ -258,6 +276,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'ashes', name: 'Ashes', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'firemaking', level: 75 },
         { type: 'item', itemId: 'magic_logs', quantity: 1 }
       ]
     },
@@ -271,6 +290,7 @@ export const campLocation: Location = {
       baseTime: 2000,
       itemReward: { id: 'ashes', name: 'Ashes', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'firemaking', level: 90 },
         { type: 'item', itemId: 'redwood_logs', quantity: 1 }
       ]
     }

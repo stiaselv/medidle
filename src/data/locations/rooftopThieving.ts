@@ -13,7 +13,7 @@ export const rooftopThievingLocation: Location = {
   icon: '/assets/BG/rooftop_thieving.webp',
   availableSkills: ['thieving', 'agility'],
   actions: [
-    // Agility actions
+    // Agility actions - ordered by level required ascending
     {
       id: 'rooftop_agility_course',
       name: 'Rooftop Agility Course',
@@ -23,7 +23,9 @@ export const rooftopThievingLocation: Location = {
       experience: 125,
       baseTime: 8000,
       itemReward: { id: 'none', name: 'None', quantity: 0 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'agility', level: 1 }
+      ]
     },
     {
       id: 'rooftop_agility_course_advanced',
@@ -34,7 +36,9 @@ export const rooftopThievingLocation: Location = {
       experience: 175,
       baseTime: 7000,
       itemReward: { id: 'none', name: 'None', quantity: 0 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'agility', level: 20 }
+      ]
     },
     {
       id: 'rooftop_agility_course_expert',
@@ -45,7 +49,9 @@ export const rooftopThievingLocation: Location = {
       experience: 250,
       baseTime: 6000,
       itemReward: { id: 'none', name: 'None', quantity: 0 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'agility', level: 40 }
+      ]
     },
     {
       id: 'rooftop_agility_course_master',
@@ -56,7 +62,9 @@ export const rooftopThievingLocation: Location = {
       experience: 350,
       baseTime: 5000,
       itemReward: { id: 'none', name: 'None', quantity: 0 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'agility', level: 60 }
+      ]
     },
     {
       id: 'rooftop_agility_course_elite',
@@ -67,10 +75,12 @@ export const rooftopThievingLocation: Location = {
       experience: 500,
       baseTime: 4000,
       itemReward: { id: 'none', name: 'None', quantity: 0 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'agility', level: 80 }
+      ]
     },
 
-    // Basic thieving targets
+    // Basic thieving targets - ordered by level required ascending
     {
       id: 'pickpocket_man',
       name: 'Pickpocket Man',
@@ -84,7 +94,9 @@ export const rooftopThievingLocation: Location = {
         { id: 'coins', quantity: 3, chance: 0.8 },
         { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 1 }
+      ]
     },
     {
       id: 'pickpocket_woman',
@@ -99,7 +111,9 @@ export const rooftopThievingLocation: Location = {
         { id: 'coins', quantity: 3, chance: 0.8 },
         { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 1 }
+      ]
     },
     {
       id: 'pickpocket_farmer',
@@ -112,10 +126,11 @@ export const rooftopThievingLocation: Location = {
       itemReward: { id: 'coins', name: 'Coins', quantity: 9 },
       possibleLoot: [
         { id: 'coins', quantity: 9, chance: 0.8 },
-        { id: 'potato', quantity: 1, chance: 0.3 },
-        { id: 'onion', quantity: 1, chance: 0.2 }
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 10 }
+      ]
     },
     {
       id: 'pickpocket_guard',
@@ -123,14 +138,16 @@ export const rooftopThievingLocation: Location = {
       type: 'thieving',
       skill: 'thieving',
       levelRequired: 20,
-      experience: 19.8,
+      experience: 22.5,
       baseTime: 3000,
       itemReward: { id: 'coins', name: 'Coins', quantity: 18 },
       possibleLoot: [
         { id: 'coins', quantity: 18, chance: 0.8 },
-        { id: 'iron_ore', quantity: 1, chance: 0.1 }
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 20 }
+      ]
     },
     {
       id: 'pickpocket_warrior',
@@ -143,9 +160,11 @@ export const rooftopThievingLocation: Location = {
       itemReward: { id: 'coins', name: 'Coins', quantity: 22 },
       possibleLoot: [
         { id: 'coins', quantity: 22, chance: 0.8 },
-        { id: 'iron_bar', quantity: 1, chance: 0.1 }
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 25 }
+      ]
     },
     {
       id: 'pickpocket_rogue',
@@ -153,29 +172,33 @@ export const rooftopThievingLocation: Location = {
       type: 'thieving',
       skill: 'thieving',
       levelRequired: 32,
-      experience: 35.4,
+      experience: 35.5,
       baseTime: 3000,
       itemReward: { id: 'coins', name: 'Coins', quantity: 28 },
       possibleLoot: [
         { id: 'coins', quantity: 28, chance: 0.8 },
-        { id: 'lockpick', quantity: 1, chance: 0.1 }
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 32 }
+      ]
     },
     {
-      id: 'pickpocket_cave_goblin',
-      name: 'Pickpocket Cave Goblin',
+      id: 'pickpocket_cave_hobgoblin',
+      name: 'Pickpocket Cave Hobgoblin',
       type: 'thieving',
       skill: 'thieving',
       levelRequired: 36,
-      experience: 47.8,
+      experience: 40,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 40 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 32 },
       possibleLoot: [
-        { id: 'coins', quantity: 40, chance: 0.8 },
-        { id: 'iron_ore', quantity: 1, chance: 0.2 }
+        { id: 'coins', quantity: 32, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 36 }
+      ]
     },
     {
       id: 'pickpocket_master_farmer',
@@ -185,29 +208,31 @@ export const rooftopThievingLocation: Location = {
       levelRequired: 38,
       experience: 43,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 30 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 35 },
       possibleLoot: [
-        { id: 'coins', quantity: 30, chance: 0.8 },
-        { id: 'potato_seed', quantity: 1, chance: 0.3 },
-        { id: 'onion_seed', quantity: 1, chance: 0.2 },
-        { id: 'cabbage_seed', quantity: 1, chance: 0.1 }
+        { id: 'coins', quantity: 35, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 38 }
+      ]
     },
     {
-      id: 'pickpocket_guard_dog',
-      name: 'Pickpocket Guard Dog',
+      id: 'pickpocket_guard_hill_giant',
+      name: 'Pickpocket Guard (Hill Giant)',
       type: 'thieving',
       skill: 'thieving',
-      levelRequired: 40,
-      experience: 52.4,
+      levelRequired: 42,
+      experience: 47,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 50 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 40 },
       possibleLoot: [
-        { id: 'coins', quantity: 50, chance: 0.8 },
-        { id: 'bones', quantity: 1, chance: 0.3 }
+        { id: 'coins', quantity: 40, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 42 }
+      ]
     },
     {
       id: 'pickpocket_fremennik_citizen',
@@ -215,45 +240,118 @@ export const rooftopThievingLocation: Location = {
       type: 'thieving',
       skill: 'thieving',
       levelRequired: 45,
-      experience: 65,
+      experience: 51.8,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 60 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 45 },
       possibleLoot: [
-        { id: 'coins', quantity: 60, chance: 0.8 },
-        { id: 'iron_bar', quantity: 1, chance: 0.2 }
+        { id: 'coins', quantity: 45, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 45 }
+      ]
     },
     {
-      id: 'pickpocket_bandit',
-      name: 'Pickpocket Bandit',
+      id: 'pickpocket_bearded_pollnivnian_bandit',
+      name: 'Pickpocket Bearded Pollnivnian Bandit',
+      type: 'thieving',
+      skill: 'thieving',
+      levelRequired: 45,
+      experience: 51.8,
+      baseTime: 3000,
+      itemReward: { id: 'coins', name: 'Coins', quantity: 45 },
+      possibleLoot: [
+        { id: 'coins', quantity: 45, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
+      ],
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 45 }
+      ]
+    },
+    {
+      id: 'pickpocket_desert_bandit',
+      name: 'Pickpocket Desert Bandit',
       type: 'thieving',
       skill: 'thieving',
       levelRequired: 53,
-      experience: 79.5,
+      experience: 59.5,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 75 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 50 },
       possibleLoot: [
-        { id: 'coins', quantity: 75, chance: 0.8 },
-        { id: 'iron_ore', quantity: 1, chance: 0.2 },
-        { id: 'coal', quantity: 1, chance: 0.1 }
+        { id: 'coins', quantity: 50, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 53 }
+      ]
     },
     {
-      id: 'pickpocket_knight',
-      name: 'Pickpocket Knight',
+      id: 'pickpocket_knight_of_ardougne',
+      name: 'Pickpocket Knight of Ardougne',
       type: 'thieving',
       skill: 'thieving',
       levelRequired: 55,
       experience: 84.3,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 80 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 55 },
       possibleLoot: [
-        { id: 'coins', quantity: 80, chance: 0.8 },
-        { id: 'steel_bar', quantity: 1, chance: 0.1 }
+        { id: 'coins', quantity: 55, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 55 }
+      ]
+    },
+    {
+      id: 'pickpocket_pollnivnian_bandit',
+      name: 'Pickpocket Pollnivnian Bandit',
+      type: 'thieving',
+      skill: 'thieving',
+      levelRequired: 55,
+      experience: 84.3,
+      baseTime: 3000,
+      itemReward: { id: 'coins', name: 'Coins', quantity: 55 },
+      possibleLoot: [
+        { id: 'coins', quantity: 55, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
+      ],
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 55 }
+      ]
+    },
+    {
+      id: 'pickpocket_yanille_watchman',
+      name: 'Pickpocket Yanille Watchman',
+      type: 'thieving',
+      skill: 'thieving',
+      levelRequired: 65,
+      experience: 137.5,
+      baseTime: 3000,
+      itemReward: { id: 'coins', name: 'Coins', quantity: 60 },
+      possibleLoot: [
+        { id: 'coins', quantity: 60, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
+      ],
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 65 }
+      ]
+    },
+    {
+      id: 'pickpocket_menaphite_thug',
+      name: 'Pickpocket Menaphite Thug',
+      type: 'thieving',
+      skill: 'thieving',
+      levelRequired: 65,
+      experience: 137.5,
+      baseTime: 3000,
+      itemReward: { id: 'coins', name: 'Coins', quantity: 60 },
+      possibleLoot: [
+        { id: 'coins', quantity: 60, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
+      ],
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 65 }
+      ]
     },
     {
       id: 'pickpocket_paladin',
@@ -263,12 +361,14 @@ export const rooftopThievingLocation: Location = {
       levelRequired: 70,
       experience: 151.8,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 160 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 65 },
       possibleLoot: [
-        { id: 'coins', quantity: 160, chance: 0.8 },
-        { id: 'mithril_bar', quantity: 1, chance: 0.1 }
+        { id: 'coins', quantity: 65, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 70 }
+      ]
     },
     {
       id: 'pickpocket_gnome',
@@ -278,12 +378,14 @@ export const rooftopThievingLocation: Location = {
       levelRequired: 75,
       experience: 198.5,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 200 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 70 },
       possibleLoot: [
-        { id: 'coins', quantity: 200, chance: 0.8 },
-        { id: 'adamant_bar', quantity: 1, chance: 0.1 }
+        { id: 'coins', quantity: 70, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 75 }
+      ]
     },
     {
       id: 'pickpocket_hero',
@@ -293,12 +395,31 @@ export const rooftopThievingLocation: Location = {
       levelRequired: 80,
       experience: 275.7,
       baseTime: 3000,
-      itemReward: { id: 'coins', name: 'Coins', quantity: 300 },
+      itemReward: { id: 'coins', name: 'Coins', quantity: 75 },
       possibleLoot: [
-        { id: 'coins', quantity: 300, chance: 0.8 },
-        { id: 'rune_bar', quantity: 1, chance: 0.05 }
+        { id: 'coins', quantity: 75, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
       ],
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 80 }
+      ]
+    },
+    {
+      id: 'pickpocket_elf',
+      name: 'Pickpocket Elf',
+      type: 'thieving',
+      skill: 'thieving',
+      levelRequired: 85,
+      experience: 353.3,
+      baseTime: 3000,
+      itemReward: { id: 'coins', name: 'Coins', quantity: 80 },
+      possibleLoot: [
+        { id: 'coins', quantity: 80, chance: 0.8 },
+        { id: 'bread', quantity: 1, chance: 0.2 }
+      ],
+      requirements: [
+        { type: 'level', skill: 'thieving', level: 85 }
+      ]
     }
   ]
 }; 

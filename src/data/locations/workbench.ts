@@ -24,6 +24,7 @@ export const workbenchLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'leather_gloves', name: 'Leather Gloves', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'crafting', level: 1 },
         { type: 'item', itemId: 'cowhide', quantity: 1 }
       ]
     },
@@ -36,7 +37,8 @@ export const workbenchLocation: Location = {
       experience: 16.3,
       baseTime: 3000,
       itemReward: { id: 'leather_boots', name: 'Leather Boots', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
+        { type: 'level', skill: 'crafting', level: 5 },
         { type: 'item', itemId: 'cowhide', quantity: 1 }
       ]
     },
@@ -49,7 +51,7 @@ export const workbenchLocation: Location = {
       experience: 18.5,
       baseTime: 3000,
       itemReward: { id: 'leather_coif', name: 'Leather Coif', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'cowhide', quantity: 1 }
       ]
     },
@@ -62,7 +64,7 @@ export const workbenchLocation: Location = {
       experience: 22.0,
       baseTime: 3000,
       itemReward: { id: 'leather_vambraces', name: 'Leather Vambraces', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'cowhide', quantity: 1 }
       ]
     },
@@ -75,7 +77,7 @@ export const workbenchLocation: Location = {
       experience: 25.0,
       baseTime: 4000,
       itemReward: { id: 'leather_body', name: 'Leather Body', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'cowhide', quantity: 3 }
       ]
     },
@@ -88,7 +90,7 @@ export const workbenchLocation: Location = {
       experience: 27.0,
       baseTime: 4000,
       itemReward: { id: 'leather_chaps', name: 'Leather Chaps', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'cowhide', quantity: 3 }
       ]
     },
@@ -101,7 +103,7 @@ export const workbenchLocation: Location = {
       experience: 124.0,
       baseTime: 3000,
       itemReward: { id: 'green_dragonhide_coif', name: 'Green Dragonhide Coif', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'green_dragonhide', quantity: 1 }
       ]
     },
@@ -114,7 +116,7 @@ export const workbenchLocation: Location = {
       experience: 136.0,
       baseTime: 3000,
       itemReward: { id: 'green_dragonhide_vambraces', name: 'Green Dragonhide Vambraces', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'green_dragonhide', quantity: 1 }
       ]
     },
@@ -127,7 +129,7 @@ export const workbenchLocation: Location = {
       experience: 186.0,
       baseTime: 4000,
       itemReward: { id: 'green_dragonhide_chaps', name: 'Green Dragonhide Chaps', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'green_dragonhide', quantity: 2 }
       ]
     },
@@ -140,7 +142,7 @@ export const workbenchLocation: Location = {
       experience: 186.0,
       baseTime: 4000,
       itemReward: { id: 'green_dragonhide_shield', name: 'Green Dragonhide Shield', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'green_dragonhide', quantity: 2 },
         { type: 'item', itemId: 'maple_shield', quantity: 1 },
         { type: 'item', itemId: 'steel_nails', quantity: 15 }
@@ -155,7 +157,7 @@ export const workbenchLocation: Location = {
       experience: 210.0,
       baseTime: 5000,
       itemReward: { id: 'green_dragonhide_body', name: 'Green Dragonhide Body', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'green_dragonhide', quantity: 3 }
       ]
     },
@@ -168,7 +170,7 @@ export const workbenchLocation: Location = {
       experience: 140.0,
       baseTime: 3000,
       itemReward: { id: 'blue_dragonhide_coif', name: 'Blue Dragonhide Coif', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'blue_dragonhide', quantity: 1 }
       ]
     },
@@ -181,7 +183,7 @@ export const workbenchLocation: Location = {
       experience: 156.0,
       baseTime: 3000,
       itemReward: { id: 'blue_dragonhide_vambraces', name: 'Blue Dragonhide Vambraces', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'blue_dragonhide', quantity: 1 }
       ]
     },
@@ -194,7 +196,7 @@ export const workbenchLocation: Location = {
       experience: 210.0,
       baseTime: 4000,
       itemReward: { id: 'blue_dragonhide_chaps', name: 'Blue Dragonhide Chaps', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'blue_dragonhide', quantity: 2 }
       ]
     },
@@ -207,7 +209,7 @@ export const workbenchLocation: Location = {
       experience: 210.0,
       baseTime: 4000,
       itemReward: { id: 'blue_dragonhide_shield', name: 'Blue Dragonhide Shield', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'blue_dragonhide', quantity: 2 },
         { type: 'item', itemId: 'yew_shield', quantity: 1 },
         { type: 'item', itemId: 'mithril_nails', quantity: 15 }
@@ -222,7 +224,7 @@ export const workbenchLocation: Location = {
       experience: 235.0,
       baseTime: 5000,
       itemReward: { id: 'blue_dragonhide_body', name: 'Blue Dragonhide Body', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'blue_dragonhide', quantity: 3 }
       ]
     },
@@ -235,7 +237,7 @@ export const workbenchLocation: Location = {
       experience: 156.0,
       baseTime: 3000,
       itemReward: { id: 'red_dragonhide_coif', name: 'Red Dragonhide Coif', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'red_dragonhide', quantity: 1 }
       ]
     },
@@ -248,7 +250,7 @@ export const workbenchLocation: Location = {
       experience: 168.0,
       baseTime: 3000,
       itemReward: { id: 'red_dragonhide_vambraces', name: 'Red Dragonhide Vambraces', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'red_dragonhide', quantity: 1 }
       ]
     },
@@ -261,7 +263,7 @@ export const workbenchLocation: Location = {
       experience: 234.0,
       baseTime: 4000,
       itemReward: { id: 'red_dragonhide_chaps', name: 'Red Dragonhide Chaps', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'red_dragonhide', quantity: 2 }
       ]
     },
@@ -274,7 +276,7 @@ export const workbenchLocation: Location = {
       experience: 234.0,
       baseTime: 4000,
       itemReward: { id: 'red_dragonhide_shield', name: 'Red Dragonhide Shield', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'red_dragonhide', quantity: 2 },
         { type: 'item', itemId: 'magic_shield', quantity: 1 },
         { type: 'item', itemId: 'adamant_nails', quantity: 15 }
@@ -289,7 +291,7 @@ export const workbenchLocation: Location = {
       experience: 260.0,
       baseTime: 5000,
       itemReward: { id: 'red_dragonhide_body', name: 'Red Dragonhide Body', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'red_dragonhide', quantity: 3 }
       ]
     },
@@ -302,7 +304,7 @@ export const workbenchLocation: Location = {
       experience: 168.0,
       baseTime: 3000,
       itemReward: { id: 'black_dragonhide_coif', name: 'Black Dragonhide Coif', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'black_dragonhide', quantity: 1 }
       ]
     },
@@ -315,7 +317,7 @@ export const workbenchLocation: Location = {
       experience: 184.0,
       baseTime: 3000,
       itemReward: { id: 'black_dragonhide_vambraces', name: 'Black Dragonhide Vambraces', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'black_dragonhide', quantity: 1 }
       ]
     },
@@ -328,7 +330,7 @@ export const workbenchLocation: Location = {
       experience: 258.0,
       baseTime: 4000,
       itemReward: { id: 'black_dragonhide_chaps', name: 'Black Dragonhide Chaps', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'black_dragonhide', quantity: 2 }
       ]
     },
@@ -341,7 +343,7 @@ export const workbenchLocation: Location = {
       experience: 258.0,
       baseTime: 4000,
       itemReward: { id: 'black_dragonhide_shield', name: 'Black Dragonhide Shield', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'black_dragonhide', quantity: 2 },
         { type: 'item', itemId: 'redwood_shield', quantity: 1 },
         { type: 'item', itemId: 'rune_nails', quantity: 15 }
@@ -356,7 +358,7 @@ export const workbenchLocation: Location = {
       experience: 286.0,
       baseTime: 5000,
       itemReward: { id: 'black_dragonhide_body', name: 'Black Dragonhide Body', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'black_dragonhide', quantity: 3 }
       ]
     },
@@ -371,7 +373,7 @@ export const workbenchLocation: Location = {
       experience: 17.5,
       baseTime: 3000,
       itemReward: { id: 'sapphire_silver_ring', name: 'Sapphire Silver Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'sapphire', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -385,7 +387,7 @@ export const workbenchLocation: Location = {
       experience: 17.5,
       baseTime: 3000,
       itemReward: { id: 'sapphire_gold_ring', name: 'Sapphire Gold Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'sapphire', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -399,7 +401,7 @@ export const workbenchLocation: Location = {
       experience: 17.5,
       baseTime: 3000,
       itemReward: { id: 'sapphire_silver_amulet', name: 'Sapphire Silver Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'sapphire', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -413,7 +415,7 @@ export const workbenchLocation: Location = {
       experience: 17.5,
       baseTime: 3000,
       itemReward: { id: 'sapphire_gold_amulet', name: 'Sapphire Gold Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'sapphire', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -427,7 +429,7 @@ export const workbenchLocation: Location = {
       experience: 37.0,
       baseTime: 3000,
       itemReward: { id: 'emerald_silver_ring', name: 'Emerald Silver Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'emerald', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -441,7 +443,7 @@ export const workbenchLocation: Location = {
       experience: 37.0,
       baseTime: 3000,
       itemReward: { id: 'emerald_gold_ring', name: 'Emerald Gold Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'emerald', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -455,7 +457,7 @@ export const workbenchLocation: Location = {
       experience: 37.0,
       baseTime: 3000,
       itemReward: { id: 'emerald_silver_amulet', name: 'Emerald Silver Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'emerald', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -469,7 +471,7 @@ export const workbenchLocation: Location = {
       experience: 37.0,
       baseTime: 3000,
       itemReward: { id: 'emerald_gold_amulet', name: 'Emerald Gold Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'emerald', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -483,7 +485,7 @@ export const workbenchLocation: Location = {
       experience: 59.0,
       baseTime: 3000,
       itemReward: { id: 'ruby_silver_ring', name: 'Ruby Silver Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'ruby', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -497,7 +499,7 @@ export const workbenchLocation: Location = {
       experience: 59.0,
       baseTime: 3000,
       itemReward: { id: 'ruby_gold_ring', name: 'Ruby Gold Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'ruby', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -511,7 +513,7 @@ export const workbenchLocation: Location = {
       experience: 59.0,
       baseTime: 3000,
       itemReward: { id: 'ruby_silver_amulet', name: 'Ruby Silver Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'ruby', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -525,7 +527,7 @@ export const workbenchLocation: Location = {
       experience: 59.0,
       baseTime: 3000,
       itemReward: { id: 'ruby_gold_amulet', name: 'Ruby Gold Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'ruby', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -539,7 +541,7 @@ export const workbenchLocation: Location = {
       experience: 67.0,
       baseTime: 3000,
       itemReward: { id: 'diamond_silver_ring', name: 'Diamond Silver Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'diamond', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -553,7 +555,7 @@ export const workbenchLocation: Location = {
       experience: 67.0,
       baseTime: 3000,
       itemReward: { id: 'diamond_gold_ring', name: 'Diamond Gold Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'diamond', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -567,7 +569,7 @@ export const workbenchLocation: Location = {
       experience: 67.0,
       baseTime: 3000,
       itemReward: { id: 'diamond_silver_amulet', name: 'Diamond Silver Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'diamond', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -581,7 +583,7 @@ export const workbenchLocation: Location = {
       experience: 67.0,
       baseTime: 3000,
       itemReward: { id: 'diamond_gold_amulet', name: 'Diamond Gold Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'diamond', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -595,7 +597,7 @@ export const workbenchLocation: Location = {
       experience: 137.5,
       baseTime: 3000,
       itemReward: { id: 'dragonstone_silver_ring', name: 'Dragonstone Silver Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'dragonstone', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -609,7 +611,7 @@ export const workbenchLocation: Location = {
       experience: 137.5,
       baseTime: 3000,
       itemReward: { id: 'dragonstone_gold_ring', name: 'Dragonstone Gold Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'dragonstone', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -623,7 +625,7 @@ export const workbenchLocation: Location = {
       experience: 137.5,
       baseTime: 3000,
       itemReward: { id: 'dragonstone_silver_amulet', name: 'Dragonstone Silver Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'dragonstone', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -637,7 +639,7 @@ export const workbenchLocation: Location = {
       experience: 137.5,
       baseTime: 3000,
       itemReward: { id: 'dragonstone_gold_amulet', name: 'Dragonstone Gold Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'dragonstone', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -651,7 +653,7 @@ export const workbenchLocation: Location = {
       experience: 167.5,
       baseTime: 3000,
       itemReward: { id: 'onyx_silver_ring', name: 'Onyx Silver Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'onyx', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -665,7 +667,7 @@ export const workbenchLocation: Location = {
       experience: 167.5,
       baseTime: 3000,
       itemReward: { id: 'onyx_gold_ring', name: 'Onyx Gold Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'onyx', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -679,7 +681,7 @@ export const workbenchLocation: Location = {
       experience: 167.5,
       baseTime: 3000,
       itemReward: { id: 'onyx_silver_amulet', name: 'Onyx Silver Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'onyx', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -693,7 +695,7 @@ export const workbenchLocation: Location = {
       experience: 167.5,
       baseTime: 3000,
       itemReward: { id: 'onyx_gold_amulet', name: 'Onyx Gold Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'onyx', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -707,7 +709,7 @@ export const workbenchLocation: Location = {
       experience: 200.0,
       baseTime: 3000,
       itemReward: { id: 'zenyte_silver_ring', name: 'Zenyte Silver Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'zenyte', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -721,7 +723,7 @@ export const workbenchLocation: Location = {
       experience: 200.0,
       baseTime: 3000,
       itemReward: { id: 'zenyte_gold_ring', name: 'Zenyte Gold Ring', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'zenyte', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -735,7 +737,7 @@ export const workbenchLocation: Location = {
       experience: 200.0,
       baseTime: 3000,
       itemReward: { id: 'zenyte_silver_amulet', name: 'Zenyte Silver Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'zenyte', quantity: 1 },
         { type: 'item', itemId: 'silver_bar', quantity: 1 }
       ]
@@ -749,7 +751,7 @@ export const workbenchLocation: Location = {
       experience: 200.0,
       baseTime: 3000,
       itemReward: { id: 'zenyte_gold_amulet', name: 'Zenyte Gold Amulet', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'zenyte', quantity: 1 },
         { type: 'item', itemId: 'gold_bar', quantity: 1 }
       ]
@@ -765,7 +767,7 @@ export const workbenchLocation: Location = {
       experience: 100.0,
       baseTime: 4000,
       itemReward: { id: 'water_battlestaff', name: 'Water Battlestaff', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'battlestaff', quantity: 1 },
         { type: 'item', itemId: 'water_orb', quantity: 1 }
       ]
@@ -779,7 +781,7 @@ export const workbenchLocation: Location = {
       experience: 112.5,
       baseTime: 4000,
       itemReward: { id: 'earth_battlestaff', name: 'Earth Battlestaff', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'battlestaff', quantity: 1 },
         { type: 'item', itemId: 'earth_orb', quantity: 1 }
       ]
@@ -793,7 +795,7 @@ export const workbenchLocation: Location = {
       experience: 125.0,
       baseTime: 4000,
       itemReward: { id: 'fire_battlestaff', name: 'Fire Battlestaff', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'battlestaff', quantity: 1 },
         { type: 'item', itemId: 'fire_orb', quantity: 1 }
       ]
@@ -807,7 +809,7 @@ export const workbenchLocation: Location = {
       experience: 137.5,
       baseTime: 4000,
       itemReward: { id: 'air_battlestaff', name: 'Air Battlestaff', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'battlestaff', quantity: 1 },
         { type: 'item', itemId: 'air_orb', quantity: 1 }
       ]
@@ -823,7 +825,7 @@ export const workbenchLocation: Location = {
       experience: 50.0,
       baseTime: 2000,
       itemReward: { id: 'sapphire', name: 'Sapphire', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'uncut_sapphire', quantity: 1 }
       ]
     },
@@ -836,7 +838,7 @@ export const workbenchLocation: Location = {
       experience: 67.5,
       baseTime: 2000,
       itemReward: { id: 'emerald', name: 'Emerald', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'uncut_emerald', quantity: 1 }
       ]
     },
@@ -849,7 +851,7 @@ export const workbenchLocation: Location = {
       experience: 85.0,
       baseTime: 2000,
       itemReward: { id: 'ruby', name: 'Ruby', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'uncut_ruby', quantity: 1 }
       ]
     },
@@ -862,7 +864,7 @@ export const workbenchLocation: Location = {
       experience: 107.5,
       baseTime: 2000,
       itemReward: { id: 'diamond', name: 'Diamond', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'uncut_diamond', quantity: 1 }
       ]
     },
@@ -875,7 +877,7 @@ export const workbenchLocation: Location = {
       experience: 137.5,
       baseTime: 2000,
       itemReward: { id: 'dragonstone', name: 'Dragonstone', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'uncut_dragonstone', quantity: 1 }
       ]
     },
@@ -888,7 +890,7 @@ export const workbenchLocation: Location = {
       experience: 167.5,
       baseTime: 2000,
       itemReward: { id: 'onyx', name: 'Onyx', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'uncut_onyx', quantity: 1 }
       ]
     },
@@ -901,7 +903,7 @@ export const workbenchLocation: Location = {
       experience: 200.0,
       baseTime: 2000,
       itemReward: { id: 'zenyte', name: 'Zenyte', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'onyx', quantity: 1 },
         { type: 'item', itemId: 'uncut_zenyte', quantity: 1 }
       ]
@@ -919,7 +921,7 @@ export const workbenchLocation: Location = {
       experience: 5,
       baseTime: 2000,
       itemReward: { id: 'arrow_shafts', name: 'Arrow Shafts', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'logs', quantity: 1 }
       ]
     },
@@ -932,7 +934,7 @@ export const workbenchLocation: Location = {
       experience: 5,
       baseTime: 2000,
       itemReward: { id: 'headless_arrows', name: 'Headless Arrows', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'arrow_shafts', quantity: 15 },
         { type: 'item', itemId: 'feathers', quantity: 15 }
       ]
@@ -946,7 +948,7 @@ export const workbenchLocation: Location = {
       experience: 10,
       baseTime: 2000,
       itemReward: { id: 'bronze_arrows', name: 'Bronze Arrows', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'headless_arrows', quantity: 15 },
         { type: 'item', itemId: 'bronze_arrowtips', quantity: 15 }
       ]
@@ -960,7 +962,7 @@ export const workbenchLocation: Location = {
       experience: 15,
       baseTime: 2000,
       itemReward: { id: 'iron_arrows', name: 'Iron Arrows', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'headless_arrows', quantity: 15 },
         { type: 'item', itemId: 'iron_arrowtips', quantity: 15 }
       ]
@@ -974,7 +976,7 @@ export const workbenchLocation: Location = {
       experience: 20,
       baseTime: 2000,
       itemReward: { id: 'steel_arrows', name: 'Steel Arrows', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'headless_arrows', quantity: 15 },
         { type: 'item', itemId: 'steel_arrowtips', quantity: 15 }
       ]
@@ -988,7 +990,7 @@ export const workbenchLocation: Location = {
       experience: 25,
       baseTime: 2000,
       itemReward: { id: 'mithril_arrows', name: 'Mithril Arrows', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'headless_arrows', quantity: 15 },
         { type: 'item', itemId: 'mithril_arrowtips', quantity: 15 }
       ]
@@ -1002,7 +1004,7 @@ export const workbenchLocation: Location = {
       experience: 30,
       baseTime: 2000,
       itemReward: { id: 'adamant_arrows', name: 'Adamant Arrows', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'headless_arrows', quantity: 15 },
         { type: 'item', itemId: 'adamant_arrowtips', quantity: 15 }
       ]
@@ -1016,7 +1018,7 @@ export const workbenchLocation: Location = {
       experience: 40,
       baseTime: 2000,
       itemReward: { id: 'rune_arrows', name: 'Rune Arrows', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'headless_arrows', quantity: 15 },
         { type: 'item', itemId: 'rune_arrowtips', quantity: 15 }
       ]
@@ -1033,7 +1035,7 @@ export const workbenchLocation: Location = {
       experience: 10,
       baseTime: 3000,
       itemReward: { id: 'unstrung_oak_shortbow', name: 'Unstrung Oak Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'oak_logs', quantity: 1 }
       ]
     },
@@ -1046,7 +1048,7 @@ export const workbenchLocation: Location = {
       experience: 10,
       baseTime: 3000,
       itemReward: { id: 'oak_shortbow', name: 'Oak Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_oak_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1060,7 +1062,7 @@ export const workbenchLocation: Location = {
       experience: 15,
       baseTime: 3500,
       itemReward: { id: 'unstrung_oak_longbow', name: 'Unstrung Oak Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'oak_logs', quantity: 1 }
       ]
     },
@@ -1073,7 +1075,7 @@ export const workbenchLocation: Location = {
       experience: 15,
       baseTime: 3500,
       itemReward: { id: 'oak_longbow', name: 'Oak Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_oak_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1089,7 +1091,7 @@ export const workbenchLocation: Location = {
       experience: 15,
       baseTime: 3000,
       itemReward: { id: 'unstrung_willow_shortbow', name: 'Unstrung Willow Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'willow_logs', quantity: 1 }
       ]
     },
@@ -1102,7 +1104,7 @@ export const workbenchLocation: Location = {
       experience: 15,
       baseTime: 3000,
       itemReward: { id: 'willow_shortbow', name: 'Willow Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_willow_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1116,7 +1118,7 @@ export const workbenchLocation: Location = {
       experience: 20,
       baseTime: 3500,
       itemReward: { id: 'unstrung_willow_longbow', name: 'Unstrung Willow Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'willow_logs', quantity: 1 }
       ]
     },
@@ -1129,7 +1131,7 @@ export const workbenchLocation: Location = {
       experience: 20,
       baseTime: 3500,
       itemReward: { id: 'willow_longbow', name: 'Willow Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_willow_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1145,7 +1147,7 @@ export const workbenchLocation: Location = {
       experience: 25,
       baseTime: 3000,
       itemReward: { id: 'unstrung_maple_shortbow', name: 'Unstrung Maple Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'maple_logs', quantity: 1 }
       ]
     },
@@ -1158,7 +1160,7 @@ export const workbenchLocation: Location = {
       experience: 25,
       baseTime: 3000,
       itemReward: { id: 'maple_shortbow', name: 'Maple Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_maple_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1172,7 +1174,7 @@ export const workbenchLocation: Location = {
       experience: 32.5,
       baseTime: 3500,
       itemReward: { id: 'unstrung_maple_longbow', name: 'Unstrung Maple Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'maple_logs', quantity: 1 }
       ]
     },
@@ -1185,7 +1187,7 @@ export const workbenchLocation: Location = {
       experience: 32.5,
       baseTime: 3500,
       itemReward: { id: 'maple_longbow', name: 'Maple Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_maple_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1201,7 +1203,7 @@ export const workbenchLocation: Location = {
       experience: 40,
       baseTime: 3000,
       itemReward: { id: 'unstrung_yew_shortbow', name: 'Unstrung Yew Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'yew_logs', quantity: 1 }
       ]
     },
@@ -1214,7 +1216,7 @@ export const workbenchLocation: Location = {
       experience: 40,
       baseTime: 3000,
       itemReward: { id: 'yew_shortbow', name: 'Yew Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_yew_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1228,7 +1230,7 @@ export const workbenchLocation: Location = {
       experience: 50,
       baseTime: 3500,
       itemReward: { id: 'unstrung_yew_longbow', name: 'Unstrung Yew Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'yew_logs', quantity: 1 }
       ]
     },
@@ -1241,7 +1243,7 @@ export const workbenchLocation: Location = {
       experience: 50,
       baseTime: 3500,
       itemReward: { id: 'yew_longbow', name: 'Yew Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_yew_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1257,7 +1259,7 @@ export const workbenchLocation: Location = {
       experience: 55,
       baseTime: 3000,
       itemReward: { id: 'unstrung_magic_shortbow', name: 'Unstrung Magic Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'magic_logs', quantity: 1 }
       ]
     },
@@ -1270,7 +1272,7 @@ export const workbenchLocation: Location = {
       experience: 55,
       baseTime: 3000,
       itemReward: { id: 'magic_shortbow', name: 'Magic Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_magic_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1284,7 +1286,7 @@ export const workbenchLocation: Location = {
       experience: 70,
       baseTime: 3500,
       itemReward: { id: 'unstrung_magic_longbow', name: 'Unstrung Magic Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'magic_logs', quantity: 1 }
       ]
     },
@@ -1297,7 +1299,7 @@ export const workbenchLocation: Location = {
       experience: 70,
       baseTime: 3500,
       itemReward: { id: 'magic_longbow', name: 'Magic Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_magic_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1313,7 +1315,7 @@ export const workbenchLocation: Location = {
       experience: 80,
       baseTime: 3000,
       itemReward: { id: 'unstrung_redwood_shortbow', name: 'Unstrung Redwood Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'redwood_logs', quantity: 1 }
       ]
     },
@@ -1326,7 +1328,7 @@ export const workbenchLocation: Location = {
       experience: 80,
       baseTime: 3000,
       itemReward: { id: 'redwood_shortbow', name: 'Redwood Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_redwood_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1340,7 +1342,7 @@ export const workbenchLocation: Location = {
       experience: 90,
       baseTime: 3500,
       itemReward: { id: 'unstrung_redwood_longbow', name: 'Unstrung Redwood Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'redwood_logs', quantity: 1 }
       ]
     },
@@ -1353,7 +1355,7 @@ export const workbenchLocation: Location = {
       experience: 90,
       baseTime: 3500,
       itemReward: { id: 'redwood_longbow', name: 'Redwood Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_redwood_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1369,7 +1371,7 @@ export const workbenchLocation: Location = {
       experience: 30,
       baseTime: 3000,
       itemReward: { id: 'unstrung_teak_shortbow', name: 'Unstrung Teak Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'teak_logs', quantity: 1 }
       ]
     },
@@ -1382,7 +1384,7 @@ export const workbenchLocation: Location = {
       experience: 30,
       baseTime: 3000,
       itemReward: { id: 'teak_shortbow', name: 'Teak Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_teak_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1396,7 +1398,7 @@ export const workbenchLocation: Location = {
       experience: 35,
       baseTime: 3500,
       itemReward: { id: 'unstrung_teak_longbow', name: 'Unstrung Teak Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'teak_logs', quantity: 1 }
       ]
     },
@@ -1409,7 +1411,7 @@ export const workbenchLocation: Location = {
       experience: 35,
       baseTime: 3500,
       itemReward: { id: 'teak_longbow', name: 'Teak Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_teak_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1425,7 +1427,7 @@ export const workbenchLocation: Location = {
       experience: 50,
       baseTime: 3000,
       itemReward: { id: 'unstrung_mahogany_shortbow', name: 'Unstrung Mahogany Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'mahogany_logs', quantity: 1 }
       ]
     },
@@ -1438,7 +1440,7 @@ export const workbenchLocation: Location = {
       experience: 50,
       baseTime: 3000,
       itemReward: { id: 'mahogany_shortbow', name: 'Mahogany Shortbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_mahogany_shortbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1452,7 +1454,7 @@ export const workbenchLocation: Location = {
       experience: 55,
       baseTime: 3500,
       itemReward: { id: 'unstrung_mahogany_longbow', name: 'Unstrung Mahogany Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'mahogany_logs', quantity: 1 }
       ]
     },
@@ -1465,7 +1467,7 @@ export const workbenchLocation: Location = {
       experience: 55,
       baseTime: 3500,
       itemReward: { id: 'mahogany_longbow', name: 'Mahogany Longbow', quantity: 1 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'unstrung_mahogany_longbow', quantity: 1 },
         { type: 'item', itemId: 'bow_string', quantity: 1 }
       ]
@@ -1481,7 +1483,7 @@ export const workbenchLocation: Location = {
       experience: 15,
       baseTime: 2500,
       itemReward: { id: 'javelin_shafts', name: 'Javelin Shafts', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'logs', quantity: 1 }
       ]
     },
@@ -1494,7 +1496,7 @@ export const workbenchLocation: Location = {
       experience: 20,
       baseTime: 3000,
       itemReward: { id: 'bronze_javelin', name: 'Bronze Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'bronze_javelin_heads', quantity: 15 }
       ]
@@ -1508,7 +1510,7 @@ export const workbenchLocation: Location = {
       experience: 30,
       baseTime: 3000,
       itemReward: { id: 'iron_javelin', name: 'Iron Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'iron_javelin_heads', quantity: 15 }
       ]
@@ -1522,7 +1524,7 @@ export const workbenchLocation: Location = {
       experience: 45,
       baseTime: 3000,
       itemReward: { id: 'steel_javelin', name: 'Steel Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'steel_javelin_heads', quantity: 15 }
       ]
@@ -1536,7 +1538,7 @@ export const workbenchLocation: Location = {
       experience: 60,
       baseTime: 3000,
       itemReward: { id: 'mithril_javelin', name: 'Mithril Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'mithril_javelin_heads', quantity: 15 }
       ]
@@ -1550,7 +1552,7 @@ export const workbenchLocation: Location = {
       experience: 75,
       baseTime: 3000,
       itemReward: { id: 'adamant_javelin', name: 'Adamant Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'adamant_javelin_heads', quantity: 15 }
       ]
@@ -1564,7 +1566,7 @@ export const workbenchLocation: Location = {
       experience: 90,
       baseTime: 3000,
       itemReward: { id: 'rune_javelin', name: 'Rune Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'rune_javelin_heads', quantity: 15 }
       ]
@@ -1578,7 +1580,7 @@ export const workbenchLocation: Location = {
       experience: 105,
       baseTime: 3000,
       itemReward: { id: 'amethyst_javelin', name: 'Amethyst Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'amethyst_javelin_heads', quantity: 15 }
       ]
@@ -1592,7 +1594,7 @@ export const workbenchLocation: Location = {
       experience: 120,
       baseTime: 3000,
       itemReward: { id: 'dragon_javelin', name: 'Dragon Javelin', quantity: 15 },
-      requirements: [
+      requirements: [\n        { type: "level", skill: "crafting", level: 
         { type: 'item', itemId: 'javelin_shafts', quantity: 15 },
         { type: 'item', itemId: 'dragon_javelin_heads', quantity: 15 }
       ]

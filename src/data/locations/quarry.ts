@@ -11,7 +11,7 @@ export const quarryLocation: Location = {
   icon: '/assets/locations/quarry.png',
   availableSkills: ['mining', 'smithing'],
   actions: [
-    // Mining actions
+    // Mining actions - ordered by level required ascending
     {
       id: 'mine_copper',
       name: 'Mine Copper Ore',
@@ -21,7 +21,10 @@ export const quarryLocation: Location = {
       experience: 17.5,
       baseTime: 3000,
       itemReward: { id: 'copper_ore', name: 'Copper Ore', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 1 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
     {
       id: 'mine_tin',
@@ -32,7 +35,10 @@ export const quarryLocation: Location = {
       experience: 17.5,
       baseTime: 3000,
       itemReward: { id: 'tin_ore', name: 'Tin Ore', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 1 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
     {
       id: 'mine_iron',
@@ -43,7 +49,10 @@ export const quarryLocation: Location = {
       experience: 35,
       baseTime: 3000,
       itemReward: { id: 'iron_ore', name: 'Iron Ore', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 15 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
     {
       id: 'mine_coal',
@@ -54,7 +63,10 @@ export const quarryLocation: Location = {
       experience: 50,
       baseTime: 3000,
       itemReward: { id: 'coal', name: 'Coal', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 30 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
     {
       id: 'mine_gold',
@@ -65,7 +77,10 @@ export const quarryLocation: Location = {
       experience: 65,
       baseTime: 3000,
       itemReward: { id: 'gold_ore', name: 'Gold Ore', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 40 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
     {
       id: 'mine_mithril',
@@ -76,7 +91,10 @@ export const quarryLocation: Location = {
       experience: 80,
       baseTime: 3000,
       itemReward: { id: 'mithril_ore', name: 'Mithril Ore', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 55 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
     {
       id: 'mine_adamantite',
@@ -87,7 +105,10 @@ export const quarryLocation: Location = {
       experience: 95,
       baseTime: 3000,
       itemReward: { id: 'adamantite_ore', name: 'Adamantite Ore', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 70 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
     {
       id: 'mine_runite',
@@ -98,10 +119,13 @@ export const quarryLocation: Location = {
       experience: 125,
       baseTime: 3000,
       itemReward: { id: 'runite_ore', name: 'Runite Ore', quantity: 1 },
-      requirements: []
+      requirements: [
+        { type: 'level', skill: 'mining', level: 85 },
+        { type: 'equipment', category: 'pickaxe' }
+      ]
     },
 
-    // Smelting actions
+    // Smelting actions - ordered by level required ascending
     {
       id: 'smelt_bronze_bar',
       name: 'Smelt Bronze Bar',
@@ -112,6 +136,7 @@ export const quarryLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'bronze_bar', name: 'Bronze Bar', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'smithing', level: 1 },
         { type: 'item', itemId: 'copper_ore', quantity: 1 },
         { type: 'item', itemId: 'tin_ore', quantity: 1 }
       ]
@@ -126,6 +151,7 @@ export const quarryLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'iron_bar', name: 'Iron Bar', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'smithing', level: 15 },
         { type: 'item', itemId: 'iron_ore', quantity: 1 }
       ]
     },
@@ -139,6 +165,7 @@ export const quarryLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'steel_bar', name: 'Steel Bar', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'smithing', level: 30 },
         { type: 'item', itemId: 'iron_ore', quantity: 1 },
         { type: 'item', itemId: 'coal', quantity: 2 }
       ]
@@ -153,6 +180,7 @@ export const quarryLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'gold_bar', name: 'Gold Bar', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'smithing', level: 40 },
         { type: 'item', itemId: 'gold_ore', quantity: 1 }
       ]
     },
@@ -166,6 +194,7 @@ export const quarryLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'mithril_bar', name: 'Mithril Bar', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'smithing', level: 50 },
         { type: 'item', itemId: 'mithril_ore', quantity: 1 },
         { type: 'item', itemId: 'coal', quantity: 4 }
       ]
@@ -180,6 +209,7 @@ export const quarryLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'adamant_bar', name: 'Adamant Bar', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'smithing', level: 70 },
         { type: 'item', itemId: 'adamantite_ore', quantity: 1 },
         { type: 'item', itemId: 'coal', quantity: 6 }
       ]
@@ -194,6 +224,7 @@ export const quarryLocation: Location = {
       baseTime: 3000,
       itemReward: { id: 'rune_bar', name: 'Rune Bar', quantity: 1 },
       requirements: [
+        { type: 'level', skill: 'smithing', level: 85 },
         { type: 'item', itemId: 'runite_ore', quantity: 1 },
         { type: 'item', itemId: 'coal', quantity: 8 }
       ]
