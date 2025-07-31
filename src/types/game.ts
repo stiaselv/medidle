@@ -477,6 +477,7 @@ export interface GameState {
   user: { id: string; username: string; } | null;
   characters: Character[];
   loadCharacters: (user?: { id: string; username: string; }) => Promise<void>;
+  checkAuth: () => Promise<void>;
   selectCharacter: (character: Character) => void;
   register: (username: string, password: string) => Promise<void>;
   login: (username: string, password: string) => Promise<void>;

@@ -179,6 +179,79 @@ const createStore = () => create<GameState>()(
     // Function to set the active view
     setView: (view) => set({ activeView: view }),
 
+    // Function to check authentication status and load user data
+    checkAuth: async () => {
+      try {
+        console.log('🔍 Starting authentication check...');
+        set({ isLoading: true });
+        
+        // First, try to get current user info
+        console.log('📡 Fetching /api/auth/me...');
+        const userResponse = await fetch(createApiUrl('/api/auth/me'), {
+          credentials: 'include', // Important: sends cookies
+        });
+        
+        console.log('📊 User response status:', userResponse.status);
+        
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          console.log('✅ User authenticated:', userData);
+          
+          // User is authenticated, now fetch their characters
+          console.log('📡 Fetching characters...');
+          const charactersResponse = await fetch(createApiUrl(API_ENDPOINTS.characters), {
+            credentials: 'include',
+          });
+          
+          console.log('📊 Characters response status:', charactersResponse.status);
+          
+          if (charactersResponse.ok) {
+            const characters = await charactersResponse.json();
+            console.log('📋 Characters loaded:', characters.length);
+            const charactersWithDates = characters.map((char: any) => {
+              const id = char._id || char.id;
+              const { _id, ...rest } = char;
+              
+              // Calculate max hitpoints based on hitpoints skill level
+              const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
+              const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
+              
+              return {
+                ...rest,
+                id,
+                lastLogin: new Date(char.lastLogin),
+                maxHitpoints,
+              };
+            });
+            
+            console.log('✅ Setting authenticated state with user and characters');
+            set({ 
+              characters: charactersWithDates, 
+              user: userData.user,
+              isLoading: false 
+            });
+          } else {
+            // User authenticated but no characters (shouldn't happen)
+            console.log('⚠️ User authenticated but no characters');
+            set({ 
+              characters: [], 
+              user: userData.user,
+              isLoading: false 
+            });
+          }
+        } else {
+          // User is not authenticated
+          console.log('❌ User not authenticated, status:', userResponse.status);
+          const errorText = await userResponse.text();
+          console.log('❌ Error response:', errorText);
+          set({ user: null, characters: [], isLoading: false });
+        }
+      } catch (error) {
+        console.error('💥 Error checking authentication:', error);
+        set({ user: null, characters: [], isLoading: false });
+      }
+    },
+
     // Function to load characters for the logged-in user
     loadCharacters: async () => {
       try {

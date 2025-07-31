@@ -19,15 +19,20 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import './styles/themes.css';
 
 const App = () => {
-  const { user, character, loadCharacters, processOfflineProgress, isLoading } = useGameStore();
+  const { user, character, checkAuth, loadCharacters, processOfflineProgress, isLoading } = useGameStore();
   const [showOfflineProgress, setShowOfflineProgress] = useState(false);
   const [offlineRewards, setOfflineRewards] = useState<OfflineRewards | null>(null);
 
   useEffect(() => {
-    // This effect runs on initial mount and whenever the user object changes.
-    // On mount, it checks for an active session cookie.
-    // After login, it runs again to fetch the characters for the new user.
-    loadCharacters();
+    // Check authentication status on initial load
+    checkAuth();
+  }, []); // Only run on mount
+
+  useEffect(() => {
+    // This effect runs when the user object changes (after login/logout)
+    if (user) {
+      loadCharacters();
+    }
   }, [user, loadCharacters]);
 
   useEffect(() => {
