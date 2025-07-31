@@ -14,7 +14,7 @@ import { useOfflineTracking } from '../../hooks/useOfflineTracking';
 import { OfflineTestHelper } from '../testing/OfflineTestHelper';
 
 export const GameLayout = ({ children }: { children: React.ReactNode }) => {
-  const { character, signOut, stopAction, saveCharacter } = useGameStore();
+  const { character, logout, stopAction, saveCharacter } = useGameStore();
   const { isFooterExpanded, toggleFooter } = useUIStore();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -52,13 +52,13 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await logout();
     navigate('/login');
   };
 
-  const handleSwitchCharacter = () => {
-    signOut();
+  const handleSwitchCharacter = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -177,7 +177,7 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
             </MenuItem>
             <MenuDivider />
             <MenuItem icon={<Icon as={FaSignOutAlt} />} onClick={handleSignOut} bg="gray.700" _hover={{ bg: 'gray.600' }}>
-              Sign Out
+              Log out
             </MenuItem>
           </MenuList>
         </Menu>
