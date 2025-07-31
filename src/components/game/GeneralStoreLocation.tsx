@@ -24,10 +24,13 @@ import {
   InputLeftElement,
   Divider,
 } from '@chakra-ui/react';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { FaPlus, FaSearch } from 'react-icons/fa';
 import { useGameStore } from '../../store/gameStore';
-import type { StoreAction, StoreItem, SkillName, ItemReward } from '../../types/game';
+import type { StoreAction, StoreItem, SkillName, ItemReward, BankTab } from '../../types/game';
 import { getItemById, meetsLevelRequirement } from '../../data/items';
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { SearchIcon } from '@chakra-ui/icons';
 import generalStoreBg from '../../assets/BG/general_store.webp';
 import { ItemIcon } from '../ui/ItemIcon';
@@ -125,14 +128,37 @@ const ItemCard = ({
   );
 };
 
-interface BankItemSlotProps {
+interface ItemSlotProps {
   item?: ItemReward;
+  index: number;
+  tabId: string;
+  moveItem: (fromTabId: string, fromIndex: number, toTabId: string, toIndex: number) => void;
   onClick?: () => void;
-  isSelected?: boolean;
 }
 
-const BankItemSlot: React.FC<BankItemSlotProps> = ({ item, onClick, isSelected }) => {
-  const borderColor = isSelected ? 'blue.500' : useColorModeValue('gray.200', 'gray.600');
+const ItemSlot: React.FC<ItemSlotProps> = ({ item, index, tabId, moveItem, onClick }) => {
+  const [{ isDragging }, drag] = useDrag({
+    type: 'BANK_ITEM',
+    item: item ? { item, tabId, index } : null,
+    canDrag: !!item,
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const [{ isOver }, drop] = useDrop({
+    accept: 'BANK_ITEM',
+    drop: (draggedItem: { item: ItemReward; tabId: string; index: number }) => {
+      if (draggedItem.tabId !== tabId || draggedItem.index !== index) {
+        moveItem(draggedItem.tabId, draggedItem.index, tabId, index);
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  const borderColor = isOver ? 'blue.500' : useColorModeValue('gray.200', 'gray.600');
   const itemData = item ? getItemById(item.id) : null;
 
   const getItemTooltip = () => {
@@ -166,49 +192,164 @@ const BankItemSlot: React.FC<BankItemSlotProps> = ({ item, onClick, isSelected }
       // Prices
       itemData.buyPrice ? `Buy Price: ${itemData.buyPrice.toLocaleString()} coins` : null,
       itemData.sellPrice ? `Sell Price: ${itemData.sellPrice.toLocaleString()} coins` : null,
-
-      // Healing amount for consumables
-      itemData.healing ? `Heals: ${itemData.healing} HP` : null,
     ].filter(Boolean).join('\n');
 
     return sections;
   };
 
-  const itemSlot = (
-    <Box>
-      <ItemIcon
-        item={item || ''}
-        size={56}
-        onClick={onClick}
+  return (
+    <Tooltip
+      label={getItemTooltip()}
+      placement="top"
+      hasArrow
+      bg="gray.800"
+      color="white"
+      p={3}
+      borderRadius="md"
+      whiteSpace="pre-line"
+    >
+      <Box
+        ref={(node) => drag(drop(node))}
+        w="48px"
+        h="48px"
+        bg={useColorModeValue('white', 'gray.700')}
+        border="2px solid"
         borderColor={borderColor}
-        showQuantity={true}
-      />
-    </Box>
-  );
-
-  if (item && itemData) {
-    return (
-      <Tooltip
-        label={getItemTooltip()}
-        placement="top"
-        hasArrow
-        bg="gray.800"
-        color="white"
-        p={3}
         borderRadius="md"
-        whiteSpace="pre-line"
-        fontSize="sm"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        cursor={item ? 'grab' : 'pointer'}
+        onClick={onClick}
+        opacity={isDragging ? 0.5 : 1}
+        _hover={{
+          borderColor: 'blue.400',
+          transform: 'scale(1.05)',
+        }}
+        transition="all 0.2s"
       >
-        {itemSlot}
-      </Tooltip>
+        {item ? (
+          <ItemIcon
+            item={item}
+            size={40}
+            showQuantity={true}
+            disableHover={true}
+          />
+        ) : (
+          <Text fontSize="xs" color="gray.400">
+            Empty
+          </Text>
+        )}
+      </Box>
+    </Tooltip>
+  );
+};
+
+interface BankTabButtonProps {
+  tab: BankTab;
+  isActive: boolean;
+  onSelect: () => void;
+  onDrop?: (draggedItem: { item: ItemReward; tabId: string; index: number }) => void;
+}
+
+const BankTabButton: React.FC<BankTabButtonProps> = ({ 
+  tab, 
+  isActive, 
+  onSelect, 
+  onDrop 
+}) => {
+  const [{ isOver }, drop] = useDrop({
+    accept: 'BANK_ITEM',
+    drop: (item: { item: ItemReward; tabId: string; index: number }) => {
+      if (onDrop) {
+        onDrop(item);
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  if (tab.id === 'new_tab') {
+    return (
+      <Box
+        ref={drop}
+        w="48px"
+        h="48px"
+        bg={isOver ? 'green.500' : useColorModeValue('gray.100', 'gray.600')}
+        border="2px dashed"
+        borderColor={isOver ? 'green.300' : useColorModeValue('gray.300', 'gray.500')}
+        borderRadius="md"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        cursor="pointer"
+        _hover={{
+          borderColor: 'green.400',
+          bg: useColorModeValue('gray.200', 'gray.500'),
+        }}
+        onClick={onSelect}
+      >
+        <FaPlus size={14} color={useColorModeValue('gray.600', 'gray.300')} />
+      </Box>
     );
   }
 
-  return itemSlot;
+  const firstItem = tab.items[0];
+
+  return (
+    <VStack spacing={1}>
+      <Box
+        ref={drop}
+        w="48px"
+        h="48px"
+        bg={isOver ? 'green.400' : isActive ? 'blue.500' : useColorModeValue('gray.100', 'gray.600')}
+        border="2px solid"
+        borderColor={isOver ? 'green.300' : isActive ? 'blue.400' : useColorModeValue('gray.200', 'gray.500')}
+        borderRadius="md"
+        position="relative"
+        cursor="pointer"
+        onClick={onSelect}
+        _hover={{
+          borderColor: isActive ? 'blue.300' : 'blue.400',
+        }}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        {firstItem ? (
+          <ItemIcon
+            item={firstItem}
+            size={36}
+            showQuantity={false}
+            disableHover={true}
+          />
+        ) : (
+          <Text fontSize="xs" color="gray.500" textAlign="center">
+            Empty
+          </Text>
+        )}
+      </Box>
+      <Text fontSize="xs" textAlign="center" maxW="48px" noOfLines={1}>
+        {tab.name}
+      </Text>
+    </VStack>
+  );
 };
 
 export const GeneralStoreLocation = () => {
-  const { currentLocation, character, buyItem, sellItem } = useGameStore();
+  const { 
+    currentLocation, 
+    character, 
+    buyItem, 
+    sellItem, 
+    bankTabs, 
+    activeBankTab,
+    setBankTab,
+    moveBankItem,
+    createBankTab,
+    deleteBankTab
+  } = useGameStore();
   const [selectedBankItem, setSelectedBankItem] = useState<string | null>(null);
   const [selectedStoreItem, setSelectedStoreItem] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -216,14 +357,106 @@ export const GeneralStoreLocation = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [bankSearch, setBankSearch] = useState('');
   const [storeSearch, setStoreSearch] = useState('');
+  const [activeStoreTab, setActiveStoreTab] = useState('woodcutting');
   
   if (!currentLocation || !character) return null;
 
+  // Get the active bank tab items
+  const activeTab = bankTabs.find(tab => tab.id === activeBankTab) || bankTabs[0];
+  const bankItems = activeTab?.items || [];
+
+  // Filter bank tabs and items based on search term
+  const filteredBankData = useMemo(() => {
+    if (!bankSearch.trim()) {
+      return {
+        tabs: bankTabs,
+        activeTab: bankTabs.find(tab => tab.id === activeBankTab) || bankTabs[0]
+      };
+    }
+
+    const searchLower = bankSearch.toLowerCase();
+    
+    // Filter items within each tab
+    const filteredTabs = bankTabs.map(tab => ({
+      ...tab,
+      items: tab.items.filter(item => {
+        const itemData = getItemById(item.id);
+        return itemData?.name.toLowerCase().includes(searchLower);
+      })
+    })).filter(tab => tab.items.length > 0); // Only show tabs with matching items
+
+    // Find the active tab from filtered tabs, or default to first filtered tab
+    const activeTab = filteredTabs.find(tab => tab.id === activeBankTab) || filteredTabs[0];
+
+    return {
+      tabs: filteredTabs,
+      activeTab
+    };
+  }, [bankTabs, activeBankTab, bankSearch]);
+
+  const { tabs: displayTabs, activeTab: displayActiveTab } = filteredBankData;
+  
+  const totalSlots = 56;
+  const emptySlots = Array(Math.max(0, totalSlots - (displayActiveTab?.items?.length || 0))).fill(null);
+
+  const moveItem = useCallback((fromTabId: string, fromIndex: number, toTabId: string, toIndex: number) => {
+    moveBankItem(fromTabId, fromIndex, toTabId, toIndex);
+  }, [moveBankItem]);
+
+  const createNewTab = useCallback((draggedItem: { item: ItemReward; tabId: string; index: number }) => {
+    const newTabId = `tab_${Date.now()}`;
+    createBankTab(`Tab ${bankTabs.length}`, draggedItem.item);
+    
+    // Move the item to the new tab after a short delay to ensure tab is created
+    setTimeout(() => {
+      const currentState = useGameStore.getState();
+      const newTab = currentState.bankTabs.find(tab => tab.id === newTabId);
+      if (newTab) {
+        moveBankItem(draggedItem.tabId, draggedItem.index, newTabId, 0);
+      }
+    }, 10);
+  }, [createBankTab, moveBankItem, bankTabs.length]);
+  
+  const moveToExistingTab = useCallback((draggedItem: { item: ItemReward; tabId: string; index: number }, targetTabId: string) => {
+    const targetTab = bankTabs.find(tab => tab.id === targetTabId);
+    if (targetTab) {
+      const newIndex = targetTab.items.length;
+      moveBankItem(draggedItem.tabId, draggedItem.index, targetTabId, newIndex);
+      
+      // Auto-delete source tab if it becomes empty (except main tab)
+      setTimeout(() => {
+        const currentState = useGameStore.getState();
+        const sourceTab = currentState.bankTabs.find(tab => tab.id === draggedItem.tabId);
+        if (sourceTab && sourceTab.items.length === 0 && sourceTab.id !== 'main') {
+          deleteBankTab(draggedItem.tabId);
+        }
+      }, 10);
+    }
+  }, [bankTabs, moveBankItem, deleteBankTab]);
+
   const storeAction = currentLocation.actions[0] as StoreAction;
+
+  // Get all store items from tabs
+  const getAllStoreItems = () => {
+    if (storeAction.storeTabs) {
+      return storeAction.storeTabs.flatMap(tab => tab.items);
+    }
+    return storeAction.storeItems || [];
+  };
+
+  // Get items for the active store tab
+  const getActiveStoreItems = () => {
+    if (storeAction.storeTabs) {
+      const activeTab = storeAction.storeTabs.find(tab => tab.id === activeStoreTab);
+      return activeTab?.items || [];
+    }
+    return storeAction.storeItems || [];
+  };
 
   const getStoreItemForBankItem = (bankItemId: string) => {
     // First try to find the item in the store
-    const storeItem = storeAction.storeItems.find(item => item.id === bankItemId);
+    const allStoreItems = getAllStoreItems();
+    const storeItem = allStoreItems.find(item => item.id === bankItemId);
     if (storeItem) {
       return storeItem;
     }
@@ -246,14 +479,15 @@ export const GeneralStoreLocation = () => {
   const handleTransaction = () => {
     if (selectedStoreItem) {
       // Buy operation
-      const item = storeAction.storeItems.find(i => i.id === selectedStoreItem);
+      const allStoreItems = getAllStoreItems();
+      const item = allStoreItems.find(i => i.id === selectedStoreItem);
       if (item) {
         // Check if player has enough coins
         const totalCost = item.buyPrice * quantity;
-        const playerCoins = character.bank.find(item => item.id === 'coins')?.quantity || 0;
+        const playerCoins = bankItems.find(item => item.id === 'coins')?.quantity || 0;
         
         if (playerCoins >= totalCost) {
-          buyItem(selectedStoreItem, quantity);
+          buyItem(selectedStoreItem, quantity, item.buyPrice);
           setQuantity(1);
           setSelectedStoreItem(null);
           setIsCustomAmount(false);
@@ -265,7 +499,7 @@ export const GeneralStoreLocation = () => {
     } else if (selectedBankItem) {
       // Sell operation
       const storeItem = getStoreItemForBankItem(selectedBankItem);
-      const bankItem = character.bank.find(i => i.id === selectedBankItem);
+      const bankItem = bankItems.find(i => i.id === selectedBankItem);
       
       if (storeItem && bankItem) {
         // Check if player has enough items to sell
@@ -317,21 +551,23 @@ export const GeneralStoreLocation = () => {
   const calculateMaxQuantity = () => {
     if (selectedStoreItem) {
       // Buying - calculate max based on available coins
-      const item = storeAction.storeItems.find(i => i.id === selectedStoreItem);
+      const allStoreItems = getAllStoreItems();
+      const item = allStoreItems.find(i => i.id === selectedStoreItem);
       if (!item) return 1;
       
-      const playerCoins = character.bank.find(item => item.id === 'coins')?.quantity || 0;
+      const playerCoins = bankItems.find(item => item.id === 'coins')?.quantity || 0;
       return Math.floor(playerCoins / item.buyPrice) || 1;
     } else if (selectedBankItem) {
       // Selling - calculate max based on available items
-      const bankItem = character.bank.find(i => i.id === selectedBankItem);
+      const bankItem = bankItems.find(i => i.id === selectedBankItem);
       return bankItem?.quantity || 1;
     }
     return 1;
   };
 
   return (
-    <Box position="relative" width="100%" minH="100vh" p={0}>
+    <DndProvider backend={HTML5Backend}>
+      <Box position="relative" width="100%" minH="100vh" p={0}>
       {/* General Store background image */}
       <Box
         position="absolute"
@@ -387,27 +623,83 @@ export const GeneralStoreLocation = () => {
                 _placeholder={{ color: 'gray.400' }}
               />
             </InputGroup>
-            <Box overflowY="auto" flex={1}>
-              <SimpleGrid columns={8} spacingX={0.5} spacingY={2} maxH="450px" overflowY="auto">
-                {character.bank.filter(item => 
-                  item.name.toLowerCase().includes(bankSearch.toLowerCase())
-                ).map((item) => {
-                  const itemDetails = getItemById(item.id);
-                  if (!itemDetails) return null;
-                  return (
-                    <BankItemSlot
-                      key={item.id}
-                      item={item}
-                      onClick={() => {
-                        setSelectedBankItem(selectedBankItem === item.id ? null : item.id);
-                        setSelectedStoreItem(null);
-                      }}
-                      isSelected={selectedBankItem === item.id}
-                    />
-                  );
-                })}
+            {/* Bank Tabs */}
+            <HStack spacing={2} justify="flex-start" wrap="wrap" mb={4}>
+              {displayTabs.map((tab) => (
+                <BankTabButton
+                  key={tab.id}
+                  tab={tab}
+                  isActive={tab.id === activeBankTab}
+                  onSelect={() => setBankTab(tab.id)}
+                  onDrop={(draggedItem) => moveToExistingTab(draggedItem, tab.id)}
+                />
+              ))}
+              {!bankSearch && (
+                <BankTabButton
+                  tab={{ id: 'new_tab', name: 'New', items: [] }}
+                  isActive={false}
+                  onSelect={() => {}}
+                  onDrop={createNewTab}
+                />
+              )}
+            </HStack>
+
+            <Divider borderColor="rgba(255,255,255,0.2)" mb={4} />
+
+            {/* Bank Grid */}
+            {displayActiveTab ? (
+              <SimpleGrid columns={8} spacingX={1} spacingY={1} flex={1} overflow="auto">
+                {displayActiveTab.items.map((item, index) => (
+                  <ItemSlot
+                    key={`${item.id}-${index}`}
+                    item={item}
+                    index={index}
+                    tabId={activeBankTab}
+                    moveItem={moveItem}
+                    onClick={() => {
+                      setSelectedBankItem(selectedBankItem === item.id ? null : item.id);
+                      setSelectedStoreItem(null);
+                    }}
+                  />
+                ))}
+                {!bankSearch && emptySlots.map((_, index) => (
+                  <ItemSlot
+                    key={`empty-${index}`}
+                    index={displayActiveTab.items.length + index}
+                    tabId={activeBankTab}
+                    moveItem={moveItem}
+                  />
+                ))}
               </SimpleGrid>
-            </Box>
+            ) : (
+              <Flex flex={1} align="center" justify="center">
+                <Text color="gray.500" fontSize="md">
+                  No items found matching "{bankSearch}"
+                </Text>
+              </Flex>
+            )}
+
+            {/* Tab Info */}
+            <HStack justify="space-between" color="gray.400" fontSize="xs" mt={2}>
+              {displayActiveTab ? (
+                <Text>
+                  Tab: {displayActiveTab.name} ({displayActiveTab.items.length}/{bankSearch ? displayActiveTab.items.length : totalSlots} items)
+                  {bankSearch && (
+                    <Text as="span" color="blue.400" ml={2}>
+                      (filtered)
+                    </Text>
+                  )}
+                </Text>
+              ) : (
+                <Text>No matching items</Text>
+              )}
+              <Text>
+                Total items: {bankSearch ? 
+                  displayTabs.reduce((sum, tab) => sum + tab.items.length, 0) :
+                  bankTabs.reduce((sum, tab) => sum + tab.items.length, 0)
+                }
+              </Text>
+            </HStack>
           </Box>
 
           {/* Middle Section - Quantity Selection */}
@@ -567,23 +859,23 @@ export const GeneralStoreLocation = () => {
                   {selectedStoreItem && (
                     <>
                       <Text color="white" fontSize="lg" fontWeight="bold" textAlign="center">
-                        {storeAction.storeItems.find(i => i.id === selectedStoreItem)?.name}
+                        {getAllStoreItems().find(i => i.id === selectedStoreItem)?.name}
                       </Text>
                       <Text color="gray.400" fontSize="sm" textAlign="center">
                         Quantity: {quantity}
                       </Text>
                       <Text color="white" fontSize="md" textAlign="center">
-                        Total Cost: {(quantity * (storeAction.storeItems.find(i => i.id === selectedStoreItem)?.buyPrice || 0)).toLocaleString()} coins
+                        Total Cost: {(quantity * (getAllStoreItems().find(i => i.id === selectedStoreItem)?.buyPrice || 0)).toLocaleString()} coins
                       </Text>
-                      <Text color="gray.400" fontSize="sm" textAlign="center">
-                        Your coins: {(character.bank.find(item => item.id === 'coins')?.quantity || 0).toLocaleString()}
-                      </Text>
+                                        <Text color="gray.400" fontSize="sm" textAlign="center">
+                    Your coins: {(bankItems.find(item => item.id === 'coins')?.quantity || 0).toLocaleString()}
+                  </Text>
                     </>
                   )}
                   {selectedBankItem && (
                     <>
                       <Text color="white" fontSize="lg" fontWeight="bold" textAlign="center">
-                        {character.bank.find(i => i.id === selectedBankItem)?.name}
+                        {bankItems.find(i => i.id === selectedBankItem)?.name}
                       </Text>
                       <Text color="gray.400" fontSize="sm" textAlign="center">
                         Quantity: {quantity}
@@ -598,7 +890,7 @@ export const GeneralStoreLocation = () => {
                         );
                       })()}
                       <Text color="gray.400" fontSize="sm" textAlign="center">
-                        Available to sell: {(character.bank.find(item => item.id === selectedBankItem)?.quantity || 0).toLocaleString()}
+                        Available to sell: {(bankItems.find(item => item.id === selectedBankItem)?.quantity || 0).toLocaleString()}
                       </Text>
                     </>
                   )}
@@ -637,6 +929,28 @@ export const GeneralStoreLocation = () => {
             transition="box-shadow 0.2s, background 0.2s"
           >
             <Text color="white" fontSize="xl" mb={4}>Store Items</Text>
+            
+            {/* Store Tabs */}
+            {storeAction.storeTabs && (
+              <HStack mb={4} spacing={2} overflowX="auto">
+                {storeAction.storeTabs.map((tab) => (
+                  <Button
+                    key={tab.id}
+                    size="sm"
+                    variant={activeStoreTab === tab.id ? "solid" : "outline"}
+                    colorScheme="blue"
+                    onClick={() => setActiveStoreTab(tab.id)}
+                    _hover={{
+                      transform: 'scale(1.05)',
+                      transition: 'transform 0.2s',
+                    }}
+                  >
+                    {tab.name}
+                  </Button>
+                ))}
+              </HStack>
+            )}
+            
             <InputGroup mb={4} size="sm">
               <InputLeftElement pointerEvents="none">
                 <SearchIcon color="gray.300" />
@@ -652,7 +966,7 @@ export const GeneralStoreLocation = () => {
             </InputGroup>
             <Box overflowY="auto" flex={1}>
               <Grid templateColumns="repeat(auto-fill, minmax(100px, 1fr))" gap={3}>
-                {storeAction.storeItems.filter(item => 
+                {getActiveStoreItems().filter(item => 
                   item.name.toLowerCase().includes(storeSearch.toLowerCase())
                 ).map((item) => {
                   const itemDetails = getItemById(item.id);
@@ -744,7 +1058,8 @@ export const GeneralStoreLocation = () => {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </Box>
+      </Box>
+    </DndProvider>
   );
 };
 

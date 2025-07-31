@@ -3,7 +3,7 @@ import { ITEM_CATEGORIES } from '../../constants/items';
 
 export const rooftopThievingLocation: Location = {
   id: 'rooftop_thieving',
-  name: 'Rooftop Thieving',
+  name: 'Outer City',
   description: 'A series of rooftops perfect for training thieving and agility skills.',
   type: 'resource',
   levelRequired: 1,

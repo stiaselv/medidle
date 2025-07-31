@@ -401,7 +401,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/axe/bronze_axe.png',
     level: 1,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { woodcutting: 1 }
+    stats: { woodcutting: 1 },
+    buyPrice: 100,
+    sellPrice: 40
   },
   iron_axe: {
     id: 'iron_axe',
@@ -411,7 +413,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/axe/iron_axe.png',
     level: 10,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { woodcutting: 2 }
+    stats: { woodcutting: 2 },
+    buyPrice: 250,
+    sellPrice: 100
   },
   steel_axe: {
     id: 'steel_axe',
@@ -421,7 +425,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/axe/steel_axe.png',
     level: 20,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { woodcutting: 3 }
+    stats: { woodcutting: 3 },
+    buyPrice: 500,
+    sellPrice: 200
   },
   mithril_axe: {
     id: 'mithril_axe',
@@ -431,7 +437,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/axe/mithril_axe.png',
     level: 30,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { woodcutting: 4 }
+    stats: { woodcutting: 4 },
+    buyPrice: 1000,
+    sellPrice: 400
   },
   adamant_axe: {
     id: 'adamant_axe',
@@ -441,7 +449,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/axe/adamant_axe.png',
     level: 40,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { woodcutting: 5 }
+    stats: { woodcutting: 5 },
+    buyPrice: 2000,
+    sellPrice: 800
   },
   rune_axe: {
     id: 'rune_axe',
@@ -451,7 +461,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/axe/rune_axe.png',
     level: 50,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { woodcutting: 6 }
+    stats: { woodcutting: 6 },
+    buyPrice: 4000,
+    sellPrice: 1600
   },
 
   // Tools - Fishing
@@ -481,6 +493,16 @@ export const ITEMS: Record<string, Item> = {
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/fishing_rod.png',
   },
+  small_net: {
+    id: 'small_net',
+    name: 'Small Fishing Net',
+    type: 'tool',
+    category: ITEM_CATEGORIES.TOOLS,
+    slot: EQUIPMENT_SLOTS.TOOL,
+    icon: '/assets/ItemThumbnail/Div/small_net.png',
+    buyPrice: 50,
+    sellPrice: 20,
+  },
   fly_fishing_rod: {
     id: 'fly_fishing_rod',
     name: 'Fly Fishing Rod',
@@ -488,6 +510,8 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/fly_fishing_rod.png',
+    buyPrice: 100,
+    sellPrice: 40,
   },
   harpoon: {
     id: 'harpoon',
@@ -496,6 +520,8 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.TOOL,
     icon: '/assets/ItemThumbnail/Div/harpoon.png',
+    buyPrice: 200,
+    sellPrice: 80,
   },
   lobster_pot: {
     id: 'lobster_pot',
@@ -630,7 +656,9 @@ export const ITEMS: Record<string, Item> = {
     category: ITEM_CATEGORIES.TOOLS,
     slot: EQUIPMENT_SLOTS.WEAPON,
     stats: { mining: 1 },
-    icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/bronze_pickaxe.png'
+    icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/bronze_pickaxe.png',
+    buyPrice: 100,
+    sellPrice: 40
   },
   iron_pickaxe: {
     id: 'iron_pickaxe',
@@ -640,7 +668,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/iron_pickaxe.png',
     level: 10,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { mining: 2 }
+    stats: { mining: 2 },
+    buyPrice: 250,
+    sellPrice: 100
   },
   steel_pickaxe: {
     id: 'steel_pickaxe',
@@ -650,7 +680,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/steel_pickaxe.png',
     level: 20,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { mining: 3 }
+    stats: { mining: 3 },
+    buyPrice: 500,
+    sellPrice: 200
   },
   mithril_pickaxe: {
     id: 'mithril_pickaxe',
@@ -660,7 +692,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/mithril_pickaxe.png',
     level: 30,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { mining: 4 }
+    stats: { mining: 4 },
+    buyPrice: 1000,
+    sellPrice: 400
   },
   adamant_pickaxe: {
     id: 'adamant_pickaxe',
@@ -670,7 +704,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/adamant_pickaxe.png',
     level: 40,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { mining: 5 }
+    stats: { mining: 5 },
+    buyPrice: 2000,
+    sellPrice: 800
   },
   rune_pickaxe: {
     id: 'rune_pickaxe',
@@ -680,7 +716,9 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Gear/Weapons/pickaxe/rune_pickaxe.png',
     level: 50,
     slot: EQUIPMENT_SLOTS.WEAPON,
-    stats: { mining: 6 }
+    stats: { mining: 6 },
+    buyPrice: 4000,
+    sellPrice: 1600
   },
 
   // Resources - Ores
@@ -2968,6 +3006,39 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/ItemThumbnail/Herblore/potions/super_battlemage_potion.png',
     buyPrice: 1200,
     sellPrice: 300
+  },
+  leather_gloves: {
+    id: 'leather_gloves',
+    name: 'Leather Gloves',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    slot: EQUIPMENT_SLOTS.HANDS,
+    level: 1,
+    buyPrice: 50,
+    sellPrice: 20
+  },
+  iron_gloves: {
+    id: 'iron_gloves',
+    name: 'Iron Gloves',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    slot: EQUIPMENT_SLOTS.HANDS,
+    level: 1,
+    buyPrice: 100,
+    sellPrice: 40
+  },
+  steel_gloves: {
+    id: 'steel_gloves',
+    name: 'Steel Gloves',
+    type: 'armor',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/items/placeholder.png',
+    slot: EQUIPMENT_SLOTS.HANDS,
+    level: 1,
+    buyPrice: 200,
+    sellPrice: 80
   }
 };
 

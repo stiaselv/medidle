@@ -57,8 +57,7 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
     navigate('/login');
   };
 
-  const handleSwitchCharacter = async () => {
-    await logout();
+  const handleSwitchCharacter = () => {
     navigate('/');
   };
 

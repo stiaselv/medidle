@@ -16,16 +16,11 @@ import type { CombatRoundResult } from '../combat/CombatManager';
 import { getEquipmentLevelRequirement } from '../data/items';
 import { createApiUrl, API_ENDPOINTS } from '../config/api';
 import { getCropById } from '../data/farmingCrops';
+import { getLevelFromExperience, getExperienceForNextLevel, getProgressToNextLevel, EXPERIENCE_TABLE } from '../utils/experience';
 
 // Helper functions for experience and level calculations
 export const calculateLevel = (experience: number): number => {
-  // Find the highest level where the experience requirement is met
-  let level = 1;
-  while (experience >= Math.floor(level * level * 83)) {
-    level++;
-    if (level > 99) return 99; // Cap level at 99
-  }
-  return level;
+  return getLevelFromExperience(experience);
 };
 
 // Calculate combat level using the correct formula
@@ -59,7 +54,7 @@ export const calculateCombatLevel = (character: Character): number => {
 export const getNextLevelExperience = (level: number): number => {
   // Cap level at 99 for next level experience calculation
   const cappedLevel = Math.min(level, 99);
-  return cappedLevel * cappedLevel * 83;
+  return EXPERIENCE_TABLE[cappedLevel + 1] || EXPERIENCE_TABLE[99];
 };
 
 // Helper function to calculate max hitpoints based on hitpoints skill level
@@ -384,8 +379,32 @@ const createStore = () => create<GameState>()(
       // Recalculate combat level for existing characters (in case they were created with old formula)
       const combatLevel = calculateCombatLevel({ ...rest, maxHitpoints });
       
-      const updatedCharacter = { ...rest, id, maxHitpoints, combatLevel };
-      console.log('setCharacter: Setting character with ID:', id);
+      // Ensure character has all required skills, including agility
+      let needsSkillUpdate = false;
+      const updatedSkills = { ...rest.skills };
+      const requiredSkills = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'magic', 'prayer', 'slayer', 'mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'crafting', 'fletching', 'thieving', 'farming', 'runecrafting', 'construction', 'hunter', 'agility'];
+      
+              for (const skillName of requiredSkills) {
+          if (!updatedSkills[skillName]) {
+            updatedSkills[skillName] = {
+            name: skillName.charAt(0).toUpperCase() + skillName.slice(1),
+            level: skillName === 'hitpoints' ? 10 : 1,
+            experience: skillName === 'hitpoints' ? EXPERIENCE_TABLE[10] : 0, // Level 10 hitpoints experience
+            nextLevelExperience: skillName === 'hitpoints' ? EXPERIENCE_TABLE[11] : EXPERIENCE_TABLE[2] // Next level exp
+          };
+          needsSkillUpdate = true;
+        }
+      }
+      
+      const updatedCharacter = { 
+        ...rest, 
+        id, 
+        maxHitpoints, 
+        combatLevel,
+        skills: needsSkillUpdate ? updatedSkills : rest.skills
+      };
+      
+              console.log('setCharacter: Setting character with ID:', id);
       
       // Sync bank tabs with character bank
       set((state) => {
@@ -1209,76 +1228,212 @@ const createStore = () => create<GameState>()(
     addItemToBank: (item: Item, quantity: number) => {
       set((state) => {
         if (!state.character) return {};
-        const bank = [...state.character.bank];
-        const existing = bank.find(i => i.id === item.id);
-        if (existing) {
-          existing.quantity += quantity;
-        } else {
-          bank.push({ id: item.id, name: item.name, quantity });
+        
+        // Find if the item already exists in any tab
+        let existingItemTabId = '';
+        let existingItemTabIndex = -1;
+        let existingItemIndex = -1;
+        
+        for (let tabIndex = 0; tabIndex < state.bankTabs.length; tabIndex++) {
+          const tab = state.bankTabs[tabIndex];
+          const itemIndex = tab.items.findIndex(i => i.id === item.id);
+          if (itemIndex !== -1) {
+            existingItemTabId = tab.id;
+            existingItemTabIndex = tabIndex;
+            existingItemIndex = itemIndex;
+            break;
+          }
         }
+
+        // Update bank tabs
+        const updatedBankTabs = state.bankTabs.map(tab => {
+          const newItems = [...tab.items];
+          
+          // Add or update the item
+          if (existingItemTabId && tab.id === existingItemTabId) {
+            // Item exists in this tab, increase quantity
+            newItems[existingItemIndex].quantity += quantity;
+          } else if (!existingItemTabId && tab.id === 'main') {
+            // Item doesn't exist anywhere, add to main tab
+            const itemIndex = newItems.findIndex(i => i.id === item.id);
+            if (itemIndex !== -1) {
+              newItems[itemIndex].quantity += quantity;
+            } else {
+              newItems.push({ id: item.id, name: item.name, quantity });
+            }
+          }
+          
+          return { ...tab, items: newItems };
+        });
+
         // Track coins earned
         if (item.id === 'coins') {
           get().incrementStat('coinsEarned', quantity);
         }
-        const updatedCharacter = { ...state.character, bank };
+
+        const updatedCharacter = { 
+          ...state.character, 
+          bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
+          bankTabs: updatedBankTabs 
+        };
+        
+        // Save the character to persist changes
+        get().saveCharacter(updatedCharacter);
+        
         return {
-          character: updatedCharacter
+          character: updatedCharacter,
+          bankTabs: updatedBankTabs
         };
       });
     },
     removeItemFromBank: (itemId: string, quantity: number) => {
       set((state) => {
         if (!state.character) return {};
-        const bank = [...state.character.bank];
-        const index = bank.findIndex(i => i.id === itemId);
-        if (index === -1 || bank[index].quantity < quantity) return {};
-        bank[index].quantity -= quantity;
-        if (bank[index].quantity <= 0) {
-          bank.splice(index, 1);
+        
+        // Find the item in any tab
+        let itemFound = false;
+        let itemTabId = '';
+        let itemTabIndex = -1;
+        let itemIndex = -1;
+        let itemQuantity = 0;
+        
+        for (let tabIndex = 0; tabIndex < state.bankTabs.length; tabIndex++) {
+          const tab = state.bankTabs[tabIndex];
+          const foundItemIndex = tab.items.findIndex(i => i.id === itemId);
+          if (foundItemIndex !== -1) {
+            itemFound = true;
+            itemTabId = tab.id;
+            itemTabIndex = tabIndex;
+            itemIndex = foundItemIndex;
+            itemQuantity = tab.items[foundItemIndex].quantity;
+            break;
+          }
         }
+
+        if (!itemFound || itemQuantity < quantity) return {};
+
+        // Update bank tabs
+        const updatedBankTabs = state.bankTabs.map(tab => {
+          const newItems = [...tab.items];
+          
+          // Remove items from the tab that has them
+          if (tab.id === itemTabId) {
+            if (itemQuantity === quantity) {
+              newItems.splice(itemIndex, 1);
+            } else {
+              newItems[itemIndex].quantity -= quantity;
+            }
+          }
+          
+          return { ...tab, items: newItems };
+        });
+
         // Track coins spent
         if (itemId === 'coins') {
           get().incrementStat('coinsSpent', quantity);
         }
-        const updatedCharacter = { ...state.character, bank };
+
+        const updatedCharacter = { 
+          ...state.character, 
+          bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
+          bankTabs: updatedBankTabs 
+        };
+        
+        // Save the character to persist changes
+        get().saveCharacter(updatedCharacter);
+        
         return {
-          character: updatedCharacter
+          character: updatedCharacter,
+          bankTabs: updatedBankTabs
         };
       });
     },
     sellItem: (itemId: string, quantity: number) => {
-      const { character } = get();
+      const { character, bankTabs } = get();
       if (!character) return;
 
       const item = getItemById(itemId);
       if (!item || !item.sellPrice) return; // Item not sellable
 
-      const bank = [...character.bank];
-      const itemIndex = bank.findIndex(i => i.id === itemId);
-
-      if (itemIndex === -1) return; // Item not found
-
-      const bankItem = bank[itemIndex];
-      if (bankItem.quantity < quantity) return; // Not enough items
-
-      // Remove the items
-      if (bankItem.quantity === quantity) {
-        bank.splice(itemIndex, 1);
-      } else {
-        bank[itemIndex].quantity -= quantity;
+      // Find the item in any tab
+      let itemFound = false;
+      let itemTabId = '';
+      let itemTabIndex = -1;
+      let itemIndex = -1;
+      let itemQuantity = 0;
+      
+      for (let tabIndex = 0; tabIndex < bankTabs.length; tabIndex++) {
+        const tab = bankTabs[tabIndex];
+        const foundItemIndex = tab.items.findIndex(i => i.id === itemId);
+        if (foundItemIndex !== -1) {
+          itemFound = true;
+          itemTabId = tab.id;
+          itemTabIndex = tabIndex;
+          itemIndex = foundItemIndex;
+          itemQuantity = tab.items[foundItemIndex].quantity;
+          break;
+        }
       }
 
-      // Add coins
-      const coinsIndex = bank.findIndex(i => i.id === 'coins');
+      if (!itemFound || itemQuantity < quantity) return; // Item not found or not enough
+
+      // Find coins in any tab
+      let coinsFound = false;
+      let coinsTabId = '';
+      let coinsTabIndex = -1;
+      let coinsIndex = -1;
+      
+      for (let tabIndex = 0; tabIndex < bankTabs.length; tabIndex++) {
+        const tab = bankTabs[tabIndex];
+        const foundCoinsIndex = tab.items.findIndex(i => i.id === 'coins');
+        if (foundCoinsIndex !== -1) {
+          coinsFound = true;
+          coinsTabId = tab.id;
+          coinsTabIndex = tabIndex;
+          coinsIndex = foundCoinsIndex;
+          break;
+        }
+      }
+
       const coinsToAdd = item.sellPrice * quantity;
-      if (coinsIndex !== -1) {
-        bank[coinsIndex].quantity += coinsToAdd;
-      } else {
-        bank.push({ id: 'coins', name: 'Coins', quantity: coinsToAdd });
-      }
 
-      const updatedCharacter = { ...character, bank };
+      // Update bank tabs
+      const updatedBankTabs = bankTabs.map(tab => {
+        const newItems = [...tab.items];
+        
+        // Remove items from the tab that has them
+        if (tab.id === itemTabId) {
+          if (itemQuantity === quantity) {
+            newItems.splice(itemIndex, 1);
+          } else {
+            newItems[itemIndex].quantity -= quantity;
+          }
+        }
+        
+        // Add coins to the tab that has them, or to main tab if no coins exist
+        if (coinsFound && tab.id === coinsTabId) {
+          newItems[coinsIndex].quantity += coinsToAdd;
+        } else if (!coinsFound && tab.id === 'main') {
+          // No coins exist anywhere, add to main tab
+          const existingCoinsIndex = newItems.findIndex(i => i.id === 'coins');
+          if (existingCoinsIndex !== -1) {
+            newItems[existingCoinsIndex].quantity += coinsToAdd;
+          } else {
+            newItems.push({ id: 'coins', name: 'Coins', quantity: coinsToAdd });
+          }
+        }
+        
+        return { ...tab, items: newItems };
+      });
+
+      const updatedCharacter = { 
+        ...character, 
+        bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
+        bankTabs: updatedBankTabs 
+      };
+      
       get().setCharacter(updatedCharacter);
+      get().saveCharacter(updatedCharacter);
     },
     updateBankOrder: (newBank: ItemReward[]) => {
       set((state) => {
@@ -1856,38 +2011,98 @@ const createStore = () => create<GameState>()(
     // Add location slice (includes state and actions)
     ...locationSlice(set, get),
 
-    buyItem: (itemId: string, quantity: number) => {
-      const { character } = get();
+    buyItem: (itemId: string, quantity: number, buyPrice?: number) => {
+      const { character, bankTabs } = get();
       if (!character) return;
 
       const item = getItemById(itemId);
-      if (!item || !item.buyPrice) return; // Item not buyable
+      if (!item) return;
 
-      const totalCost = item.buyPrice * quantity;
-      const bank = [...character.bank];
-      const coinsIndex = bank.findIndex(i => i.id === 'coins');
+      // Use provided buyPrice or fall back to item.buyPrice
+      const itemPrice = buyPrice || item.buyPrice;
+      if (!itemPrice) return;
 
-      if (coinsIndex === -1 || bank[coinsIndex].quantity < totalCost) return; // Not enough coins
-
-      // Subtract coins
-      bank[coinsIndex].quantity -= totalCost;
-      if (bank[coinsIndex].quantity === 0) {
-        bank.splice(coinsIndex, 1);
+      const totalCost = itemPrice * quantity;
+      
+      // Find coins in any tab
+      let coinsFound = false;
+      let coinsQuantity = 0;
+      let coinsTabId = '';
+      
+      for (const tab of bankTabs) {
+        const coinsIndex = tab.items.findIndex(i => i.id === 'coins');
+        if (coinsIndex !== -1) {
+          coinsFound = true;
+          coinsQuantity = tab.items[coinsIndex].quantity;
+          coinsTabId = tab.id;
+          break;
+        }
       }
 
-      // Add item
-      const itemIndex = bank.findIndex(i => i.id === itemId);
-      if (itemIndex !== -1) {
-        bank[itemIndex].quantity += quantity;
-      } else {
-        bank.push({ id: item.id, name: item.name, quantity });
+      if (!coinsFound || coinsQuantity < totalCost) return;
+
+      // Find if the item already exists in any tab
+      let existingItemTabId = '';
+      let existingItemTabIndex = -1;
+      let existingItemIndex = -1;
+      
+      for (let tabIndex = 0; tabIndex < bankTabs.length; tabIndex++) {
+        const tab = bankTabs[tabIndex];
+        const itemIndex = tab.items.findIndex(i => i.id === itemId);
+        if (itemIndex !== -1) {
+          existingItemTabId = tab.id;
+          existingItemTabIndex = tabIndex;
+          existingItemIndex = itemIndex;
+          break;
+        }
       }
 
-      const updatedCharacter = { ...character, bank };
+      // Update bank tabs
+      const updatedBankTabs = bankTabs.map(tab => {
+        const newItems = [...tab.items];
+        
+        // Subtract coins from the tab that has them
+        if (tab.id === coinsTabId) {
+          const coinsIndex = newItems.findIndex(i => i.id === 'coins');
+          if (coinsIndex !== -1) {
+            newItems[coinsIndex].quantity -= totalCost;
+            if (newItems[coinsIndex].quantity === 0) {
+              newItems.splice(coinsIndex, 1);
+            }
+          }
+        }
+        
+        // Add or update the item
+        if (existingItemTabId && tab.id === existingItemTabId) {
+          // Item exists in this tab, increase quantity
+          const itemIndex = newItems.findIndex(i => i.id === itemId);
+          if (itemIndex !== -1) {
+            newItems[itemIndex].quantity += quantity;
+          }
+        } else if (!existingItemTabId && tab.id === 'main') {
+          // Item doesn't exist anywhere, add to main tab
+          const itemIndex = newItems.findIndex(i => i.id === itemId);
+          if (itemIndex !== -1) {
+            newItems[itemIndex].quantity += quantity;
+          } else {
+            newItems.push({ id: item.id, name: item.name, quantity });
+          }
+        }
+        
+        return { ...tab, items: newItems };
+      });
+
+      const updatedCharacter = { 
+        ...character, 
+        bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
+        bankTabs: updatedBankTabs 
+      };
+      
       get().setCharacter(updatedCharacter);
+      get().saveCharacter(updatedCharacter);
     },
     equipItem: (item: Item) => {
-      const { character } = get();
+      const { character, bankTabs } = get();
       if (!character || !item.slot) return; // Item must have a slot to be equippable
 
       const requirement = getEquipmentLevelRequirement(item);
@@ -1901,34 +2116,64 @@ const createStore = () => create<GameState>()(
       }
 
       const currentEquippedItem = character.equipment[item.slot];
-      const newBank = [...character.bank];
-      const itemIndexInBank = newBank.findIndex(i => i.id === item.id);
 
-      if (itemIndexInBank === -1) return; // Item not in bank
-
-      // Reduce quantity by 1 instead of removing the entire item
-      const bankItem = newBank[itemIndexInBank];
-      if (bankItem.quantity <= 1) {
-        // If only 1 item left, remove it entirely
-        newBank.splice(itemIndexInBank, 1);
-      } else {
-        // Reduce quantity by 1
-        bankItem.quantity -= 1;
+      // Find the item in any tab
+      let itemFound = false;
+      let itemTabId = '';
+      let itemTabIndex = -1;
+      let itemIndex = -1;
+      let itemQuantity = 0;
+      
+      for (let tabIndex = 0; tabIndex < bankTabs.length; tabIndex++) {
+        const tab = bankTabs[tabIndex];
+        const foundItemIndex = tab.items.findIndex(i => i.id === item.id);
+        if (foundItemIndex !== -1) {
+          itemFound = true;
+          itemTabId = tab.id;
+          itemTabIndex = tabIndex;
+          itemIndex = foundItemIndex;
+          itemQuantity = tab.items[foundItemIndex].quantity;
+          break;
+        }
       }
 
-      // Add previously equipped item back to bank, if there was one
-      if (currentEquippedItem) {
-        newBank.push({
-          id: currentEquippedItem.id,
-          name: currentEquippedItem.name,
-          quantity: currentEquippedItem.quantity || 1,
-        });
-      }
+      if (!itemFound) return; // Item not in bank
+
+      // Update bank tabs
+      const updatedBankTabs = bankTabs.map(tab => {
+        const newItems = [...tab.items];
+        
+        // Remove items from the tab that has them
+        if (tab.id === itemTabId) {
+          if (itemQuantity <= 1) {
+            newItems.splice(itemIndex, 1);
+          } else {
+            newItems[itemIndex].quantity -= 1;
+          }
+        }
+        
+        // Add previously equipped item back to bank, if there was one
+        if (currentEquippedItem && tab.id === 'main') {
+          const existingItemIndex = newItems.findIndex(i => i.id === currentEquippedItem.id);
+          if (existingItemIndex !== -1) {
+            newItems[existingItemIndex].quantity += (currentEquippedItem.quantity || 1);
+          } else {
+            newItems.push({
+              id: currentEquippedItem.id,
+              name: currentEquippedItem.name,
+              quantity: currentEquippedItem.quantity || 1,
+            });
+          }
+        }
+        
+        return { ...tab, items: newItems };
+      });
 
       // Update character
       const updatedCharacter = {
         ...character,
-        bank: newBank,
+        bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
+        bankTabs: updatedBankTabs,
         equipment: {
           ...character.equipment,
           [item.slot]: { ...item, quantity: 1 },
@@ -1936,36 +2181,78 @@ const createStore = () => create<GameState>()(
       };
 
       get().setCharacter(updatedCharacter);
+      get().saveCharacter(updatedCharacter);
     },
     unequipItem: (slot: string) => {
-      const { character } = get();
+      const { character, bankTabs } = get();
       if (!character) return;
       const equipment = { ...character.equipment };
-      const bank = [...character.bank];
       const equipped = equipment[slot];
       if (!equipped) return;
-      // Add back to bank
-      const bankIndex = bank.findIndex(i => i.id === equipped.id);
-      if (bankIndex !== -1) {
-        bank[bankIndex].quantity += 1;
-      } else {
-        bank.push({ id: equipped.id, name: equipped.name, quantity: 1 });
-      }
+
+      // Update bank tabs - add the equipped item back to the main tab
+      const updatedBankTabs = bankTabs.map(tab => {
+        const newItems = [...tab.items];
+        
+        if (tab.id === 'main') {
+          const existingItemIndex = newItems.findIndex(i => i.id === equipped.id);
+          if (existingItemIndex !== -1) {
+            newItems[existingItemIndex].quantity += (equipped.quantity || 1);
+          } else {
+            newItems.push({ 
+              id: equipped.id, 
+              name: equipped.name, 
+              quantity: equipped.quantity || 1 
+            });
+          }
+        }
+        
+        return { ...tab, items: newItems };
+      });
+
       equipment[slot] = undefined;
-      const updatedCharacter = { ...character, equipment, bank };
+      const updatedCharacter = { 
+        ...character, 
+        equipment, 
+        bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
+        bankTabs: updatedBankTabs 
+      };
       get().setCharacter(updatedCharacter);
+      get().saveCharacter(updatedCharacter);
     },
     useConsumable: (itemId: string, quantity: number = 1) => {
       set((state) => {
         if (!state.character) return {};
         const item = getItemById(itemId);
         if (!item || item.type !== 'consumable') return {};
-        const bankIndex = state.character.bank.findIndex(i => i.id === itemId);
-        if (bankIndex === -1 || state.character.bank[bankIndex].quantity < quantity) return {};
+        
+        // Find the item in any tab
+        let itemFound = false;
+        let itemTabId = '';
+        let itemTabIndex = -1;
+        let itemIndex = -1;
+        let itemQuantity = 0;
+        
+        for (let tabIndex = 0; tabIndex < state.bankTabs.length; tabIndex++) {
+          const tab = state.bankTabs[tabIndex];
+          const foundItemIndex = tab.items.findIndex(i => i.id === itemId);
+          if (foundItemIndex !== -1) {
+            itemFound = true;
+            itemTabId = tab.id;
+            itemTabIndex = tabIndex;
+            itemIndex = foundItemIndex;
+            itemQuantity = tab.items[foundItemIndex].quantity;
+            break;
+          }
+        }
+
+        if (!itemFound || itemQuantity < quantity) return {};
+        
         let healed = false;
         let boosted = false;
         let newHitpoints = state.character.hitpoints;
         const newActiveEffects = [...(state.character.activeEffects || [])];
+        
         // Heal if healing property exists
         if (item.healing && state.character.hitpoints < state.character.maxHitpoints) {
           newHitpoints = Math.min(state.character.hitpoints + item.healing * quantity, state.character.maxHitpoints);
@@ -1974,6 +2261,7 @@ const createStore = () => create<GameState>()(
           get().incrementStat('foodEaten', quantity);
           get().incrementStat('hitpointsGained', (newHitpoints - state.character.hitpoints));
         }
+        
         // Boost if boost property exists (future: implement boost logic)
         if (item.boost) {
           // Example: boost = { stat: 'strength', amount: 2, duration: 5 }
@@ -1985,24 +2273,39 @@ const createStore = () => create<GameState>()(
           });
           boosted = true;
         }
-        // Remove from bank
-        const newBank = [...state.character.bank];
-        newBank[bankIndex].quantity -= quantity;
-        if (newBank[bankIndex].quantity <= 0) newBank.splice(bankIndex, 1);
+        
+        // Update bank tabs - remove the consumed items
+        const updatedBankTabs = state.bankTabs.map(tab => {
+          const newItems = [...tab.items];
+          
+          if (tab.id === itemTabId) {
+            if (itemQuantity === quantity) {
+              newItems.splice(itemIndex, 1);
+            } else {
+              newItems[itemIndex].quantity -= quantity;
+            }
+          }
+          
+          return { ...tab, items: newItems };
+        });
+        
         // Only update if something happened
         if (!healed && !boosted) return {};
+        
         const updatedCharacter = {
           ...state.character,
           hitpoints: newHitpoints,
           activeEffects: newActiveEffects,
-          bank: newBank
+          bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
+          bankTabs: updatedBankTabs
         };
         
         // Save the character after using consumable
         get().saveCharacter(updatedCharacter);
         
         return {
-          character: updatedCharacter
+          character: updatedCharacter,
+          bankTabs: updatedBankTabs
         };
       });
     },
