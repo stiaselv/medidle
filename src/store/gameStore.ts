@@ -288,17 +288,32 @@ const createStore = () => create<GameState>()(
       
       // Sync bank tabs with character bank
       set((state) => {
-        const newBankTabs = [...state.bankTabs];
-        const mainTabIndex = newBankTabs.findIndex(tab => tab.id === 'main');
-        if (mainTabIndex !== -1) {
-          newBankTabs[mainTabIndex] = {
-            ...newBankTabs[mainTabIndex],
-            items: updatedCharacter.bank || []
+        // Use character's bankTabs if available, otherwise initialize with main tab
+        const characterBankTabs = updatedCharacter.bankTabs || [{
+          id: 'main',
+          name: 'Main',
+          items: updatedCharacter.bank || []
+        }];
+        
+        // If character doesn't have bankTabs, add them and save
+        if (!updatedCharacter.bankTabs) {
+          const characterWithBankTabs = {
+            ...updatedCharacter,
+            bankTabs: characterBankTabs
+          };
+          
+          // Save the character with bankTabs to migrate existing characters
+          get().saveCharacter(characterWithBankTabs);
+          
+          return { 
+            character: characterWithBankTabs,
+            bankTabs: characterBankTabs
           };
         }
+        
         return { 
           character: updatedCharacter,
-          bankTabs: newBankTabs
+          bankTabs: characterBankTabs
         };
       });
       
@@ -1178,10 +1193,17 @@ const createStore = () => create<GameState>()(
           };
         }
         
-        return {
-          character: { ...state.character, bank: newBank },
+        const updatedCharacter = { ...state.character, bank: newBank, bankTabs: newBankTabs };
+        
+        const newState = {
+          character: updatedCharacter,
           bankTabs: newBankTabs
         };
+        
+        // Save the updated character to persist bank tabs
+        get().saveCharacter(updatedCharacter);
+        
+        return newState;
       });
     },
 
@@ -1195,10 +1217,26 @@ const createStore = () => create<GameState>()(
           items: initialItem ? [initialItem] : []
         };
         
-        return {
-          bankTabs: [...state.bankTabs, newTab],
-          activeBankTab: newTabId
+        const newBankTabs = [...state.bankTabs, newTab];
+        
+        // Update character's bankTabs
+        const updatedCharacter = state.character ? {
+          ...state.character,
+          bankTabs: newBankTabs
+        } : null;
+        
+        const newState = {
+          bankTabs: newBankTabs,
+          activeBankTab: newTabId,
+          character: updatedCharacter
         };
+        
+        // Save the updated character to persist bank tabs
+        if (updatedCharacter) {
+          get().saveCharacter(updatedCharacter);
+        }
+        
+        return newState;
       });
     },
 
@@ -1215,23 +1253,45 @@ const createStore = () => create<GameState>()(
         if (mainTab && tabToDelete.items.length > 0) {
           mainTab.items.push(...tabToDelete.items);
           
-          // Update character bank
+          // Update character bank and bankTabs
           const updatedCharacter = state.character ? {
             ...state.character,
-            bank: mainTab.items
+            bank: mainTab.items,
+            bankTabs: newBankTabs
           } : null;
           
-          return {
+          const newState = {
             bankTabs: newBankTabs,
             activeBankTab: state.activeBankTab === tabId ? 'main' : state.activeBankTab,
             character: updatedCharacter
           };
+          
+          // Save the updated character to persist bank tabs
+          if (updatedCharacter) {
+            get().saveCharacter(updatedCharacter);
+          }
+          
+          return newState;
         }
         
-        return {
+        // Update character bankTabs even if no items to move
+        const updatedCharacter = state.character ? {
+          ...state.character,
+          bankTabs: newBankTabs
+        } : null;
+        
+        const newState = {
           bankTabs: newBankTabs,
-          activeBankTab: state.activeBankTab === tabId ? 'main' : state.activeBankTab
+          activeBankTab: state.activeBankTab === tabId ? 'main' : state.activeBankTab,
+          character: updatedCharacter
         };
+        
+        // Save the updated character to persist bank tabs
+        if (updatedCharacter) {
+          get().saveCharacter(updatedCharacter);
+        }
+        
+        return newState;
       });
     },
 
@@ -1257,17 +1317,25 @@ const createStore = () => create<GameState>()(
           toTab.items.splice(toIndex, 0, movedItem);
         }
 
-        // Update character bank if main tab changed
+        // Update character bank and bankTabs
         const mainTab = newBankTabs.find(tab => tab.id === 'main');
-        const updatedCharacter = (mainTab && (fromTabId === 'main' || toTabId === 'main') && state.character) ? {
+        const updatedCharacter = state.character ? {
           ...state.character,
-          bank: mainTab.items
-        } : state.character;
+          bank: mainTab ? mainTab.items : state.character.bank,
+          bankTabs: newBankTabs
+        } : null;
 
-        return {
+        const newState = {
           bankTabs: newBankTabs,
           character: updatedCharacter
         };
+        
+        // Save the updated character to persist bank tabs
+        if (updatedCharacter) {
+          get().saveCharacter(updatedCharacter);
+        }
+        
+        return newState;
       });
     },
     canPerformAction: (action: SkillAction | CombatAction | CombatSelectionAction) => {

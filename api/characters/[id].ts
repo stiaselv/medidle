@@ -52,6 +52,12 @@ export interface ItemReward {
   quantity: number;
 }
 
+export interface BankTab {
+  id: string;
+  name: string;
+  items: ItemReward[];
+}
+
 export interface SlayerTask {
   monsterId: string;
   monsterName: string;
@@ -79,6 +85,7 @@ export interface Character {
   }[];
   skills: Record<SkillName, Skill>;
   bank: ItemReward[];
+  bankTabs: BankTab[];
   equipment: Record<EquipmentSlot, Item | undefined>;
   lastLogin: Date;
   lastAction: {

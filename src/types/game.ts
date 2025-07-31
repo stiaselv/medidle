@@ -396,6 +396,7 @@ export interface Character {
     name: string;
     quantity: number;
   }[];
+  bankTabs: BankTab[]; // Store bank tabs in character data
   equipment: Equipment;
   combatLevel: number;
   hitpoints: number;

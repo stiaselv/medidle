@@ -52,6 +52,12 @@ export interface ItemReward {
   quantity: number;
 }
 
+export interface BankTab {
+  id: string;
+  name: string;
+  items: ItemReward[];
+}
+
 export interface SlayerTask {
   monsterId: string;
   monsterName: string;
@@ -79,6 +85,7 @@ export interface Character {
   }[];
   skills: Record<SkillName, Skill>;
   bank: ItemReward[];
+  bankTabs: BankTab[];
   equipment: Record<EquipmentSlot, Item | undefined>;
   lastLogin: Date;
   lastAction: {
@@ -303,6 +310,18 @@ async function handleCreateCharacter(req: AuthenticatedRequest, res: VercelRespo
         { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 },
         { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1 },
         { id: 'small_fishing_net', name: 'Small Fishing Net', quantity: 1 }
+      ],
+      bankTabs: [
+        {
+          id: 'main',
+          name: 'Main',
+          items: [
+            { id: 'coins', name: 'Coins', quantity: 25 },
+            { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 },
+            { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1 },
+            { id: 'small_fishing_net', name: 'Small Fishing Net', quantity: 1 }
+          ]
+        }
       ],
       equipment: {
         head: undefined, cape: undefined, neck: undefined, ammo: undefined,

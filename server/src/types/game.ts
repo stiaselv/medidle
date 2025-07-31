@@ -42,6 +42,12 @@ export interface ItemReward {
   quantity: number;
 }
 
+export interface BankTab {
+  id: string;
+  name: string;
+  items: ItemReward[];
+}
+
 export interface Requirement {
   type: 'level' | 'item' | 'equipment';
   skill?: SkillName;
@@ -144,6 +150,7 @@ export interface Character {
   }[];
   skills: Record<SkillName, Skill>;
   bank: ItemReward[];
+  bankTabs: BankTab[]; // Store bank tabs in character data
   equipment: Record<EquipmentSlot, Item | undefined>;
   lastLogin: Date;
   lastAction: {
