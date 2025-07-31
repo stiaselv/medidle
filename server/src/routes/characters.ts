@@ -155,6 +155,18 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
             currentSlayerTask: null,
             slayerPoints: 0,
             slayerTaskStreak: 0,
+            bankTabs: [
+              {
+                id: 'main',
+                name: 'Main',
+                items: [
+                  { id: 'coins', name: 'Coins', quantity: 25 },
+                  { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1 },
+                  { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1 },
+                  { id: 'small_fishing_net', name: 'Small Fishing Net', quantity: 1 }
+                ]
+              }
+            ],
             stats: {
                 totalPlayTime: 0,
                 totalActiveTime: 0,
@@ -244,6 +256,43 @@ router.put('/:id', withAuth, (req: AuthenticatedRequest, res, next) => {
     } catch (error) {
         console.error('Error saving character:', error);
         res.status(500).json({ message: 'Internal server error.' });
+    }
+  })().catch(next);
+});
+
+// DELETE /api/characters/:id - Delete a character
+router.delete('/:id', withAuth, (req: AuthenticatedRequest, res, next) => {
+  (async () => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Authentication details not found.' });
+      }
+
+      const { id } = req.params;
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid character ID format.' });
+      }
+
+      const characterId = new ObjectId(id);
+      const charactersCollection = await getCharactersCollection();
+      
+      // Ensure the character belongs to the logged-in user
+      const character = await charactersCollection.findOne({ _id: characterId, userId: new ObjectId(req.user.userId) });
+      if (!character) {
+        return res.status(404).json({ message: 'Character not found or you do not have permission to delete it.' });
+      }
+
+      // Delete the character
+      const result = await charactersCollection.deleteOne({ _id: characterId });
+      
+      if (result.deletedCount === 0) {
+        return res.status(404).json({ message: 'Character not found.' });
+      }
+
+      res.status(200).json({ message: 'Character deleted successfully.' });
+    } catch (error) {
+      console.error('Error deleting character:', error);
+      res.status(500).json({ message: 'Internal server error.' });
     }
   })().catch(next);
 });

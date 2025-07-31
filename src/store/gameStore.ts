@@ -284,6 +284,34 @@ const createStore = () => create<GameState>()(
         get().logout();
       }
     },
+
+    // Function to delete a character
+    deleteCharacter: async (characterId: string) => {
+      try {
+        const response = await fetch(createApiUrl(`${API_ENDPOINTS.characters}/${characterId}`), {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete character.');
+        }
+        
+        // Remove the character from the local state
+        const updatedCharacters = get().characters.filter(char => char.id !== characterId);
+        set({ characters: updatedCharacters });
+        
+        // If the deleted character was the currently selected one, clear it
+        const currentCharacter = get().character;
+        if (currentCharacter && currentCharacter.id === characterId) {
+          set({ character: null });
+        }
+        
+      } catch (error) {
+        console.error('Error deleting character:', error);
+        throw error;
+      }
+    },
     
     // Function to save character progress to the backend
     saveCharacter: async (character: Character) => {
