@@ -427,6 +427,11 @@ export interface Character {
   questProgress: Record<string, QuestProgress>;
   achievements: Achievement[];
   achievementProgress: Record<string, AchievementProgress>;
+  autoEating: {
+    enabled: boolean;
+    tier: number; // 0 = disabled, 1-3 = tier levels
+    selectedFood: string | null; // item ID of selected food
+  };
 }
 
 import type { CombatStyle } from '../combat/combatTriangle';
@@ -445,6 +450,7 @@ export interface Monster {
   maxHitpoints: number;
   combatStyle: CombatStyle;
   stats: CombatStats;
+  attackSpeed?: number; // Attack speed in seconds (e.g., 2.4 for 2.4 seconds between attacks)
   drops?: MonsterDrop[];
   slayerLevel?: number;
   slayerCategory?: string;
@@ -622,6 +628,12 @@ export interface GameState {
   checkAchievements: () => void;
   completeAchievement: (achievementId: string) => void;
   getAchievementProgress: (achievementId: string) => number;
+
+  // Auto-eating system
+  upgradeAutoEating: (tier: number) => boolean;
+  setAutoEatingFood: (foodId: string | null) => void;
+  toggleAutoEating: () => void;
+  checkAutoEating: () => void;
 }
 
 export interface Item {

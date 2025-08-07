@@ -19,6 +19,7 @@ import { getCropById } from '../data/farmingCrops';
 import { getLevelFromExperience, getExperienceForNextLevel, getProgressToNextLevel, EXPERIENCE_TABLE } from '../utils/experience';
 import { getAllQuests } from '../data/quests';
 import { getAllAchievements } from '../data/achievements';
+import { ITEMS } from '../data/items';
 
 // Helper functions for experience and level calculations
 export const calculateLevel = (experience: number): number => {
@@ -76,21 +77,41 @@ type GetState = () => GameState;
 const getWeaponSpeed = (weaponId: string | undefined): number => {
   if (!weaponId) return 2500; // Default/unarmed attack speed (2.5 seconds)
   
-  // Weapon speeds in milliseconds
+  // Try to get speed from the item definition first
+  const weaponItem = getItemById(weaponId);
+  if (weaponItem?.speed) {
+    return weaponItem.speed * 1000; // Convert seconds to milliseconds
+  }
+  
+  // Fallback to legacy weapon type mapping
   const weaponSpeeds: Record<string, number> = {
-    dagger: 2000,      // 2.0 seconds
-    sword: 2500,       // 2.5 seconds
-    scimitar: 2400,    // 2.4 seconds
-    mace: 2600,        // 2.6 seconds
-    longsword: 3000,   // 3.0 seconds
-    battleaxe: 3500,   // 3.5 seconds
-    warhammer: 3800,   // 3.8 seconds
-    two_handed_sword: 4200,  // 4.2 seconds
+    dagger: 2000,      // 2.0 seconds - fastest
+    scimitar: 2400,    // 2.4 seconds - fast
+    sword: 2500,       // 2.5 seconds - normal
+    mace: 2600,        // 2.6 seconds - normal
+    longsword: 3000,   // 3.0 seconds - slow
+    axe: 3000,         // 3.0 seconds - slow
+    battleaxe: 3500,   // 3.5 seconds - slower
+    warhammer: 3800,   // 3.8 seconds - very slow
+    two_handed_sword: 4200,  // 4.2 seconds - very slow
   };
 
   // Extract the weapon type from the ID (e.g., 'bronze_dagger' -> 'dagger')
   const weaponType = weaponId.split('_').slice(1).join('_');
   return weaponSpeeds[weaponType] || 2500; // Default to sword speed if weapon type not found
+};
+
+// Helper function to get monster attack speed in milliseconds
+const getMonsterAttackSpeed = (monster: Monster): number => {
+  if (monster.attackSpeed) {
+    return monster.attackSpeed * 1000; // Convert seconds to milliseconds
+  }
+  
+  // Default attack speeds based on creature type/level
+  if (monster.level <= 10) return 2200; // Small creatures are fast
+  if (monster.level <= 30) return 2800; // Medium creatures are normal
+  if (monster.level <= 60) return 3200; // Large creatures are slow
+  return 3800; // Very high level creatures are very slow
 };
 
 // Helper function to calculate modified action time based on equipped tools
@@ -275,9 +296,15 @@ const createStore = () => create<GameState>()(
             // Ensure quest properties are initialized for existing characters
             activeQuests: rest.activeQuests || [],
             questProgress: rest.questProgress || {},
-            // Ensure achievement properties are initialized for existing characters
-            achievements: rest.achievements || [],
-            achievementProgress: rest.achievementProgress || {}
+                              // Ensure achievement properties are initialized for existing characters
+        achievements: rest.achievements || [],
+        achievementProgress: rest.achievementProgress || {},
+        // Ensure auto-eating properties are initialized for existing characters  
+        autoEating: rest.autoEating || {
+          enabled: false,
+          tier: 0,
+          selectedFood: null
+        }
           };
         });
         set({ characters: charactersWithDates });
@@ -496,7 +523,13 @@ const createStore = () => create<GameState>()(
           questProgress: newCharacter.questProgress || {},
           // Ensure achievement properties are initialized for new characters
           achievements: newCharacter.achievements || [],
-          achievementProgress: newCharacter.achievementProgress || {}
+          achievementProgress: newCharacter.achievementProgress || {},
+          // Ensure auto-eating properties are initialized for new characters
+          autoEating: newCharacter.autoEating || {
+            enabled: false,
+            tier: 0,
+            selectedFood: null
+          }
         };
         
         // Remove _id to avoid confusion
@@ -568,9 +601,21 @@ const createStore = () => create<GameState>()(
       // Set up new action
       set({ currentAction: action, isActionInProgress: true, actionProgress: 0 });
       let startTime = Date.now();
-      const duration = state.character && action.type !== 'combat' ? 
-        getModifiedActionTime(action as SkillAction, state.character) : 
-        action.baseTime;
+      
+      // Calculate duration based on action type
+      let duration: number;
+      if (action.type === 'combat') {
+        // For combat, use the player's weapon speed
+        const combatAction = action as CombatAction;
+        const weaponId = state.character?.equipment?.weapon?.id;
+        duration = getWeaponSpeed(weaponId);
+      } else if (state.character) {
+        // For skill actions, use modified action time
+        duration = getModifiedActionTime(action as SkillAction, state.character);
+      } else {
+        // Fallback to base time
+        duration = action.baseTime;
+      }
       const interval = setInterval(() => {
         const state = get();
         if (!state.isActionInProgress || !state.currentAction || state.currentAction.id !== action.id) {
@@ -3100,6 +3145,141 @@ const createStore = () => create<GameState>()(
       }
 
       return 0;
+    },
+
+    // Auto-eating system
+    upgradeAutoEating: (tier: number) => {
+      const state = get();
+      if (!state.character) return false;
+
+      // Check if this is the next valid tier to purchase
+      const currentTier = state.character.autoEating.tier;
+      if (tier !== currentTier + 1) {
+        console.warn(`Cannot upgrade to tier ${tier}. Current tier is ${currentTier}`);
+        return false;
+      }
+
+      // Check if player has enough gold for the upgrade
+      const prices = { 1: 1000000, 2: 5000000, 3: 10000000 };
+      const cost = prices[tier as keyof typeof prices];
+      
+      const mainTab = state.character.bankTabs?.find(tab => tab.id === 'main');
+      const coinsItem = mainTab?.items.find(item => item.id === 'coins');
+      const currentGold = coinsItem?.quantity || 0;
+      
+      if (currentGold < cost) {
+        console.warn(`Not enough gold. Need ${cost}, have ${currentGold}`);
+        return false;
+      }
+
+      // Remove gold from bank
+      get().removeItemFromBank('coins', cost);
+
+      // Upgrade auto-eating tier (permanent unlock)
+      const updatedCharacter = {
+        ...state.character,
+        autoEating: {
+          ...state.character.autoEating,
+          tier: tier
+        }
+      };
+
+      get().setCharacter(updatedCharacter);
+      get().saveCharacter(updatedCharacter);
+      return true;
+    },
+
+    setAutoEatingFood: (foodId: string | null) => {
+      const state = get();
+      if (!state.character) return;
+
+      const updatedCharacter = {
+        ...state.character,
+        autoEating: {
+          ...state.character.autoEating,
+          selectedFood: foodId
+        }
+      };
+
+      get().setCharacter(updatedCharacter);
+      get().saveCharacter(updatedCharacter);
+    },
+
+    toggleAutoEating: () => {
+      const state = get();
+      if (!state.character) return;
+
+      const updatedCharacter = {
+        ...state.character,
+        autoEating: {
+          ...state.character.autoEating,
+          enabled: !state.character.autoEating.enabled
+        }
+      };
+
+      get().setCharacter(updatedCharacter);
+      get().saveCharacter(updatedCharacter);
+    },
+
+    checkAutoEating: () => {
+      const state = get();
+      if (!state.character) return;
+
+      const { autoEating, hitpoints, maxHitpoints } = state.character;
+      
+      if (!autoEating.enabled || autoEating.tier === 0 || !autoEating.selectedFood) {
+        return;
+      }
+
+      const healthPercent = (hitpoints / maxHitpoints) * 100;
+      
+      // Define thresholds based on tier
+      const thresholds = {
+        1: { triggerAt: 25, eatTo: 50 },
+        2: { triggerAt: 30, eatTo: 55 },
+        3: { triggerAt: 40, eatTo: 70 }
+      };
+
+      const threshold = thresholds[autoEating.tier as keyof typeof thresholds];
+      if (!threshold) return;
+
+      if (healthPercent <= threshold.triggerAt) {
+        // Check if player has the selected food
+        const mainTab = state.character.bankTabs?.find(tab => tab.id === 'main');
+        const foodItem = mainTab?.items.find(item => item.id === autoEating.selectedFood);
+        
+        if (!foodItem || foodItem.quantity < 1) {
+          // No food available, disable auto-eating
+          get().toggleAutoEating();
+          return;
+        }
+
+        // Get the actual healing value of the selected food
+        const foodItemData = ITEMS[autoEating.selectedFood];
+        const healingPerFood = foodItemData?.healing || 20; // Default to 20 if not found
+        
+        // Calculate how much food we need to reach target health percentage
+        const targetHitpoints = Math.floor((threshold.eatTo / 100) * maxHitpoints);
+        const healingNeeded = targetHitpoints - hitpoints;
+        const foodToEat = Math.ceil(healingNeeded / healingPerFood);
+        const actualFoodToEat = Math.min(foodToEat, foodItem.quantity);
+
+        if (actualFoodToEat > 0) {
+          // Remove food from bank and heal player
+          get().removeItemFromBank(autoEating.selectedFood, actualFoodToEat);
+          
+          // Heal the player using actual food healing values
+          const healAmount = actualFoodToEat * healingPerFood;
+          const newHitpoints = Math.min(hitpoints + healAmount, maxHitpoints);
+          
+          const updatedCharacter = {
+            ...state.character,
+            hitpoints: newHitpoints
+          };
+          
+          get().setCharacter(updatedCharacter);
+        }
+      }
     },
   })
 );

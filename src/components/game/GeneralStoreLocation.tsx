@@ -348,7 +348,8 @@ export const GeneralStoreLocation = () => {
     setBankTab,
     moveBankItem,
     createBankTab,
-    deleteBankTab
+    deleteBankTab,
+    upgradeAutoEating
   } = useGameStore();
   const [selectedBankItem, setSelectedBankItem] = useState<string | null>(null);
   const [selectedStoreItem, setSelectedStoreItem] = useState<string | null>(null);
@@ -463,7 +464,22 @@ export const GeneralStoreLocation = () => {
         console.warn(`Active store tab '${activeStoreTab}' not found. Available tabs:`, storeAction.storeTabs.map(t => t.id));
         return [];
       }
-      return activeTab.items || [];
+      
+      let items = activeTab.items || [];
+      
+      // Filter auto-eating upgrades to show only the next purchasable tier
+      if (activeTab.id === 'upgrades') {
+        const currentTier = character?.autoEating?.tier || 0;
+        items = items.filter(item => {
+          // Show only the next tier that can be purchased
+          if (item.id === 'auto_eat_tier_1') return currentTier === 0;
+          if (item.id === 'auto_eat_tier_2') return currentTier === 1;
+          if (item.id === 'auto_eat_tier_3') return currentTier === 2;
+          return true; // Show other upgrade items normally
+        });
+      }
+      
+      return items;
     }
     return storeAction.storeItems || [];
   };
@@ -502,10 +518,22 @@ export const GeneralStoreLocation = () => {
         const playerCoins = bankItems.find(item => item.id === 'coins')?.quantity || 0;
         
         if (playerCoins >= totalCost) {
-          buyItem(selectedStoreItem, quantity, item.buyPrice);
-          setQuantity(1);
-          setSelectedStoreItem(null);
-          setIsCustomAmount(false);
+          // Handle auto-eating upgrades specially
+          if (selectedStoreItem.startsWith('auto_eat_tier_')) {
+            const tier = parseInt(selectedStoreItem.split('_').pop() || '1');
+            const success = upgradeAutoEating(tier);
+            if (success) {
+              setQuantity(1);
+              setSelectedStoreItem(null);
+              setIsCustomAmount(false);
+            }
+          } else {
+            // Handle regular item purchases
+            buyItem(selectedStoreItem, quantity, item.buyPrice);
+            setQuantity(1);
+            setSelectedStoreItem(null);
+            setIsCustomAmount(false);
+          }
         } else {
           // Could add a toast notification here for insufficient funds
           console.log('Not enough coins');
@@ -997,6 +1025,46 @@ export const GeneralStoreLocation = () => {
                 {getActiveStoreItems().filter(item => 
                   item.name.toLowerCase().includes(storeSearch.toLowerCase())
                 ).map((item) => {
+                  // Handle auto-eating upgrades specially
+                  if (item.id.startsWith('auto_eat_tier_')) {
+                    return (
+                      <Tooltip 
+                        key={item.id} 
+                        label={`${item.name}\nCost: ${item.buyPrice.toLocaleString()} coins\nPermanent upgrade to auto-eating system`}
+                        placement="right"
+                        hasArrow
+                        bg="gray.800"
+                        color="white"
+                        p={3}
+                        borderRadius="md"
+                        whiteSpace="pre-line"
+                      >
+                        <Box
+                          className={`relative cursor-pointer ${
+                            selectedStoreItem === item.id ? 'border-2 border-blue-500' : ''
+                          }`}
+                          onClick={() => {
+                            setSelectedStoreItem(selectedStoreItem === item.id ? null : item.id);
+                            setSelectedBankItem(null);
+                          }}
+                        >
+                          <ItemCard
+                            id={item.id}
+                            name={item.name}
+                            icon="/assets/items/placeholder.png"
+                            quantity={999}
+                            isSelected={selectedStoreItem === item.id}
+                            isStore={true}
+                            levelRequired={1}
+                            playerLevel={1}
+                            price={item.buyPrice}
+                          />
+                        </Box>
+                      </Tooltip>
+                    );
+                  }
+                  
+                  // Handle regular items
                   const itemDetails = getItemById(item.id);
                   if (!itemDetails) return null;
                   const skill = getSkillForItem(item.id);

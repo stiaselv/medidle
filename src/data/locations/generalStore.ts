@@ -377,6 +377,36 @@ export const generalStoreLocation: Location = {
               quantity: 1
             }
           ]
+        },
+        {
+          id: 'upgrades',
+          name: 'Upgrades',
+          items: [
+            {
+              id: 'auto_eat_tier_1',
+              name: 'Auto-Eating Tier 1',
+              buyPrice: 1000000,
+              sellPrice: 500000,
+              levelRequired: 1,
+              quantity: 1
+            },
+            {
+              id: 'auto_eat_tier_2',
+              name: 'Auto-Eating Tier 2',
+              buyPrice: 5000000,
+              sellPrice: 2500000,
+              levelRequired: 1,
+              quantity: 1
+            },
+            {
+              id: 'auto_eat_tier_3',
+              name: 'Auto-Eating Tier 3',
+              buyPrice: 10000000,
+              sellPrice: 5000000,
+              levelRequired: 1,
+              quantity: 1
+            }
+          ]
         }
       ]
     }

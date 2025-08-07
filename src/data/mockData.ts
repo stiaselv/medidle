@@ -229,6 +229,11 @@ export const mockCharacter: Character = {
   questProgress: {},
   achievements: [],
   achievementProgress: {},
+  autoEating: {
+    enabled: false,
+    tier: 0,
+    selectedFood: null
+  },
   stats: {
     // General
     deaths: 0,

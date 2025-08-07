@@ -11,6 +11,7 @@ export const MONSTERS: Record<string, Monster> = {
     hitpoints: 3,
     maxHitpoints: 3,
     combatStyle: 'melee',
+    attackSpeed: 2.0, // Fast attack - small creature
     stats: {
       attackStab: 1,
       attackSlash: 1,
@@ -41,6 +42,7 @@ export const MONSTERS: Record<string, Monster> = {
     hitpoints: 8,
     maxHitpoints: 8,
     combatStyle: 'melee',
+    attackSpeed: 3.2, // Slower attack - large creature
     stats: {
       attackStab: 2,
       attackSlash: 2,
@@ -71,6 +73,7 @@ export const MONSTERS: Record<string, Monster> = {
     hitpoints: 20,
     maxHitpoints: 20,
     combatStyle: 'melee',
+    attackSpeed: 2.8, // Normal attack speed for humanoid with tools
     stats: {
       attackStab: 5,
       attackSlash: 5,
@@ -293,6 +296,7 @@ export const MONSTERS: Record<string, Monster> = {
     hitpoints: 75,
     maxHitpoints: 75,
     combatStyle: 'melee',
+    attackSpeed: 4.0, // Slow but powerful - large dragon
     stats: {
       attackStab: 70,
       attackSlash: 70,
@@ -324,6 +328,7 @@ export const MONSTERS: Record<string, Monster> = {
     hitpoints: 105,
     maxHitpoints: 105,
     combatStyle: 'melee',
+    attackSpeed: 3.8, // Slightly faster than green dragon
     stats: {
       attackStab: 90,
       attackSlash: 90,

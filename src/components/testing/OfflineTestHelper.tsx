@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Box, Button, VStack, Text, HStack, useToast, Alert, AlertIcon } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
 import { mockLocations } from '../../data/mockData';
@@ -7,7 +7,57 @@ export const OfflineTestHelper: React.FC = () => {
   const { character, setCharacter, processOfflineProgress, canPerformAction } = useGameStore();
   const toast = useToast();
 
+  // Dragging state
+  const [position, setPosition] = useState({ x: 16, y: 16 }); // top-4, right-4 in pixels
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<HTMLDivElement>(null);
+
   if (!character) return null;
+
+  // Drag handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (dragRef.current) {
+      setIsDragging(true);
+      const rect = dragRef.current.getBoundingClientRect();
+      setDragStart({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
+  }, []);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (isDragging && dragRef.current) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      
+      // Keep within viewport bounds
+      const maxX = window.innerWidth - dragRef.current.offsetWidth;
+      const maxY = window.innerHeight - dragRef.current.offsetHeight;
+      
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY))
+      });
+    }
+  }, [isDragging, dragStart]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Add global mouse event listeners
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const simulateOfflineTime = (minutes: number) => {
     if (!character) return;
@@ -87,20 +137,40 @@ export const OfflineTestHelper: React.FC = () => {
 
   return (
     <Box 
+      ref={dragRef}
       position="fixed" 
-      top="4" 
-      right="4" 
+      left={`${position.x}px`}
+      top={`${position.y}px`}
       bg="gray.800" 
       p="4" 
       borderRadius="lg" 
       border="1px solid" 
       borderColor="gray.600"
       zIndex="1000"
+      cursor={isDragging ? 'grabbing' : 'grab'}
+      userSelect="none"
+      onMouseDown={handleMouseDown}
+      _hover={{
+        borderColor: 'gray.500',
+        boxShadow: 'lg'
+      }}
+      transition="border-color 0.2s, box-shadow 0.2s"
     >
       <VStack spacing={3} align="stretch" minW="250px">
-        <Text fontSize="sm" fontWeight="bold" color="yellow.400">
-          🧪 Offline Testing
-        </Text>
+        <HStack justify="space-between" align="center">
+          <Text fontSize="sm" fontWeight="bold" color="yellow.400">
+            🧪 Offline Testing
+          </Text>
+          <Text 
+            fontSize="xs" 
+            color="gray.500" 
+            cursor="grab"
+            _active={{ cursor: 'grabbing' }}
+            userSelect="none"
+          >
+            ⋮⋮
+          </Text>
+        </HStack>
         
         <Text fontSize="xs" color="gray.400">
           Last Action: {getLastActionInfo()}
