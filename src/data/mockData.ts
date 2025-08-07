@@ -181,7 +181,6 @@ export const mockCharacter: Character = {
     prayer: createSkill('Prayer'),
     magic: createSkill('Magic'),
     runecrafting: createSkill('Runecrafting'),
-    construction: createSkill('Construction'),
     hitpoints: createSkill('Hitpoints', 10),
     agility: createSkill('Agility'),
     herblore: createSkill('Herblore'),
@@ -189,7 +188,6 @@ export const mockCharacter: Character = {
     crafting: createSkill('Crafting'),
     fletching: createSkill('Fletching'),
     slayer: createSkill('Slayer'),
-    hunter: createSkill('Hunter'),
     mining: createSkill('Mining'),
     smithing: createSkill('Smithing'),
     fishing: createSkill('Fishing'),
@@ -199,6 +197,11 @@ export const mockCharacter: Character = {
     farming: createSkill('Farming')
   },
   bank: [],
+  bankTabs: [{
+    id: 'main',
+    name: 'Main',
+    items: []
+  }],
   equipment: {
     weapon: { id: 'bronze_axe', name: 'Bronze Axe', quantity: 1, type: 'tool', category: 'Tools', icon: '/assets/items/bronze_axe.png' },
     shield: { id: 'bronze_pickaxe', name: 'Bronze Pickaxe', quantity: 1, type: 'tool', category: 'Tools', icon: '/assets/items/bronze_pickaxe.png' }
@@ -214,6 +217,9 @@ export const mockCharacter: Character = {
   slayerPoints: 0,
   currentSlayerTask: null,
   slayerTaskStreak: 0,
+  friends: [],
+  messages: [],
+  friendRequests: [],
   stats: {
     // General
     deaths: 0,

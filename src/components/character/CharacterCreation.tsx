@@ -68,7 +68,7 @@ const CharacterCreation = () => {
           'attack', 'strength', 'defence', 'hitpoints', 'ranged', 'magic', 'prayer', 
           'slayer', 'mining', 'smithing', 'fishing', 'cooking', 'firemaking', 
           'woodcutting', 'crafting', 'fletching', 'thieving', 'farming', 
-          'runecrafting', 'construction', 'hunter'
+          'runecrafting'
         ];
         
         allSkills.forEach(skill => {

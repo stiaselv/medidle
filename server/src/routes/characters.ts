@@ -92,7 +92,7 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
             return res.status(409).json({ message: 'A character with that name already exists.' });
         }
 
-        const allSkills: SkillName[] = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'magic', 'prayer', 'slayer', 'mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'crafting', 'fletching', 'thieving', 'farming', 'runecrafting', 'construction', 'hunter', 'agility'];
+        const allSkills: SkillName[] = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'magic', 'prayer', 'slayer', 'mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'crafting', 'fletching', 'thieving', 'farming', 'runecrafting', 'agility'];
         
         // Experience table for levels 1-99 (RuneScape formula)
         const EXPERIENCE_TABLE: Record<number, number> = {

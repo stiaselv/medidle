@@ -382,7 +382,7 @@ const createStore = () => create<GameState>()(
       // Ensure character has all required skills, including agility
       let needsSkillUpdate = false;
       const updatedSkills = { ...rest.skills };
-      const requiredSkills = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'magic', 'prayer', 'slayer', 'mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'crafting', 'fletching', 'thieving', 'farming', 'runecrafting', 'construction', 'hunter', 'agility'];
+      const requiredSkills = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'magic', 'prayer', 'slayer', 'mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'crafting', 'fletching', 'thieving', 'farming', 'runecrafting', 'agility'];
       
               for (const skillName of requiredSkills) {
           if (!updatedSkills[skillName]) {
@@ -2335,6 +2335,183 @@ const createStore = () => create<GameState>()(
     // Helper to update active/offline time (call from timer or login/logout logic)
     updateActiveTime: (ms: number) => get().incrementStat('totalActiveTime', ms),
     updateOfflineTime: (ms: number) => get().incrementStat('totalOfflineTime', ms),
+
+    // Friends system
+    sendFriendRequest: async (characterName: string) => {
+      const { character } = get();
+      if (!character) throw new Error('No character selected');
+
+      try {
+        const response = await fetch(createApiUrl('/api/friends/request'), {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fromCharacterId: character.id,
+            toCharacterName: characterName.trim()
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to send friend request');
+        }
+
+        // Refresh character data to get updated friend requests
+        const updatedCharacter = await response.json();
+        set({ character: updatedCharacter });
+      } catch (error) {
+        console.error('Failed to send friend request:', error);
+        throw error;
+      }
+    },
+
+    acceptFriendRequest: async (requestId: string) => {
+      const { character } = get();
+      if (!character) throw new Error('No character selected');
+
+      try {
+        const response = await fetch(createApiUrl(`/api/friends/accept/${requestId}`), {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to accept friend request');
+        }
+
+        const updatedCharacter = await response.json();
+        set({ character: updatedCharacter });
+      } catch (error) {
+        console.error('Failed to accept friend request:', error);
+        throw error;
+      }
+    },
+
+    declineFriendRequest: async (requestId: string) => {
+      const { character } = get();
+      if (!character) throw new Error('No character selected');
+
+      try {
+        const response = await fetch(createApiUrl(`/api/friends/decline/${requestId}`), {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to decline friend request');
+        }
+
+        const updatedCharacter = await response.json();
+        set({ character: updatedCharacter });
+      } catch (error) {
+        console.error('Failed to decline friend request:', error);
+        throw error;
+      }
+    },
+
+    removeFriend: async (friendId: string) => {
+      const { character } = get();
+      if (!character) throw new Error('No character selected');
+
+      try {
+        const response = await fetch(createApiUrl(`/api/friends/remove/${friendId}`), {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to remove friend');
+        }
+
+        const updatedCharacter = await response.json();
+        set({ character: updatedCharacter });
+      } catch (error) {
+        console.error('Failed to remove friend:', error);
+        throw error;
+      }
+    },
+
+    sendMessage: async (friendId: string, content: string) => {
+      const { character } = get();
+      if (!character) throw new Error('No character selected');
+
+      try {
+        const response = await fetch(createApiUrl('/api/friends/message'), {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderId: character.id,
+            receiverId: friendId,
+            content: content.trim()
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to send message');
+        }
+      } catch (error) {
+        console.error('Failed to send message:', error);
+        throw error;
+      }
+    },
+
+    markMessageAsRead: (messageId: string) => {
+      set((state) => {
+        if (state.character && state.character.messages) {
+          const message = state.character.messages.find(msg => msg.id === messageId);
+          if (message) {
+            message.read = true;
+          }
+        }
+        return state;
+      });
+    },
+
+    getFriendRequests: async () => {
+      const { character } = get();
+      if (!character) return [];
+
+      try {
+        const response = await fetch(createApiUrl('/api/friends/requests'), {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get friend requests');
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error('Failed to get friend requests:', error);
+        return [];
+      }
+    },
+
+    getMessages: async (friendId: string) => {
+      const { character } = get();
+      if (!character) return [];
+
+      try {
+        const response = await fetch(createApiUrl(`/api/friends/messages/${friendId}`), {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get messages');
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error('Failed to get messages:', error);
+        return [];
+      }
+    },
 
     // Farming system
     initializeFarmingPatches: () => {

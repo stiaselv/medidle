@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useDragControls } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
+import { calculateTotalLevel } from '../../utils/experience';
 
 const SkillTooltip = ({ children, ...props }: TooltipProps) => (
   <Tooltip hasArrow placement="top" {...props}>
@@ -173,8 +174,8 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
   const combatAreas = mockLocations.filter(l => l.availableSkills && l.availableSkills.includes('attack'));
 
   const skillNames: (keyof Skills)[] = [
-    'attack', 'strength', 'defence', 'ranged', 'prayer', 'magic', 'runecrafting', 'construction', 'hitpoints', 'agility',
-    'herblore', 'thieving', 'crafting', 'fletching', 'slayer', 'hunter', 'mining', 'smithing', 'fishing', 'cooking',
+    'attack', 'strength', 'defence', 'ranged', 'prayer', 'magic', 'runecrafting', 'hitpoints', 'agility',
+    'herblore', 'thieving', 'crafting', 'fletching', 'slayer', 'mining', 'smithing', 'fishing', 'cooking',
     'firemaking', 'woodcutting', 'farming'
   ];
 
@@ -346,6 +347,26 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                     </Box>
                   </TabPanel>
                   <TabPanel display="flex" flexDirection="column" alignItems="center" p={6}>
+                    {/* Total Level Display */}
+                    <Box 
+                      mb={4} 
+                      p={3} 
+                      bg="gray.700" 
+                      borderRadius="lg" 
+                      borderWidth="1px" 
+                      borderColor="blue.500"
+                      textAlign="center"
+                      w="100%"
+                      maxW="1200px"
+                    >
+                      <Text fontSize="lg" fontWeight="bold" color="blue.300">
+                        Total Level: {calculateTotalLevel(character.skills)}
+                      </Text>
+                      <Text fontSize="sm" color="gray.300" mt={1}>
+                        Combined level of all skills
+                      </Text>
+                    </Box>
+                    
                     <Grid templateColumns="repeat(auto-fit, minmax(140px, 1fr))" gap={3} w="100%" maxW="1200px">
                       {Object.entries(skills).map(([skillName, skill]) => {
                         if (!skill) return null;
@@ -359,9 +380,9 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                         const getSkillColor = (skill: string) => {
                           const colorMap: Record<string, string> = {
                             attack: 'red', strength: 'orange', defence: 'blue', ranged: 'green',
-                            prayer: 'purple', magic: 'cyan', runecrafting: 'yellow', construction: 'orange',
+                            prayer: 'purple', magic: 'cyan', runecrafting: 'yellow',
                             hitpoints: 'red', agility: 'blue', herblore: 'green', thieving: 'purple',
-                            crafting: 'orange', fletching: 'yellow', slayer: 'red', hunter: 'green',
+                            crafting: 'orange', fletching: 'yellow', slayer: 'red',
                             mining: 'gray', smithing: 'orange', fishing: 'blue', cooking: 'red',
                             firemaking: 'orange', woodcutting: 'green', farming: 'green'
                           };

@@ -4,6 +4,7 @@ import { useGameStore } from '../../store/gameStore';
 import type { Character } from '../../types/game';
 import { Box, Button, VStack, Heading, Text, SimpleGrid, HStack, Badge } from '@chakra-ui/react';
 import { DeleteCharacterModal } from './DeleteCharacterModal';
+import { calculateTotalLevel } from '../../utils/experience';
 
 export const CharacterSelection = () => {
   const { characters, setCharacter, deleteCharacter, isLoading } = useGameStore();
@@ -109,6 +110,9 @@ export const CharacterSelection = () => {
                 </Text>
                 <Text fontSize="sm" color="gray.200" mb={1}>
                   Hitpoints: {char.hitpoints} / {char.maxHitpoints}
+                </Text>
+                <Text fontSize="sm" color="gray.200" mb={1}>
+                  Total Level: {calculateTotalLevel(char.skills)}
                 </Text>
                 <Text fontSize="sm" color="gray.200" mb={1}>
                   Slayer Points: {char.slayerPoints}

@@ -51,14 +51,12 @@ export type SkillName =
   | 'magic'
   | 'ranged'
   | 'runecrafting'
-  | 'construction'
   | 'agility'
   | 'herblore'
   | 'thieving'
   | 'crafting'
   | 'fletching'
   | 'slayer'
-  | 'hunter'
   | 'none';  // For store actions and other non-skill activities
 
 export type ActionType = 
@@ -111,7 +109,6 @@ export interface Skills {
   prayer: Skill;
   magic: Skill;
   runecrafting: Skill;
-  construction: Skill;
   hitpoints: Skill;
   agility: Skill;
   herblore: Skill;
@@ -119,7 +116,6 @@ export interface Skills {
   crafting: Skill;
   fletching: Skill;
   slayer: Skill;
-  hunter: Skill;
   mining: Skill;
   smithing: Skill;
   fishing: Skill;
@@ -422,6 +418,9 @@ export interface Character {
   currentSlayerTask: SlayerTask | null;
   slayerTaskStreak: number;
   stats: CharacterStats;
+  friends: Friend[];
+  messages: Message[];
+  friendRequests: FriendRequest[];
 }
 
 import type { CombatStyle } from '../combat/combatTriangle';
@@ -596,6 +595,16 @@ export interface GameState {
   incrementStat: (stat: keyof Character["stats"], amount?: number) => void;
   updateActiveTime: (ms: number) => void;
   updateOfflineTime: (ms: number) => void;
+
+  // Friends system
+  sendFriendRequest: (characterName: string) => Promise<void>;
+  acceptFriendRequest: (requestId: string) => Promise<void>;
+  declineFriendRequest: (requestId: string) => Promise<void>;
+  removeFriend: (friendId: string) => Promise<void>;
+  sendMessage: (friendId: string, content: string) => Promise<void>;
+  markMessageAsRead: (messageId: string) => void;
+  getFriendRequests: () => Promise<FriendRequest[]>;
+  getMessages: (friendId: string) => Promise<Message[]>;
 }
 
 export interface Item {
@@ -736,4 +745,36 @@ export interface OfflineRewards {
   skill: SkillName;
   timePassed: number;
   actionsCompleted: number;
+} 
+
+export interface Friend {
+  id: string;
+  characterId: string;
+  characterName: string;
+  lastOnline: Date;
+  isOnline: boolean;
+  totalLevel: number;
+  combatLevel: number;
+  favoriteSkill?: string;
+  addedAt: Date;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  receiverId: string;
+  content: string;
+  sentAt: Date;
+  read: boolean;
+}
+
+export interface FriendRequest {
+  id: string;
+  fromCharacterId: string;
+  fromCharacterName: string;
+  toCharacterId: string;
+  toCharacterName: string;
+  sentAt: Date;
+  status: 'pending' | 'accepted' | 'declined';
 } 

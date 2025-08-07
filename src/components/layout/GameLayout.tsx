@@ -1,6 +1,6 @@
-import { Box, Flex, useBreakpointValue, Button, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, VStack, SimpleGrid, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, Tabs, TabList, TabPanels, Tab, TabPanel, Stat, StatLabel, StatNumber, StatGroup, Divider, Icon, MenuDivider } from '@chakra-ui/react';
+import { Box, Flex, useBreakpointValue, Button, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, VStack, SimpleGrid, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, Tabs, TabList, TabPanels, Tab, TabPanel, Stat, StatLabel, StatNumber, StatGroup, Divider, Icon, MenuDivider, Badge } from '@chakra-ui/react';
 import React, { useEffect, useRef } from 'react';
-import { FaCog, FaSignOutAlt, FaUserFriends, FaChartBar } from 'react-icons/fa';
+import { FaCog, FaSignOutAlt, FaUserFriends, FaChartBar, FaTrophy } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
@@ -12,6 +12,8 @@ import { SettingsModal } from '../settings/SettingsModal';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useOfflineTracking } from '../../hooks/useOfflineTracking';
 import { OfflineTestHelper } from '../testing/OfflineTestHelper';
+import { FriendsModal } from '../friends/FriendsModal';
+import { HighscoresModal } from '../highscores/HighscoresModal';
 
 export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const { character, logout, stopAction, saveCharacter } = useGameStore();
@@ -19,6 +21,8 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
+  const { isOpen: isFriendsOpen, onOpen: onFriendsOpen, onClose: onFriendsClose } = useDisclosure();
+  const { isOpen: isHighscoresOpen, onOpen: onHighscoresOpen, onClose: onHighscoresClose } = useDisclosure();
   const navigate = useNavigate();
   const locations = useGameStore(state => state.locations);
   const { theme } = useTheme();
@@ -145,6 +149,49 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
         <Flex align="center">
           <Button onClick={onOpen} leftIcon={<Icon as={FaChartBar} />} colorScheme="blue" size="sm" mr={4}>
             Stats
+          </Button>
+          <Button
+            onClick={onHighscoresOpen}
+            leftIcon={<Icon as={FaTrophy} />}
+            colorScheme="yellow"
+            size="sm"
+            mr={2}
+          >
+            Highscores
+          </Button>
+          <Button
+            onClick={onFriendsOpen}
+            leftIcon={<Icon as={FaUserFriends} />}
+            colorScheme="purple"
+            size="sm"
+            mr={2}
+            position="relative"
+          >
+            Friends
+            {character && character.friends && character.friends.length > 0 && (
+              <Badge
+                position="absolute"
+                top="-5px"
+                right="-5px"
+                colorScheme="green"
+                borderRadius="full"
+                fontSize="xs"
+              >
+                {character.friends.length}
+              </Badge>
+            )}
+            {character && character.friendRequests && character.friendRequests.filter(req => req.toCharacterId === character.id && req.status === 'pending').length > 0 && (
+              <Badge
+                position="absolute"
+                top="-5px"
+                left="-5px"
+                colorScheme="red"
+                borderRadius="full"
+                fontSize="xs"
+              >
+                {character.friendRequests.filter(req => req.toCharacterId === character.id && req.status === 'pending').length}
+              </Badge>
+            )}
           </Button>
           <Button
             colorScheme="green"
@@ -527,6 +574,8 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Settings Modal */}
       <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
+      <FriendsModal isOpen={isFriendsOpen} onClose={onFriendsClose} />
+      <HighscoresModal isOpen={isHighscoresOpen} onClose={onHighscoresClose} />
 
       {/* Offline Testing Helper (Development Only) */}
       {import.meta.env.DEV && <OfflineTestHelper />}

@@ -186,3 +186,16 @@ export const EXPERIENCE_TABLE: Record<number, number> = {
   98: 11805606,
   99: 13034431
 }; 
+
+// Helper function to calculate total levels from skills
+export const calculateTotalLevel = (skills: Record<string, { level: number }> | import('../types/game').Skills): number => {
+  return Object.entries(skills)
+    .filter(([skillName]) => skillName !== 'none') // Exclude 'none' skill
+    .reduce((total, [_, skill]) => total + skill.level, 0);
+};
+
+export const calculateTotalExperience = (skills: Record<string, { experience: number }> | import('../types/game').Skills): number => {
+  return Object.entries(skills)
+    .filter(([skillName]) => skillName !== 'none') // Exclude 'none' skill
+    .reduce((total, [_, skill]) => total + skill.experience, 0);
+}; 

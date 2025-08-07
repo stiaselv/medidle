@@ -19,7 +19,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import './styles/themes.css';
 
 const App = () => {
-  const { user, character, checkAuth, loadCharacters, processOfflineProgress, isLoading } = useGameStore();
+  const { user, character, checkAuth, loadCharacters, processOfflineProgress, saveCharacter, isLoading } = useGameStore();
   const [showOfflineProgress, setShowOfflineProgress] = useState(false);
   const [offlineRewards, setOfflineRewards] = useState<OfflineRewards | null>(null);
 
@@ -42,6 +42,11 @@ const App = () => {
       if (rewards && (rewards.xp > 0 || (rewards.item && rewards.item.quantity > 0))) {
         setOfflineRewards(rewards);
         setShowOfflineProgress(true);
+        // Save the character after offline progress has been applied
+        const updatedCharacter = useGameStore.getState().character;
+        if (updatedCharacter) {
+          saveCharacter(updatedCharacter);
+        }
       } else if (character.lastLogin) {
         // Check if enough time passed but no rewards (due to missing requirements)
         const now = new Date();
@@ -55,7 +60,7 @@ const App = () => {
         }
       }
     }
-  }, [character?.id]); // Only run when character ID changes, not on every character update
+  }, [character?.id, saveCharacter]); // Only run when character ID changes, not on every character update
 
   const renderContent = () => {
     if (isLoading) {
