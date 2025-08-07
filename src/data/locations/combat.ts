@@ -283,6 +283,131 @@ export const MONSTERS: Record<string, Monster> = {
       { itemId: 'adamant_ore', quantity: 1, chance: 0.1 }
     ],
     thumbnail: '/assets/ItemThumbnail/Combat/ice_elemental.png'
+  },
+
+  // Dragon monsters for Dragon's Den dungeon
+  green_dragon: {
+    id: 'green_dragon',
+    name: 'Green Dragon',
+    level: 79,
+    hitpoints: 75,
+    maxHitpoints: 75,
+    combatStyle: 'melee',
+    stats: {
+      attackStab: 70,
+      attackSlash: 70,
+      attackCrush: 70,
+      attackMagic: 0,
+      attackRanged: 0,
+      defenceStab: 75,
+      defenceSlash: 75,
+      defenceCrush: 75,
+      defenceMagic: 80,
+      defenceRanged: 75,
+      strengthMelee: 70,
+      strengthRanged: 0,
+      strengthMagic: 0,
+      prayerBonus: 0
+    },
+    drops: [
+      { itemId: 'bones', quantity: 1, chance: 1.0 },
+      { itemId: 'dragon_bones', quantity: 1, chance: 1.0 },
+      { itemId: 'green_dragonhide', quantity: 1, chance: 1.0 }
+    ],
+    thumbnail: '/assets/ItemThumbnail/Combat/green_dragon.png'
+  },
+
+  blue_dragon: {
+    id: 'blue_dragon',
+    name: 'Blue Dragon',
+    level: 111,
+    hitpoints: 105,
+    maxHitpoints: 105,
+    combatStyle: 'melee',
+    stats: {
+      attackStab: 90,
+      attackSlash: 90,
+      attackCrush: 90,
+      attackMagic: 0,
+      attackRanged: 0,
+      defenceStab: 95,
+      defenceSlash: 95,
+      defenceCrush: 95,
+      defenceMagic: 100,
+      defenceRanged: 95,
+      strengthMelee: 90,
+      strengthRanged: 0,
+      strengthMagic: 0,
+      prayerBonus: 0
+    },
+    drops: [
+      { itemId: 'bones', quantity: 1, chance: 1.0 },
+      { itemId: 'dragon_bones', quantity: 1, chance: 1.0 },
+      { itemId: 'blue_dragonhide', quantity: 1, chance: 1.0 }
+    ],
+    thumbnail: '/assets/ItemThumbnail/Combat/blue_dragon.png'
+  },
+
+  red_dragon: {
+    id: 'red_dragon',
+    name: 'Red Dragon',
+    level: 152,
+    hitpoints: 140,
+    maxHitpoints: 140,
+    combatStyle: 'melee',
+    stats: {
+      attackStab: 120,
+      attackSlash: 120,
+      attackCrush: 120,
+      attackMagic: 0,
+      attackRanged: 0,
+      defenceStab: 125,
+      defenceSlash: 125,
+      defenceCrush: 125,
+      defenceMagic: 130,
+      defenceRanged: 125,
+      strengthMelee: 120,
+      strengthRanged: 0,
+      strengthMagic: 0,
+      prayerBonus: 0
+    },
+    drops: [
+      { itemId: 'bones', quantity: 1, chance: 1.0 },
+      { itemId: 'dragon_bones', quantity: 1, chance: 1.0 },
+      { itemId: 'red_dragonhide', quantity: 1, chance: 1.0 }
+    ],
+    thumbnail: '/assets/ItemThumbnail/Combat/red_dragon.png'
+  },
+
+  black_dragon: {
+    id: 'black_dragon',
+    name: 'Black Dragon',
+    level: 227,
+    hitpoints: 190,
+    maxHitpoints: 190,
+    combatStyle: 'melee',
+    stats: {
+      attackStab: 150,
+      attackSlash: 150,
+      attackCrush: 150,
+      attackMagic: 0,
+      attackRanged: 0,
+      defenceStab: 155,
+      defenceSlash: 155,
+      defenceCrush: 155,
+      defenceMagic: 160,
+      defenceRanged: 155,
+      strengthMelee: 150,
+      strengthRanged: 0,
+      strengthMagic: 0,
+      prayerBonus: 0
+    },
+    drops: [
+      { itemId: 'bones', quantity: 1, chance: 1.0 },
+      { itemId: 'dragon_bones', quantity: 1, chance: 1.0 },
+      { itemId: 'black_dragonhide', quantity: 1, chance: 1.0 }
+    ],
+    thumbnail: '/assets/ItemThumbnail/Combat/black_dragon.png'
   }
 };
 
@@ -314,6 +439,8 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
     resources: [],
     category: ITEM_CATEGORIES.COMBAT,
     icon: '/assets/locations/placeholder.png',
+    background: '/assets/BG/farm.webp',
+    group: 'World',
     actions: [
       {
         id: 'fight_chicken',
@@ -333,7 +460,7 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         name: 'Fight Cow',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 2,
+        levelRequired: 1,
         experience: MONSTERS.cow.maxHitpoints * 4,
         baseTime: 4000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -346,7 +473,7 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         name: 'Fight Farmer',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 7,
+        levelRequired: 1,
         experience: MONSTERS.farmer.maxHitpoints * 4,
         baseTime: 5000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -361,18 +488,20 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
     name: 'Lumbridge Swamp Cave',
     description: 'A dark cave in the Lumbridge Swamp filled with dangerous creatures.',
     type: 'combat',
-    levelRequired: 23,
+    levelRequired: 1,
     monsters: ['giant_frog', 'cave_crawler', 'cave_slime'],
     resources: [],
     category: ITEM_CATEGORIES.COMBAT,
     icon: '/assets/locations/placeholder.png',
+    background: '/assets/BG/lumbridge_swamp_cave.webp',
+    group: 'World',
     actions: [
       {
         id: 'fight_giant_frog',
         name: 'Fight Giant Frog',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 25,
+        levelRequired: 1,
         experience: MONSTERS.giant_frog.maxHitpoints * 4,
         baseTime: 6000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -385,7 +514,7 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         name: 'Fight Cave Crawler',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 23,
+        levelRequired: 1,
         experience: MONSTERS.cave_crawler.maxHitpoints * 4,
         baseTime: 5500,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -398,7 +527,7 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         name: 'Fight Cave Slime',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 28,
+        levelRequired: 1,
         experience: MONSTERS.cave_slime.maxHitpoints * 4,
         baseTime: 6500,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -413,18 +542,20 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
     name: 'Ice Dungeon',
     description: 'A freezing dungeon deep in the mountains, home to powerful ice creatures.',
     type: 'combat',
-    levelRequired: 57,
+    levelRequired: 1,
     monsters: ['ice_warrior', 'ice_giant', 'ice_elemental'],
     resources: [],
     category: ITEM_CATEGORIES.COMBAT,
     icon: '/assets/locations/placeholder.png',
+    background: '/assets/BG/ice_dungeon.webp',
+    group: 'World',
     actions: [
       {
         id: 'fight_ice_warrior',
         name: 'Fight Ice Warrior',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 57,
+        levelRequired: 1,
         experience: MONSTERS.ice_warrior.maxHitpoints * 4,
         baseTime: 8000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -437,7 +568,7 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         name: 'Fight Ice Giant',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 67,
+        levelRequired: 1,
         experience: MONSTERS.ice_giant.maxHitpoints * 4,
         baseTime: 9000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },
@@ -450,7 +581,7 @@ export const COMBAT_LOCATIONS: Record<string, Location> = {
         name: 'Fight Ice Elemental',
         type: 'combat',
         skill: 'attack',
-        levelRequired: 77,
+        levelRequired: 1,
         experience: MONSTERS.ice_elemental.maxHitpoints * 4,
         baseTime: 10000,
         itemReward: { id: 'none', name: 'None', quantity: 0 },

@@ -2347,8 +2347,7 @@ const createStore = () => create<GameState>()(
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            fromCharacterId: character.id,
-            toCharacterName: characterName.trim()
+            characterName: characterName.trim()
           })
         });
 
@@ -2357,9 +2356,9 @@ const createStore = () => create<GameState>()(
           throw new Error(error.message || 'Failed to send friend request');
         }
 
-        // Refresh character data to get updated friend requests
-        const updatedCharacter = await response.json();
-        set({ character: updatedCharacter });
+        // Just log success - no character data update needed for friend requests
+        const result = await response.json();
+        console.log('Friend request sent:', result.message);
       } catch (error) {
         console.error('Failed to send friend request:', error);
         throw error;
@@ -2381,8 +2380,9 @@ const createStore = () => create<GameState>()(
           throw new Error(error.message || 'Failed to accept friend request');
         }
 
-        const updatedCharacter = await response.json();
-        set({ character: updatedCharacter });
+        // Just log success - friends list will be updated when refreshed
+        const result = await response.json();
+        console.log('Friend request accepted:', result.message);
       } catch (error) {
         console.error('Failed to accept friend request:', error);
         throw error;
@@ -2404,8 +2404,9 @@ const createStore = () => create<GameState>()(
           throw new Error(error.message || 'Failed to decline friend request');
         }
 
-        const updatedCharacter = await response.json();
-        set({ character: updatedCharacter });
+        // Just log success - friend requests will be updated when refreshed
+        const result = await response.json();
+        console.log('Friend request declined:', result.message);
       } catch (error) {
         console.error('Failed to decline friend request:', error);
         throw error;
@@ -2427,8 +2428,9 @@ const createStore = () => create<GameState>()(
           throw new Error(error.message || 'Failed to remove friend');
         }
 
-        const updatedCharacter = await response.json();
-        set({ character: updatedCharacter });
+        // Just log success - friends list will be updated when refreshed
+        const result = await response.json();
+        console.log('Friend removed:', result.message);
       } catch (error) {
         console.error('Failed to remove friend:', error);
         throw error;
@@ -2445,9 +2447,8 @@ const createStore = () => create<GameState>()(
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            senderId: character.id,
-            receiverId: friendId,
-            content: content.trim()
+            friendId: friendId,
+            message: content.trim()
           })
         });
 
@@ -2680,33 +2681,51 @@ const createStore = () => create<GameState>()(
     },
 
     register: async (username: string, password: string) => {
-      const response = await fetch(createApiUrl(API_ENDPOINTS.auth.register), {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+      try {
+        set({ isLoading: true });
+        
+        const response = await fetch(createApiUrl(API_ENDPOINTS.auth.register), {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Registration failed');
+        }
+        
+        set({ isLoading: false });
+      } catch (error) {
+        set({ isLoading: false });
+        throw error; // Re-throw to let the component handle the error
       }
     },
     login: async (username: string, password: string) => {
-      const response = await fetch(createApiUrl(API_ENDPOINTS.auth.login), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include', // Important for cookies
-      });
+      try {
+        set({ isLoading: true });
+        
+        const response = await fetch(createApiUrl(API_ENDPOINTS.auth.login), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+          credentials: 'include', // Important for cookies
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Login failed');
+        }
+
+        const data = await response.json();
+        set({ user: data.user }); // Store user info
+        await get().loadCharacters(); // Fetch characters for this user
+        set({ isLoading: false });
+      } catch (error) {
+        set({ isLoading: false });
+        throw error; // Re-throw to let the component handle the error
       }
-
-      const data = await response.json();
-      set({ user: data.user }); // Store user info
-      await get().loadCharacters(); // Fetch characters for this user
     },
     logout: async () => {
       try {

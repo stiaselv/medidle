@@ -9,23 +9,30 @@ import { GameLayout } from './components/layout/GameLayout';
 import { GameScreen } from './components/game/GameScreen';
 import { CharacterSelection } from './components/character/CharacterSelection';
 import { UserAuth } from './components/character/UserAuth';
-import { LoadingState } from './components/common/LoadingState';
+import { LoadingScreen } from './components/common/LoadingScreen';
 import { OfflineProgressPopup } from './components/popups/OfflineProgressPopup';
 import type { OfflineRewards } from './types/game';
 import { ActionFeedback } from './components/game/ActionFeedback';
 import { TestPlan } from './components/testing/TestPlan';
 import CharacterCreation from './components/character/CharacterCreation';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { CombatMenuScreen } from './components/game/CombatMenuScreen';
 import './styles/themes.css';
 
 const App = () => {
   const { user, character, checkAuth, loadCharacters, processOfflineProgress, saveCharacter, isLoading } = useGameStore();
   const [showOfflineProgress, setShowOfflineProgress] = useState(false);
   const [offlineRewards, setOfflineRewards] = useState<OfflineRewards | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     // Check authentication status on initial load
-    checkAuth();
+    checkAuth().finally(() => {
+      // Set a minimum loading time to avoid flash
+      setTimeout(() => {
+        setInitialLoading(false);
+      }, 1000);
+    });
   }, []); // Only run on mount
 
   useEffect(() => {
@@ -63,8 +70,15 @@ const App = () => {
   }, [character?.id, saveCharacter]); // Only run when character ID changes, not on every character update
 
   const renderContent = () => {
-    if (isLoading) {
-      return <LoadingState message="Loading..." />;
+    // Show loading screen during initial auth check or while loading
+    if (initialLoading || isLoading) {
+      let message = "Loading your adventure...";
+      if (initialLoading) {
+        message = "Checking authentication...";
+      } else if (user && !character) {
+        message = "Loading your characters...";
+      }
+      return <LoadingScreen message={message} />;
     }
 
     if (user && character) {
@@ -94,15 +108,36 @@ const App = () => {
         <ChakraProvider theme={theme}>
         <Router>
           <Routes>
-            <Route path="/login" element={!user ? <UserAuth /> : <Navigate to="/" />} />
+            <Route 
+              path="/login" 
+              element={
+                initialLoading || isLoading ? (
+                  <LoadingScreen message="Checking authentication..." />
+                ) : !user ? (
+                  <UserAuth />
+                ) : (
+                  <Navigate to="/" />
+                )
+              } 
+            />
             <Route 
               path="/create" 
-              element={user ? <CharacterCreation /> : <Navigate to="/login" />} 
+              element={
+                initialLoading || isLoading ? (
+                  <LoadingScreen message="Loading..." />
+                ) : user ? (
+                  <CharacterCreation />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              } 
             />
             <Route
               path="/game"
               element={
-                user && character ? (
+                initialLoading || isLoading ? (
+                  <LoadingScreen message="Loading your adventure..." />
+                ) : user && character ? (
                   <GameLayout>
                     <GameScreen />
                     <OfflineProgressPopup
@@ -118,8 +153,28 @@ const App = () => {
               }
             />
             <Route 
+              path="/combat-menu" 
+              element={
+                initialLoading || isLoading ? (
+                  <LoadingScreen message="Loading combat areas..." />
+                ) : user && character ? (
+                  <CombatMenuScreen />
+                ) : (
+                  <Navigate to={user ? '/' : '/login'} />
+                )
+              } 
+            />
+            <Route 
               path="/" 
-              element={user ? <CharacterSelection /> : <Navigate to="/login" />} 
+              element={
+                initialLoading || isLoading ? (
+                  <LoadingScreen message="Loading your characters..." />
+                ) : user ? (
+                  <CharacterSelection />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              } 
             />
           </Routes>
           <ActionFeedback />

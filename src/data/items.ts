@@ -3039,6 +3039,17 @@ export const ITEMS: Record<string, Item> = {
     level: 1,
     buyPrice: 200,
     sellPrice: 80
+  },
+
+  // Dungeon rewards
+  dragon_chest: {
+    id: 'dragon_chest',
+    name: 'Dragon Chest',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.MISC,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 50000,
+    sellPrice: 20000
   }
 };
 

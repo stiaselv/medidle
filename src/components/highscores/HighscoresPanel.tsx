@@ -97,19 +97,27 @@ export const HighscoresPanel = () => {
     setError(null);
 
     try {
-      const response = await fetch(createApiUrl(`/api/highscores?skill=${selectedSkill}`), {
+      const url = createApiUrl(`/api/highscores?skill=${selectedSkill}`);
+      console.log('Fetching highscores from:', url);
+      
+      const response = await fetch(url, {
         credentials: 'include'
       });
 
+      console.log('Highscores response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to load highscores');
+        const errorText = await response.text();
+        console.error('Highscores API error:', errorText);
+        throw new Error(`Failed to load highscores: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Highscores data received:', data);
       setHighscores(data);
     } catch (error) {
       console.error('Failed to load highscores:', error);
-      setError('Failed to load highscores');
+      setError(`Failed to load highscores: ${error instanceof Error ? error.message : 'Unknown error'}`);
       toast({
         title: 'Error loading highscores',
         description: 'Could not fetch leaderboard data',

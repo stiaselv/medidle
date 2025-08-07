@@ -324,19 +324,15 @@ export const Footer = ({ onCombatClick }: { onCombatClick?: () => void }) => {
                         height="auto"
                         p={4}
                         onClick={() => {
-                          const combatLocation = mockLocations.find(loc => loc.id === 'combat');
-                          if (combatLocation) {
-                            setLocation(combatLocation);
-                            setView('location');
-                          }
+                          navigate('/combat-menu');
                         }}
                         _hover={{ transform: 'scale(1.02)' }}
                         transition="all 0.2s"
                         w="100%"
                       >
-                        <Text fontWeight="bold">Combat</Text>
+                        <Text fontWeight="bold">Combat Menu</Text>
                         <Text fontSize="sm" color="gray.400" mt={2} textAlign="center" w="100%">
-                          View Combat Areas
+                          World Locations & Dungeons
                         </Text>
                       </Button>
                     </Grid>

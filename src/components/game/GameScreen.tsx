@@ -1,5 +1,6 @@
 import { Box, Flex, Text, VStack, Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { useGameStore } from "../../store/gameStore";
 import { ForestLocation } from './ForestLocation';
 import { QuarryLocation } from './QuarryLocation';
@@ -22,6 +23,7 @@ import { SLAYER_CAVE_LOCATIONS } from '../../data/locations/slayerCaves';
 const MotionBox = motion(Box);
 
 export const GameScreen = () => {
+  const navigate = useNavigate();
   const { currentLocation, setLocation, activeView, setView, character } = useGameStore();
   const [selectedMonster, setSelectedMonster] = useState<null | import('../../types/game').Monster>(null);
 
@@ -55,6 +57,25 @@ export const GameScreen = () => {
     if (
       currentLocation &&
       caveIds.includes(currentLocation.id) &&
+      selectedMonster === null &&
+      currentLocation.actions &&
+      currentLocation.actions.length > 0 &&
+      autoSelectedRef.current.locationId !== currentLocation.id
+    ) {
+      // Find the first action with a monster property
+      const firstCombatAction = currentLocation.actions.find((a: any) => a && typeof a === 'object' && 'monster' in a && a.monster);
+      if (firstCombatAction && typeof firstCombatAction === 'object' && 'monster' in firstCombatAction) {
+        setSelectedMonster((firstCombatAction as import('../../types/game').CombatAction).monster);
+        autoSelectedRef.current.locationId = currentLocation.id;
+      }
+    }
+  }, [currentLocation, selectedMonster]);
+
+  // Auto-select first monster in combat sub-areas (farm, lumbridge_swamp_cave, ice_dungeon)
+  useEffect(() => {
+    if (
+      currentLocation &&
+      combatSubAreas.includes(currentLocation.id) &&
       selectedMonster === null &&
       currentLocation.actions &&
       currentLocation.actions.length > 0 &&
@@ -193,14 +214,12 @@ export const GameScreen = () => {
       return renderCombatAreaSelector();
     }
 
-    // If a combat sub-area is selected but no monster is selected, show monster selector
-    if (currentLocation && combatSubAreas.includes(currentLocation.id) && !selectedMonster) {
-      return renderMonsterSelector(currentLocation);
-    }
-
     // If a monster is selected in a combat sub-area, show the combat screen
     if (currentLocation && combatSubAreas.includes(currentLocation.id) && selectedMonster) {
-      return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => setSelectedMonster(null)} />;
+      return <CombatLocation location={currentLocation} monsterOverride={selectedMonster} onBack={() => {
+        // Navigate back to combat menu instead of monster selector
+        navigate('/combat-menu');
+      }} />;
     }
 
     // If a slayer sub-area is selected but no monster is selected, show monster selector

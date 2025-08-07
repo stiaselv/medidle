@@ -162,7 +162,11 @@ export const mockMonsters: Monster[] = [
 ];
 
 // Define all locations using the modular structure
-export const mockLocations: Location[] = locations;
+import { COMBAT_LOCATIONS } from './locations/combat';
+export const mockLocations: Location[] = [
+  ...locations,
+  ...Object.values(COMBAT_LOCATIONS)
+];
 
 export const mockCharacter: Character = {
   id: 'mock-character',
@@ -220,6 +224,7 @@ export const mockCharacter: Character = {
   friends: [],
   messages: [],
   friendRequests: [],
+  dungeonProgress: {},
   stats: {
     // General
     deaths: 0,

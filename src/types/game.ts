@@ -271,11 +271,12 @@ export interface Location {
   resources: string[];
   category: string;
   icon: string | IconType;
+  background?: string; // Background image for combat locations
   actions: (SkillAction | StoreAction | CombatAction | CombatSelectionAction)[];
-          availableSkills?: SkillName[];
-        group?: 'World' | 'Dungeons' | 'Raids';
-        isCombatHub?: boolean; // Flag to indicate this is a combat hub location
-        isSlayerHub?: boolean; // Flag to indicate this is a slayer hub location
+        availableSkills?: SkillName[];
+      group?: 'World' | 'Dungeons' | 'Raids';
+      isCombatHub?: boolean; // Flag to indicate this is a combat hub location
+      isSlayerHub?: boolean; // Flag to indicate this is a slayer hub location
 }
 
 export interface Equipment {
@@ -421,6 +422,7 @@ export interface Character {
   friends: Friend[];
   messages: Message[];
   friendRequests: FriendRequest[];
+  dungeonProgress: Record<string, DungeonProgress>;
 }
 
 import type { CombatStyle } from '../combat/combatTriangle';
@@ -777,4 +779,25 @@ export interface FriendRequest {
   toCharacterName: string;
   sentAt: Date;
   status: 'pending' | 'accepted' | 'declined';
+} 
+
+export interface DungeonProgress {
+  currentMonsterIndex: number;
+  completed: boolean;
+  monstersDefeated: string[];
+  completedAt?: Date;
+}
+
+export interface Dungeon {
+  id: string;
+  name: string;
+  description: string;
+  levelRequired: number;
+  monsters: string[]; // Array of monster IDs in order
+  completionReward: {
+    itemId: string;
+    quantity: number;
+  };
+  thumbnail?: string;
+  background?: string;
 } 

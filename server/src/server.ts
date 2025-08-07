@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth';
 import charactersRoutes from './routes/characters';
+import highscoresRoutes from './routes/highscores';
+import friendsRoutes from './routes/friends';
 
 // Load environment variables
 dotenv.config();
@@ -57,6 +59,12 @@ app.use('/api/auth', authRoutes);
 
 // Mount characters routes
 app.use('/api/characters', charactersRoutes);
+
+// Mount highscores routes
+app.use('/api/highscores', highscoresRoutes);
+
+// Mount friends routes
+app.use('/api/friends', friendsRoutes);
 
 // Health check - absolute minimal
 app.get('/', (req, res) => {

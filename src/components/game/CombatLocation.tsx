@@ -755,31 +755,60 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
   };
 
   return (
-    <Box p={6}>
-      <Heading size="lg" mb={6} textAlign="center">{currentLocation.name}</Heading>
+    <Box position="relative" width="100%" minH="100vh" p={0}>
+      {/* Combat Location background image */}
+      {location.background && (
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bgImage={`url(${location.background})`}
+          bgSize="cover"
+          bgPosition="center"
+          bgRepeat="no-repeat"
+          zIndex={0}
+          _after={{
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bg: 'rgba(0,0,0,0.55)',
+            zIndex: 1
+          }}
+        />
+      )}
 
-      <Grid templateColumns="300px 1fr" gap={6}>
-        {/* Monster List */}
-        <GridItem>
-          <Card>
-            <CardHeader>
-              <Heading size="md">Monsters</Heading>
-            </CardHeader>
-            <CardBody>
-              <List spacing={2}>
-                {currentLocation.actions
-                  .filter(action => action.type === 'combat')
-                  .map(action => renderMonsterListItem(action as CombatAction))}
-              </List>
-            </CardBody>
-          </Card>
-        </GridItem>
+      {/* Content */}
+      <Box position="relative" zIndex={2} p={6}>
+        <Heading size="lg" mb={6} textAlign="center" color="white">{currentLocation.name}</Heading>
 
-        {/* Combat Area */}
-        <GridItem>
-          {renderCombatCard()}
-        </GridItem>
-      </Grid>
+        <Grid templateColumns="300px 1fr" gap={6}>
+          {/* Monster List */}
+          <GridItem>
+            <Card bg="blackAlpha.800" borderColor="gray.600">
+              <CardHeader>
+                <Heading size="md" color="white">Monsters</Heading>
+              </CardHeader>
+              <CardBody>
+                <List spacing={2}>
+                  {currentLocation.actions
+                    .filter(action => action.type === 'combat')
+                    .map(action => renderMonsterListItem(action as CombatAction))}
+                </List>
+              </CardBody>
+            </Card>
+          </GridItem>
+
+          {/* Combat Area */}
+          <GridItem>
+            {renderCombatCard()}
+          </GridItem>
+        </Grid>
+      </Box>
     </Box>
   );
 }; 
