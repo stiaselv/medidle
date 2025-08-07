@@ -39,7 +39,8 @@ export const ITEM_CATEGORIES = {
   FARMING: 'Farming',
   HERBLORE: 'Herblore',
   JEWELRY: 'Jewelry',
-  CRAFTING: 'Crafting'
+  CRAFTING: 'Crafting',
+  SKILLCAPES: 'Skillcapes'
 } as const;
 
 // Equipment slots
@@ -3097,6 +3098,263 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/items/placeholder.png',
     buyPrice: 5000,
     sellPrice: 2500
+  },
+
+  // Skillcapes - Level 99 requirement
+  attack_skillcape: {
+    id: 'attack_skillcape',
+    name: 'Attack Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/attack_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    stats: { attack: 1 },
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  strength_skillcape: {
+    id: 'strength_skillcape',
+    name: 'Strength Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/strength_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    stats: { strength: 1 },
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  defence_skillcape: {
+    id: 'defence_skillcape',
+    name: 'Defence Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/defence_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    stats: { defence: 1 },
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  hitpoints_skillcape: {
+    id: 'hitpoints_skillcape',
+    name: 'Hitpoints Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/hitpoints_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  ranged_skillcape: {
+    id: 'ranged_skillcape',
+    name: 'Ranged Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/ranging_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  prayer_skillcape: {
+    id: 'prayer_skillcape',
+    name: 'Prayer Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/prayer_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  magic_skillcape: {
+    id: 'magic_skillcape',
+    name: 'Magic Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/magic_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    stats: { magic: 1 },
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  woodcutting_skillcape: {
+    id: 'woodcutting_skillcape',
+    name: 'Woodcutting Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/woodcutting_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  fishing_skillcape: {
+    id: 'fishing_skillcape',
+    name: 'Fishing Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/fishing_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  mining_skillcape: {
+    id: 'mining_skillcape',
+    name: 'Mining Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/mining_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  smithing_skillcape: {
+    id: 'smithing_skillcape',
+    name: 'Smithing Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/smithing_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  cooking_skillcape: {
+    id: 'cooking_skillcape',
+    name: 'Cooking Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/cooking_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  firemaking_skillcape: {
+    id: 'firemaking_skillcape',
+    name: 'Firemaking Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/firemaking_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  farming_skillcape: {
+    id: 'farming_skillcape',
+    name: 'Farming Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/farming_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  runecrafting_skillcape: {
+    id: 'runecrafting_skillcape',
+    name: 'Runecrafting Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/runecrafting_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  agility_skillcape: {
+    id: 'agility_skillcape',
+    name: 'Agility Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/agility_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  herblore_skillcape: {
+    id: 'herblore_skillcape',
+    name: 'Herblore Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/herblore_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  thieving_skillcape: {
+    id: 'thieving_skillcape',
+    name: 'Thieving Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/thieving_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  crafting_skillcape: {
+    id: 'crafting_skillcape',
+    name: 'Crafting Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/crafting_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  fletching_skillcape: {
+    id: 'fletching_skillcape',
+    name: 'Fletching Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/fletching_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
+  },
+
+  slayer_skillcape: {
+    id: 'slayer_skillcape',
+    name: 'Slayer Skillcape',
+    type: 'armor',
+    category: ITEM_CATEGORIES.SKILLCAPES,
+    icon: '/assets/ItemThumbnail/Gear/Back/slayer_skillcape.png',
+    slot: EQUIPMENT_SLOTS.CAPE,
+    level: 99,
+    buyPrice: 100000,
+    sellPrice: 50000
   }
 };
 

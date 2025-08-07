@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Character, Item, Location, SkillAction, SkillName, ItemReward, StoreItem, StoreAction, CombatSelectionAction, CombatAction, SlayerTask, Monster, CombatStats, LocationState, GameState, ItemType } from '../types/game';
+import type { Character, Item, Location, SkillAction, SkillName, ItemReward, StoreItem, StoreAction, CombatSelectionAction, CombatAction, SlayerTask, Monster, CombatStats, LocationState, GameState, ItemType, Achievement } from '../types/game';
 import { getCombatTriangleMultiplier, getCombatStyle } from '../combat/combatTriangle';
 import { mockCharacter, mockLocations, mockMonsters } from '../data/mockData';
 import { getItemById } from '../data/items';
@@ -18,6 +18,7 @@ import { createApiUrl, API_ENDPOINTS } from '../config/api';
 import { getCropById } from '../data/farmingCrops';
 import { getLevelFromExperience, getExperienceForNextLevel, getProgressToNextLevel, EXPERIENCE_TABLE } from '../utils/experience';
 import { getAllQuests } from '../data/quests';
+import { getAllAchievements } from '../data/achievements';
 
 // Helper functions for experience and level calculations
 export const calculateLevel = (experience: number): number => {
@@ -273,7 +274,10 @@ const createStore = () => create<GameState>()(
             maxHitpoints,
             // Ensure quest properties are initialized for existing characters
             activeQuests: rest.activeQuests || [],
-            questProgress: rest.questProgress || {}
+            questProgress: rest.questProgress || {},
+            // Ensure achievement properties are initialized for existing characters
+            achievements: rest.achievements || [],
+            achievementProgress: rest.achievementProgress || {}
           };
         });
         set({ characters: charactersWithDates });
@@ -355,7 +359,9 @@ const createStore = () => create<GameState>()(
         lastLogin: new Date(),
         // Ensure quest properties are initialized
         activeQuests: rest.activeQuests || [],
-        questProgress: rest.questProgress || {}
+        questProgress: rest.questProgress || {},
+        achievements: rest.achievements || [],
+        achievementProgress: rest.achievementProgress || {}
       };
       
       set({ character: updatedCharacter });
@@ -487,7 +493,10 @@ const createStore = () => create<GameState>()(
           lastLogin: new Date(newCharacter.lastLogin),
           // Ensure quest properties are initialized for new characters
           activeQuests: newCharacter.activeQuests || [],
-          questProgress: newCharacter.questProgress || {}
+          questProgress: newCharacter.questProgress || {},
+          // Ensure achievement properties are initialized for new characters
+          achievements: newCharacter.achievements || [],
+          achievementProgress: newCharacter.achievementProgress || {}
         };
         
         // Remove _id to avoid confusion
@@ -978,6 +987,9 @@ const createStore = () => create<GameState>()(
 
           // Save the updated character
           get().saveCharacter(character);
+          
+          // Check achievements after action completion
+          setTimeout(() => get().checkAchievements(), 100);
         }
 
         // --- Stat tracking for gathering/processing actions ---
@@ -1340,6 +1352,9 @@ const createStore = () => create<GameState>()(
         
         // Save the character to persist changes
         get().saveCharacter(updatedCharacter);
+        
+        // Check achievements after adding items (for gold achievements)
+        setTimeout(() => get().checkAchievements(), 100);
         
         return {
           character: updatedCharacter,
@@ -1742,6 +1757,10 @@ const createStore = () => create<GameState>()(
       
       const updatedCharacter = { ...state.character, skills, maxHitpoints, hitpoints, combatLevel };
       get().setCharacter(updatedCharacter);
+      
+      // Check achievements after experience gain
+      setTimeout(() => get().checkAchievements(), 100);
+      
       if (newLevel > oldLevel) {
         return { skill, level: newLevel };
       }
@@ -2975,6 +2994,112 @@ const createStore = () => create<GameState>()(
         // Clear all user and character state regardless of server response
         set({ user: null, character: null, characters: [] });
       }
+    },
+
+    // Achievement system
+    checkAchievements: () => {
+      const state = get();
+      if (!state.character) return;
+
+      const allAchievements = getAllAchievements();
+      const newCompletedAchievements: Achievement[] = [];
+
+      allAchievements.forEach(achievement => {
+        // Skip if already completed
+        if (state.character?.achievements?.some(a => a.id === achievement.id && a.isCompleted)) return;
+
+        const progress = get().getAchievementProgress(achievement.id);
+        const isCompleted = progress >= achievement.requirement.target;
+
+        if (isCompleted) {
+          newCompletedAchievements.push({
+            ...achievement,
+            isCompleted: true,
+            completedAt: new Date()
+          });
+        }
+      });
+
+      // Update character with new achievements
+      if (newCompletedAchievements.length > 0) {
+        set((state) => {
+          if (!state.character) return state;
+          
+          const updatedAchievements = [...(state.character.achievements || [])];
+          newCompletedAchievements.forEach(newAchievement => {
+            const existingIndex = updatedAchievements.findIndex(a => a.id === newAchievement.id);
+            if (existingIndex >= 0) {
+              updatedAchievements[existingIndex] = newAchievement;
+            } else {
+              updatedAchievements.push(newAchievement);
+            }
+          });
+
+          const updatedCharacter = {
+            ...state.character,
+            achievements: updatedAchievements
+          };
+
+          // Achievements completed - no rewards given
+
+          get().saveCharacter(updatedCharacter);
+          return { character: updatedCharacter };
+        });
+      }
+    },
+
+    completeAchievement: (achievementId: string) => {
+      set((state) => {
+        if (!state.character) return state;
+
+        const achievement = getAllAchievements().find(a => a.id === achievementId);
+        if (!achievement) return state;
+
+        const updatedAchievements = [...(state.character.achievements || [])];
+        const existingIndex = updatedAchievements.findIndex(a => a.id === achievementId);
+        
+        const completedAchievement = {
+          ...achievement,
+          isCompleted: true,
+          completedAt: new Date()
+        };
+
+        if (existingIndex >= 0) {
+          updatedAchievements[existingIndex] = completedAchievement;
+        } else {
+          updatedAchievements.push(completedAchievement);
+        }
+
+        const updatedCharacter = {
+          ...state.character,
+          achievements: updatedAchievements
+        };
+
+        get().saveCharacter(updatedCharacter);
+        return { character: updatedCharacter };
+      });
+    },
+
+    getAchievementProgress: (achievementId: string) => {
+      const state = get();
+      if (!state.character) return 0;
+
+      const achievement = getAllAchievements().find(a => a.id === achievementId);
+      if (!achievement) return 0;
+
+      if (achievement.requirement.type === 'action_count') {
+        // Sum all actions performed from the actionsPerformed object
+        const actionsPerformed = state.character.stats?.actionsPerformed || {};
+        return Object.values(actionsPerformed).reduce((total, count) => total + count, 0);
+      } else if (achievement.requirement.type === 'gold_total') {
+        const mainTab = state.character.bankTabs?.find(tab => tab.id === 'main');
+        const coinsItem = mainTab?.items.find(item => item.id === 'coins');
+        return coinsItem?.quantity || 0;
+      } else if (achievement.requirement.type === 'skill_level' && achievement.requirement.skillName) {
+        return getLevelFromExperience(state.character.skills[achievement.requirement.skillName].experience);
+      }
+
+      return 0;
     },
   })
 );

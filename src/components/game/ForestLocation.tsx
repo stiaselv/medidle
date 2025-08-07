@@ -3,6 +3,7 @@ import { Box, Button, Flex, Grid, Heading, Text, VStack, useBreakpointValue, Ico
 import { GiWoodAxe, GiFishingPole } from 'react-icons/gi';
 import { motion } from 'framer-motion';
 import { useGameStore, calculateLevel, getNextLevelExperience } from '../../store/gameStore';
+import { getExperienceForLevel } from '../../utils/experience';
 import type { SkillAction, Requirement } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
@@ -340,7 +341,7 @@ export const ActionSection = ({
   const currentSkillExp = character?.skills[skillType]?.experience || 0;
   const currentLevel = calculateLevel(currentSkillExp);
   const nextLevelExp = getNextLevelExperience(currentLevel);
-  const prevLevelExp = getNextLevelExperience(currentLevel - 1);
+  const prevLevelExp = getExperienceForLevel(currentLevel);
   const expProgress = ((currentSkillExp - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
 
   // Choose accent color and gradient based on skill type

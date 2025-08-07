@@ -425,6 +425,8 @@ export interface Character {
   dungeonProgress: Record<string, DungeonProgress>;
   activeQuests: Quest[];
   questProgress: Record<string, QuestProgress>;
+  achievements: Achievement[];
+  achievementProgress: Record<string, AchievementProgress>;
 }
 
 import type { CombatStyle } from '../combat/combatTriangle';
@@ -615,6 +617,11 @@ export interface GameState {
   completeQuest: (questId: string) => void;
   updateQuestProgress: (questId: string, requirementId: string, progress: number) => void;
   checkQuestRequirements: (questId: string) => boolean;
+
+  // Achievement system
+  checkAchievements: () => void;
+  completeAchievement: (achievementId: string) => void;
+  getAchievementProgress: (achievementId: string) => number;
 }
 
 export interface Item {
@@ -846,6 +853,28 @@ export interface Quest {
 export interface QuestProgress {
   questId: string;
   requirements: Record<string, number>; // requirement id -> current progress
+  isCompleted: boolean;
+  completedAt?: Date;
+} 
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  category: 'actions' | 'wealth' | 'skills';
+  icon: string;
+  requirement: {
+    type: 'action_count' | 'gold_total' | 'skill_level';
+    skillName?: SkillName;
+    target: number;
+  };
+  isCompleted: boolean;
+  completedAt?: Date;
+}
+
+export interface AchievementProgress {
+  achievementId: string;
+  currentProgress: number;
   isCompleted: boolean;
   completedAt?: Date;
 } 

@@ -1,6 +1,6 @@
 import { Box, Flex, useBreakpointValue, Button, Menu, MenuButton, MenuList, MenuItem, Avatar, Text, VStack, SimpleGrid, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, Tabs, TabList, TabPanels, Tab, TabPanel, Stat, StatLabel, StatNumber, StatGroup, Divider, Icon, MenuDivider, Badge } from '@chakra-ui/react';
 import React, { useEffect, useRef } from 'react';
-import { FaCog, FaSignOutAlt, FaUserFriends, FaChartBar, FaTrophy, FaScroll } from 'react-icons/fa';
+import { FaCog, FaSignOutAlt, FaUserFriends, FaChartBar, FaTrophy, FaScroll, FaMedal } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
@@ -15,6 +15,7 @@ import { OfflineTestHelper } from '../testing/OfflineTestHelper';
 import { FriendsModal } from '../friends/FriendsModal';
 import { HighscoresModal } from '../highscores/HighscoresModal';
 import { QuestModal } from '../quests/QuestModal';
+import { AchievementsModal } from '../achievements/AchievementsModal';
 
 export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const { character, logout, stopAction, saveCharacter } = useGameStore();
@@ -25,6 +26,7 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
   const { isOpen: isFriendsOpen, onOpen: onFriendsOpen, onClose: onFriendsClose } = useDisclosure();
   const { isOpen: isHighscoresOpen, onOpen: onHighscoresOpen, onClose: onHighscoresClose } = useDisclosure();
   const { isOpen: isQuestsOpen, onOpen: onQuestsOpen, onClose: onQuestsClose } = useDisclosure();
+  const { isOpen: isAchievementsOpen, onOpen: onAchievementsOpen, onClose: onAchievementsClose } = useDisclosure();
   const navigate = useNavigate();
   const locations = useGameStore(state => state.locations);
   const { theme } = useTheme();
@@ -180,6 +182,28 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
                 fontSize="xs"
               >
                 {character.activeQuests.length}
+              </Badge>
+            )}
+          </Button>
+          <Button
+            onClick={onAchievementsOpen}
+            leftIcon={<Icon as={FaMedal} />}
+            colorScheme="purple"
+            size="sm"
+            mr={2}
+            position="relative"
+          >
+            Achievements
+            {character && character.achievements && character.achievements.filter(a => a.isCompleted).length > 0 && (
+              <Badge
+                position="absolute"
+                top="-5px"
+                right="-5px"
+                colorScheme="yellow"
+                borderRadius="full"
+                fontSize="xs"
+              >
+                {character.achievements.filter(a => a.isCompleted).length}
               </Badge>
             )}
           </Button>
@@ -599,8 +623,9 @@ export const GameLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Settings Modal */}
       <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
       <FriendsModal isOpen={isFriendsOpen} onClose={onFriendsClose} />
-      <HighscoresModal isOpen={isHighscoresOpen} onClose={onHighscoresClose} />
-      <QuestModal isOpen={isQuestsOpen} onClose={onQuestsClose} />
+              <HighscoresModal isOpen={isHighscoresOpen} onClose={onHighscoresClose} />
+        <QuestModal isOpen={isQuestsOpen} onClose={onQuestsClose} />
+        <AchievementsModal isOpen={isAchievementsOpen} onClose={onAchievementsClose} />
 
       {/* Offline Testing Helper (Development Only) */}
       {import.meta.env.DEV && <OfflineTestHelper />}

@@ -32,7 +32,7 @@ import type { StoreAction, StoreItem, SkillName, ItemReward, BankTab } from '../
 import { getItemById, meetsLevelRequirement } from '../../data/items';
 import { useState, useCallback, useMemo } from 'react';
 import { SearchIcon } from '@chakra-ui/icons';
-import generalStoreBg from '../../assets/BG/general_store.webp';
+// Removed direct import to prevent caching issues - using string path instead
 import { ItemIcon } from '../ui/ItemIcon';
 
 interface ItemCardProps {
@@ -357,7 +357,12 @@ export const GeneralStoreLocation = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [bankSearch, setBankSearch] = useState('');
   const [storeSearch, setStoreSearch] = useState('');
-  const [activeStoreTab, setActiveStoreTab] = useState('woodcutting');
+  // Initialize active store tab with the first available tab
+  const [activeStoreTab, setActiveStoreTab] = useState(() => {
+    const storeAction = currentLocation?.actions?.[0] as StoreAction;
+    const firstTab = storeAction?.storeTabs?.[0]?.id;
+    return firstTab || 'woodcutting';
+  });
   
   if (!currentLocation || !character) return null;
 
@@ -435,6 +440,12 @@ export const GeneralStoreLocation = () => {
   }, [bankTabs, moveBankItem, deleteBankTab]);
 
   const storeAction = currentLocation.actions[0] as StoreAction;
+  
+  // Defensive check for store action
+  if (!storeAction) {
+    console.error('No store action found in location:', currentLocation);
+    return <Text color="white">Error: Store not properly configured</Text>;
+  }
 
   // Get all store items from tabs
   const getAllStoreItems = () => {
@@ -448,7 +459,11 @@ export const GeneralStoreLocation = () => {
   const getActiveStoreItems = () => {
     if (storeAction.storeTabs) {
       const activeTab = storeAction.storeTabs.find(tab => tab.id === activeStoreTab);
-      return activeTab?.items || [];
+      if (!activeTab) {
+        console.warn(`Active store tab '${activeStoreTab}' not found. Available tabs:`, storeAction.storeTabs.map(t => t.id));
+        return [];
+      }
+      return activeTab.items || [];
     }
     return storeAction.storeItems || [];
   };
@@ -517,6 +532,19 @@ export const GeneralStoreLocation = () => {
   const getSkillForItem = (itemId: string): SkillName => {
     if (itemId.includes('axe') && !itemId.includes('pickaxe')) return 'woodcutting';
     if (itemId.includes('pickaxe')) return 'mining';
+    
+    // Handle skillcapes - return the skill they represent
+    if (itemId.endsWith('_skillcape')) {
+      const skillName = itemId.replace('_skillcape', '') as SkillName;
+      // Verify it's a valid skill name
+      if (['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'prayer', 'magic', 
+           'woodcutting', 'fishing', 'mining', 'smithing', 'cooking', 'firemaking', 
+           'farming', 'runecrafting', 'agility', 'herblore', 'thieving', 'crafting', 
+           'fletching', 'slayer'].includes(skillName)) {
+        return skillName;
+      }
+    }
+    
     return 'fishing';
   };
 
@@ -575,7 +603,7 @@ export const GeneralStoreLocation = () => {
         left={0}
         right={0}
         bottom={0}
-        bgImage={`url(${generalStoreBg})`}
+                    bgImage="url(/assets/BG/general_store.webp)"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"
@@ -972,6 +1000,12 @@ export const GeneralStoreLocation = () => {
                   const itemDetails = getItemById(item.id);
                   if (!itemDetails) return null;
                   const skill = getSkillForItem(item.id);
+                  
+                  // Defensive check for skill existence
+                  if (!character?.skills?.[skill]) {
+                    console.warn(`Skill '${skill}' not found for item '${item.id}'`);
+                    return null;
+                  }
                   return (
                     <Tooltip 
                       key={item.id} 
@@ -1001,7 +1035,7 @@ export const GeneralStoreLocation = () => {
                           isSelected={selectedStoreItem === item.id}
                           isStore={true}
                           levelRequired={item.levelRequired}
-                          playerLevel={character.skills[skill].level}
+                          playerLevel={character.skills[skill]?.level || 1}
                           price={item.buyPrice}
                         />
                       </Box>

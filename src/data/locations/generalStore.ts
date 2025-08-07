@@ -203,6 +203,180 @@ export const generalStoreLocation: Location = {
               quantity: 999
             }
           ]
+        },
+        {
+          id: 'skillcapes',
+          name: 'Skillcapes',
+          items: [
+            {
+              id: 'attack_skillcape',
+              name: 'Attack Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'strength_skillcape',
+              name: 'Strength Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'defence_skillcape',
+              name: 'Defence Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'hitpoints_skillcape',
+              name: 'Hitpoints Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'ranged_skillcape',
+              name: 'Ranged Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'prayer_skillcape',
+              name: 'Prayer Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'magic_skillcape',
+              name: 'Magic Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'woodcutting_skillcape',
+              name: 'Woodcutting Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'fishing_skillcape',
+              name: 'Fishing Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'mining_skillcape',
+              name: 'Mining Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'smithing_skillcape',
+              name: 'Smithing Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'cooking_skillcape',
+              name: 'Cooking Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'firemaking_skillcape',
+              name: 'Firemaking Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'farming_skillcape',
+              name: 'Farming Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'runecrafting_skillcape',
+              name: 'Runecrafting Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'agility_skillcape',
+              name: 'Agility Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'herblore_skillcape',
+              name: 'Herblore Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'thieving_skillcape',
+              name: 'Thieving Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'crafting_skillcape',
+              name: 'Crafting Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'fletching_skillcape',
+              name: 'Fletching Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            },
+            {
+              id: 'slayer_skillcape',
+              name: 'Slayer Skillcape',
+              buyPrice: 100000,
+              sellPrice: 50000,
+              levelRequired: 99,
+              quantity: 1
+            }
+          ]
         }
       ]
     }

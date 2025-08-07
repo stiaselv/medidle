@@ -3,6 +3,7 @@ import { Box, VStack, Text, Button, Grid, Tabs, TabList, TabPanels, TabPanel, Ta
 import { motion } from 'framer-motion';
 import { GiWoodAxe, GiHammerNails } from 'react-icons/gi';
 import { useGameStore, calculateLevel, getNextLevelExperience } from '../../store/gameStore';
+import { getExperienceForLevel } from '../../utils/experience';
 import type { SkillAction, Requirement } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
@@ -212,12 +213,12 @@ const ActionButton: React.FC<{
                       <HStack key={index} spacing={2} w="100%" justify="space-between">
                         <HStack spacing={2}>
                           <Text fontSize="xs" color="gray.400">Need:</Text>
-                          <ItemIcon itemId={req.itemId || ''} size="sm" />
+                          <ItemIcon item={req.itemId || ''} size={24} />
                           <Text fontSize="xs" color="gray.300">{requiredQuantity}x</Text>
                         </HStack>
                         <HStack spacing={2}>
                           <Text fontSize="xs" color="gray.400">Have:</Text>
-                          <ItemIcon itemId={req.itemId || ''} size="sm" />
+                          <ItemIcon item={req.itemId || ''} size={24} />
                           <Text fontSize="xs" color={hasEnough ? "green.300" : "red.300"}>
                             {bankQuantity}x
                           </Text>
@@ -308,7 +309,7 @@ function SkillProgressBar({ skillName }: { skillName: 'fletching' | 'crafting' }
   const currentLevel = skill.level;
   const currentExp = skill.experience;
   const nextLevelExp = getNextLevelExperience(currentLevel);
-  const prevLevelExp = getNextLevelExperience(currentLevel - 1);
+  const prevLevelExp = getExperienceForLevel(currentLevel);
   const expProgress = ((currentExp - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
   
   const skillIconPath = `/assets/ItemThumbnail/skillicons/${skillName}.png`;

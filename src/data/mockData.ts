@@ -227,6 +227,8 @@ export const mockCharacter: Character = {
   dungeonProgress: {},
   activeQuests: [],
   questProgress: {},
+  achievements: [],
+  achievementProgress: {},
   stats: {
     // General
     deaths: 0,

@@ -27,6 +27,7 @@ import {
 import { motion } from 'framer-motion';
 import { FaSeedling, FaLeaf, FaTree, FaClock, FaCoins } from 'react-icons/fa';
 import { useGameStore, calculateLevel, getNextLevelExperience } from '../../store/gameStore';
+import { getExperienceForLevel } from '../../utils/experience';
 import type { SkillAction } from '../../types/game';
 import { getItemById } from '../../data/items';
 import { RequirementStatus } from '../ui/RequirementStatus';
@@ -82,7 +83,7 @@ export const FarmingLocation = () => {
   const farmingSkill = character.skills.farming;
   const currentLevel = calculateLevel(farmingSkill.experience);
   const nextLevelExp = getNextLevelExperience(currentLevel);
-  const prevLevelExp = getNextLevelExperience(currentLevel - 1);
+  const prevLevelExp = getExperienceForLevel(currentLevel);
   const expProgress = ((farmingSkill.experience - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
 
   // Enhanced Action Card Component

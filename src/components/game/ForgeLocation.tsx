@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { GiAnvil, GiHammerNails } from 'react-icons/gi';
 import { useGameStore, calculateLevel, getNextLevelExperience } from '../../store/gameStore';
+import { getExperienceForLevel } from '../../utils/experience';
 import type { SkillAction } from '../../types/game';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ProgressBar } from './ProgressBar';
@@ -278,7 +279,7 @@ const ActionSection = ({
   const currentSkillExp = character?.skills[skillType]?.experience || 0;
   const currentLevel = calculateLevel(currentSkillExp);
   const nextLevelExp = getNextLevelExperience(currentLevel);
-  const prevLevelExp = getNextLevelExperience(currentLevel - 1);
+  const prevLevelExp = getExperienceForLevel(currentLevel);
   const expProgress = ((currentSkillExp - prevLevelExp) / (nextLevelExp - prevLevelExp)) * 100;
 
   // Group actions by metal type
