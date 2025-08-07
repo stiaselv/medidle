@@ -3050,6 +3050,53 @@ export const ITEMS: Record<string, Item> = {
     icon: '/assets/items/placeholder.png',
     buyPrice: 50000,
     sellPrice: 20000
+  },
+
+  // Quest items
+  steel_longsword: {
+    id: 'steel_longsword',
+    name: 'Steel Longsword',
+    type: 'tool',
+    category: ITEM_CATEGORIES.WEAPONS,
+    icon: '/assets/ItemThumbnail/Gear/Weapons/longsword/steel_longsword.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.WEAPON,
+    stats: { attack: 8, strength: 7 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+
+  steel_kiteshield: {
+    id: 'steel_kiteshield',
+    name: 'Steel Kiteshield',
+    type: 'tool',
+    category: ITEM_CATEGORIES.ARMOR,
+    icon: '/assets/ItemThumbnail/Gear/Kiteshield/steel_kiteshield.png',
+    level: 5,
+    slot: EQUIPMENT_SLOTS.SHIELD,
+    stats: { defence: 8 },
+    buyPrice: 800,
+    sellPrice: 320
+  },
+
+  trout: {
+    id: 'trout',
+    name: 'Trout',
+    type: 'consumable',
+    category: ITEM_CATEGORIES.CONSUMABLES,
+    icon: '/assets/ItemThumbnail/Cooking/trout.png',
+    buyPrice: 15,
+    sellPrice: 6
+  },
+
+  dragon_teeth: {
+    id: 'dragon_teeth',
+    name: 'Dragon Teeth',
+    type: 'resource',
+    category: ITEM_CATEGORIES.RESOURCES,
+    icon: '/assets/items/placeholder.png',
+    buyPrice: 5000,
+    sellPrice: 2500
   }
 };
 

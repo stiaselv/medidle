@@ -17,6 +17,7 @@ import { getEquipmentLevelRequirement } from '../data/items';
 import { createApiUrl, API_ENDPOINTS } from '../config/api';
 import { getCropById } from '../data/farmingCrops';
 import { getLevelFromExperience, getExperienceForNextLevel, getProgressToNextLevel, EXPERIENCE_TABLE } from '../utils/experience';
+import { getAllQuests } from '../data/quests';
 
 // Helper functions for experience and level calculations
 export const calculateLevel = (experience: number): number => {
@@ -270,6 +271,9 @@ const createStore = () => create<GameState>()(
             id,
             lastLogin: new Date(char.lastLogin),
             maxHitpoints,
+            // Ensure quest properties are initialized for existing characters
+            activeQuests: rest.activeQuests || [],
+            questProgress: rest.questProgress || {}
           };
         });
         set({ characters: charactersWithDates });
@@ -348,7 +352,10 @@ const createStore = () => create<GameState>()(
         ...rest, 
         id, 
         maxHitpoints,
-        lastLogin: new Date()
+        lastLogin: new Date(),
+        // Ensure quest properties are initialized
+        activeQuests: rest.activeQuests || [],
+        questProgress: rest.questProgress || {}
       };
       
       set({ character: updatedCharacter });
@@ -478,6 +485,9 @@ const createStore = () => create<GameState>()(
           ...newCharacter,
           id: characterId, // Ensure ID is set correctly
           lastLogin: new Date(newCharacter.lastLogin),
+          // Ensure quest properties are initialized for new characters
+          activeQuests: newCharacter.activeQuests || [],
+          questProgress: newCharacter.questProgress || {}
         };
         
         // Remove _id to avoid confusion
@@ -641,9 +651,10 @@ const createStore = () => create<GameState>()(
         if (roundResult.monsterDefeated) {
           // Grant loot (if any)
           let rewardItem: ItemReward | null = null;
+          const allLootItems: Array<{id: string, name: string, quantity: number}> = [];
+          
+          // Process normal loot
           if (roundResult.loot && roundResult.loot.length > 0) {
-            const lootItems: Array<{id: string, name: string, quantity: number}> = [];
-            
             roundResult.loot.forEach(itemId => {
               const item = getItemById(itemId);
               if (item) {
@@ -651,9 +662,30 @@ const createStore = () => create<GameState>()(
                 const drop = monster.drops?.find(d => d.itemId === itemId);
                 const quantity = drop?.quantity || 1;
                 state.addItemToBank(item, quantity);
-                lootItems.push({ id: item.id, name: item.name, quantity });
+                allLootItems.push({ id: item.id, name: item.name, quantity });
               }
             });
+          }
+          
+          // Check for quest-specific loot
+          if (latestCharacter) {
+            latestCharacter.activeQuests.forEach(quest => {
+              if (quest.id === 'dragon_disciples') {
+                // Dragon teeth drop at 1% rate from dragons when quest is active
+                const isDragon = monster.name.toLowerCase().includes('dragon');
+                if (isDragon && Math.random() < 0.01) {
+                  const dragonTeethItem = getItemById('dragon_teeth');
+                  if (dragonTeethItem) {
+                    state.addItemToBank(dragonTeethItem, 1);
+                    allLootItems.push({ id: 'dragon_teeth', name: 'Dragon Teeth', quantity: 1 });
+                  }
+                }
+              }
+            });
+          }
+          
+          if (allLootItems.length > 0) {
+            const lootItems = allLootItems;
 
             // Create a combined reward item for display
             if (lootItems.length === 1) {
@@ -706,6 +738,18 @@ const createStore = () => create<GameState>()(
           if (updatedCharacter) get().saveCharacter(updatedCharacter);
           get().incrementStat('monstersKilled', 1);
           get().incrementStat('totalKills', 1);
+          
+          // Update quest progress for monster kills
+          if (state.selectedMonster && updatedCharacter) {
+            updatedCharacter.activeQuests.forEach(quest => {
+              quest.requirements.forEach(req => {
+                if (req.type === 'kill' && req.monsterId === state.selectedMonster?.id) {
+                  const currentProgress = updatedCharacter.questProgress[quest.id]?.requirements[req.id] || 0;
+                  get().updateQuestProgress(quest.id, req.id, currentProgress + 1);
+                }
+              });
+            });
+          }
           return;
         } else if (roundResult.playerDefeated) {
           // Track death
@@ -1276,6 +1320,23 @@ const createStore = () => create<GameState>()(
           bank: updatedBankTabs.find(tab => tab.id === 'main')?.items || [], // Keep the old bank for backward compatibility
           bankTabs: updatedBankTabs 
         };
+        
+        // Check quest progress for item-based quests
+        if (updatedCharacter.activeQuests) {
+          updatedCharacter.activeQuests.forEach(quest => {
+            quest.requirements.forEach(req => {
+              if (req.type === 'item' && req.itemId === item.id) {
+                // Check quest completion after item is added
+                setTimeout(() => {
+                  const latestState = get();
+                  if (latestState.character && latestState.checkQuestRequirements(quest.id)) {
+                    latestState.completeQuest(quest.id);
+                  }
+                }, 100);
+              }
+            });
+          });
+        }
         
         // Save the character to persist changes
         get().saveCharacter(updatedCharacter);
@@ -2512,6 +2573,181 @@ const createStore = () => create<GameState>()(
         console.error('Failed to get messages:', error);
         return [];
       }
+    },
+
+    // Quest system
+    startQuest: (questId: string) => {
+      set((state) => {
+        if (!state.character) return state;
+        
+        // Get quest from quest data
+        const quest = getAllQuests().find(q => q.id === questId);
+        if (!quest) return state;
+        
+        // Clone and start the quest
+        const startedQuest = {
+          ...quest,
+          isActive: true,
+          startedAt: new Date()
+        };
+        
+        // Initialize quest progress
+        const questProgress = {
+          questId,
+          requirements: {} as Record<string, number>,
+          isCompleted: false
+        };
+        
+        // Initialize each requirement's progress
+        quest.requirements.forEach(req => {
+          questProgress.requirements[req.id] = 0;
+        });
+        
+        return {
+          ...state,
+          character: {
+            ...state.character,
+            activeQuests: [...state.character.activeQuests, startedQuest],
+            questProgress: {
+              ...state.character.questProgress,
+              [questId]: questProgress
+            }
+          }
+        };
+      });
+    },
+
+    completeQuest: (questId: string) => {
+      set((state) => {
+        if (!state.character) return state;
+        
+        const questIndex = state.character.activeQuests.findIndex(q => q.id === questId);
+        if (questIndex === -1) return state;
+        
+        const quest = state.character.activeQuests[questIndex];
+        const completedQuest = {
+          ...quest,
+          isActive: false,
+          isCompleted: true,
+          completedAt: new Date()
+        };
+        
+        // Award rewards
+        quest.rewards.forEach(reward => {
+          if (reward.type === 'gold') {
+            // Add gold to bank
+            const existingGold = state.character!.bank.find(item => item.id === 'coins');
+            if (existingGold) {
+              existingGold.quantity += reward.quantity;
+            } else {
+              state.character!.bank.push({
+                id: 'coins',
+                name: 'Coins',
+                quantity: reward.quantity
+              });
+            }
+          } else if (reward.type === 'item' && reward.itemId) {
+            // Add item to bank
+            const existingItem = state.character!.bank.find(item => item.id === reward.itemId);
+            if (existingItem) {
+              existingItem.quantity += reward.quantity;
+            } else {
+              state.character!.bank.push({
+                id: reward.itemId,
+                name: reward.itemName || reward.itemId,
+                quantity: reward.quantity
+              });
+            }
+          } else if (reward.type === 'experience' && reward.skillName) {
+            // Add experience
+            get().gainExperience(reward.skillName, reward.quantity);
+          }
+        });
+        
+        // Remove from active quests and update progress
+        const newActiveQuests = [...state.character.activeQuests];
+        newActiveQuests.splice(questIndex, 1);
+        
+        return {
+          ...state,
+          character: {
+            ...state.character,
+            activeQuests: newActiveQuests,
+            questProgress: {
+              ...state.character.questProgress,
+              [questId]: {
+                ...state.character.questProgress[questId],
+                isCompleted: true,
+                completedAt: new Date()
+              }
+            }
+          }
+        };
+      });
+    },
+
+    updateQuestProgress: (questId: string, requirementId: string, progress: number) => {
+      set((state) => {
+        if (!state.character) return state;
+        
+        const questProgress = state.character.questProgress[questId];
+        if (!questProgress) return state;
+        
+        const updatedProgress = {
+          ...questProgress,
+          requirements: {
+            ...questProgress.requirements,
+            [requirementId]: Math.max(questProgress.requirements[requirementId] || 0, progress)
+          }
+        };
+        
+        // Check if quest is complete
+        const quest = state.character.activeQuests.find(q => q.id === questId);
+        if (quest && get().checkQuestRequirements(questId)) {
+          // Quest is complete, trigger completion immediately
+          get().completeQuest(questId);
+        }
+        
+        return {
+          ...state,
+          character: {
+            ...state.character,
+            questProgress: {
+              ...state.character.questProgress,
+              [questId]: updatedProgress
+            }
+          }
+        };
+      });
+    },
+
+    checkQuestRequirements: (questId: string) => {
+      const state = get();
+      if (!state.character) return false;
+      
+      const quest = state.character.activeQuests.find(q => q.id === questId);
+      const questProgress = state.character.questProgress[questId];
+      
+      if (!quest || !questProgress) return false;
+      
+      return quest.requirements.every(req => {
+        const currentProgress = questProgress.requirements[req.id] || 0;
+        
+        if (req.type === 'item') {
+          // Check if player has required items in bank
+          const bankItem = state.character!.bank.find(item => item.id === req.itemId);
+          return bankItem && bankItem.quantity >= req.quantity;
+        } else if (req.type === 'kill') {
+          // Check kill progress
+          return currentProgress >= req.quantity;
+        } else if (req.type === 'skill_level') {
+          // Check skill level
+          const skill = state.character!.skills[req.skillName!];
+          return skill && getLevelFromExperience(skill.experience) >= req.quantity;
+        }
+        
+        return false;
+      });
     },
 
     // Farming system

@@ -423,6 +423,8 @@ export interface Character {
   messages: Message[];
   friendRequests: FriendRequest[];
   dungeonProgress: Record<string, DungeonProgress>;
+  activeQuests: Quest[];
+  questProgress: Record<string, QuestProgress>;
 }
 
 import type { CombatStyle } from '../combat/combatTriangle';
@@ -607,6 +609,12 @@ export interface GameState {
   markMessageAsRead: (messageId: string) => void;
   getFriendRequests: () => Promise<FriendRequest[]>;
   getMessages: (friendId: string) => Promise<Message[]>;
+
+  // Quest system
+  startQuest: (questId: string) => void;
+  completeQuest: (questId: string) => void;
+  updateQuestProgress: (questId: string, requirementId: string, progress: number) => void;
+  checkQuestRequirements: (questId: string) => boolean;
 }
 
 export interface Item {
@@ -800,4 +808,44 @@ export interface Dungeon {
   };
   thumbnail?: string;
   background?: string;
+}
+
+export interface QuestRequirement {
+  id: string;
+  type: 'item' | 'kill' | 'skill_level';
+  itemId?: string;
+  itemName?: string;
+  monsterId?: string;
+  monsterName?: string;
+  skillName?: SkillName;
+  quantity: number;
+  currentQuantity: number;
+}
+
+export interface QuestReward {
+  id: string;
+  type: 'item' | 'experience' | 'gold';
+  itemId?: string;
+  itemName?: string;
+  skillName?: SkillName;
+  quantity: number;
+}
+
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  requirements: QuestRequirement[];
+  rewards: QuestReward[];
+  isActive: boolean;
+  isCompleted: boolean;
+  completedAt?: Date;
+  startedAt?: Date;
+}
+
+export interface QuestProgress {
+  questId: string;
+  requirements: Record<string, number>; // requirement id -> current progress
+  isCompleted: boolean;
+  completedAt?: Date;
 } 
