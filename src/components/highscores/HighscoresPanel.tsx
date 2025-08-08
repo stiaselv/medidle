@@ -20,9 +20,9 @@ import {
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { FaTrophy, FaMedal, FaAward } from 'react-icons/fa';
-import type { Character, SkillName } from '../../types/game';
-import { calculateTotalLevel, calculateTotalExperience } from '../../utils/experience';
+import type { SkillName } from '../../types/game';
 import { createApiUrl } from '../../config/api';
+import { useGameStore } from '../../store/gameStore';
 
 interface HighscoreEntry {
   characterId: string;
@@ -32,6 +32,7 @@ interface HighscoreEntry {
   experience: number;
   totalLevel?: number;
   totalExperience?: number;
+  isCurrentUser?: boolean;
 }
 
 const SKILL_OPTIONS: { value: SkillName | 'total', label: string }[] = [
@@ -82,6 +83,7 @@ const getRankColor = (rank: number) => {
 };
 
 export const HighscoresPanel = () => {
+  const { character } = useGameStore();
   const [selectedSkill, setSelectedSkill] = useState<SkillName | 'total'>('total');
   const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,14 +92,15 @@ export const HighscoresPanel = () => {
 
   useEffect(() => {
     loadHighscores();
-  }, [selectedSkill]);
+  }, [selectedSkill, character?.id]);
 
   const loadHighscores = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const url = createApiUrl(`/api/highscores?skill=${selectedSkill}`);
+      const currentCharacterId = character?.id || '';
+      const url = createApiUrl(`/api/highscores?skill=${selectedSkill}&currentCharacterId=${currentCharacterId}`);
       console.log('Fetching highscores from:', url);
       
       const response = await fetch(url, {
@@ -134,6 +137,58 @@ export const HighscoresPanel = () => {
   };
 
   const isTotal = selectedSkill === 'total';
+
+  // Separate top 10 and current user entry
+  const top10 = highscores.filter(entry => entry.rank <= 10);
+  const currentUserEntry = highscores.find(entry => entry.isCurrentUser && entry.rank > 10);
+
+  const renderHighscoreRow = (entry: HighscoreEntry, isCurrentUser = false) => (
+    <Tr 
+      key={entry.characterId} 
+      _hover={{ bg: 'gray.700' }}
+      bg={isCurrentUser ? 'blue.900' : 'transparent'}
+      borderLeft={isCurrentUser ? '4px solid' : 'none'}
+      borderLeftColor={isCurrentUser ? 'blue.400' : 'transparent'}
+    >
+      <Td border="none">
+        <HStack>
+          <Badge
+            colorScheme={getRankColor(entry.rank)}
+            variant="solid"
+            fontSize="xs"
+            minW="24px"
+            textAlign="center"
+          >
+            {entry.rank}
+          </Badge>
+          {getRankIcon(entry.rank)}
+        </HStack>
+      </Td>
+      <Td border="none">
+        <HStack>
+          <Avatar size="xs" name={entry.characterName} />
+          <Text color="white" fontWeight={isCurrentUser ? "bold" : "medium"}>
+            {entry.characterName}
+            {isCurrentUser && (
+              <Badge ml={2} colorScheme="blue" variant="solid" fontSize="xs">
+                YOU
+              </Badge>
+            )}
+          </Text>
+        </HStack>
+      </Td>
+      <Td border="none" isNumeric>
+        <Text color="white" fontWeight="bold">
+          {formatNumber(isTotal ? (entry.totalLevel || 0) : entry.level)}
+        </Text>
+      </Td>
+      <Td border="none" isNumeric>
+        <Text color="gray.300" fontSize="sm">
+          {formatNumber(isTotal ? (entry.totalExperience || 0) : entry.experience)}
+        </Text>
+      </Td>
+    </Tr>
+  );
 
   return (
     <VStack spacing={4} h="100%" w="100%">
@@ -174,70 +229,54 @@ export const HighscoresPanel = () => {
         </Alert>
       )}
 
-      {/* Highscores table */}
+      {/* Highscores tables */}
       {!loading && !error && (
-        <Box w="100%" overflowY="auto" maxH="400px">
-          <Table variant="simple" size="sm">
-            <Thead position="sticky" top={0} bg="gray.800" zIndex={1}>
-              <Tr>
-                <Th color="gray.300" border="none">Rank</Th>
-                <Th color="gray.300" border="none">Player</Th>
-                <Th color="gray.300" border="none" isNumeric>
-                  {isTotal ? 'Total Level' : 'Level'}
-                </Th>
-                <Th color="gray.300" border="none" isNumeric>
-                  {isTotal ? 'Total XP' : 'Experience'}
-                </Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {highscores.length === 0 ? (
+        <VStack spacing={4} w="100%">
+          {/* Top 10 Table */}
+          <Box w="100%" overflowY="auto" maxH="400px">
+            <Table variant="simple" size="sm">
+              <Thead position="sticky" top={0} bg="gray.800" zIndex={1}>
                 <Tr>
-                  <Td colSpan={4} textAlign="center" color="gray.400" border="none">
-                    No data available
-                  </Td>
+                  <Th color="gray.300" border="none">Rank</Th>
+                  <Th color="gray.300" border="none">Player</Th>
+                  <Th color="gray.300" border="none" isNumeric>
+                    {isTotal ? 'Total Level' : 'Level'}
+                  </Th>
+                  <Th color="gray.300" border="none" isNumeric>
+                    {isTotal ? 'Total XP' : 'Experience'}
+                  </Th>
                 </Tr>
-              ) : (
-                highscores.map((entry) => (
-                  <Tr key={entry.characterId} _hover={{ bg: 'gray.700' }}>
-                    <Td border="none">
-                      <HStack>
-                        <Badge
-                          colorScheme={getRankColor(entry.rank)}
-                          variant="solid"
-                          fontSize="xs"
-                          minW="24px"
-                          textAlign="center"
-                        >
-                          {entry.rank}
-                        </Badge>
-                        {getRankIcon(entry.rank)}
-                      </HStack>
-                    </Td>
-                    <Td border="none">
-                      <HStack>
-                        <Avatar size="xs" name={entry.characterName} />
-                        <Text color="white" fontWeight="medium">
-                          {entry.characterName}
-                        </Text>
-                      </HStack>
-                    </Td>
-                    <Td border="none" isNumeric>
-                      <Text color="white" fontWeight="bold">
-                        {formatNumber(isTotal ? (entry.totalLevel || 0) : entry.level)}
-                      </Text>
-                    </Td>
-                    <Td border="none" isNumeric>
-                      <Text color="gray.300" fontSize="sm">
-                        {formatNumber(isTotal ? (entry.totalExperience || 0) : entry.experience)}
-                      </Text>
+              </Thead>
+              <Tbody>
+                {top10.length === 0 ? (
+                  <Tr>
+                    <Td colSpan={4} textAlign="center" color="gray.400" border="none">
+                      No data available
                     </Td>
                   </Tr>
-                ))
-              )}
-            </Tbody>
-          </Table>
-        </Box>
+                ) : (
+                  top10.map((entry) => renderHighscoreRow(entry, entry.isCurrentUser))
+                )}
+              </Tbody>
+            </Table>
+          </Box>
+
+          {/* Current User's Rank (if outside top 10) */}
+          {currentUserEntry && (
+            <Box w="100%">
+              <Text color="gray.400" fontSize="sm" mb={2} textAlign="center">
+                Your Rank
+              </Text>
+              <Box w="100%" overflowX="auto" bg="gray.800" borderRadius="md" border="1px solid" borderColor="blue.600">
+                <Table variant="simple" size="sm">
+                  <Tbody>
+                    {renderHighscoreRow(currentUserEntry, true)}
+                  </Tbody>
+                </Table>
+              </Box>
+            </Box>
+          )}
+        </VStack>
       )}
     </VStack>
   );
