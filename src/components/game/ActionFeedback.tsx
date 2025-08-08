@@ -11,18 +11,24 @@ interface FeedbackItem {
   color: string;
   icon?: string;
   timestamp: number;
-  type: 'reward' | 'levelup';
+  type: 'reward' | 'levelup' | 'combat';
+  // For combat grouped popup
+  monsterName?: string;
+  combatItems?: { id: string; name: string; quantity: number; icon?: string }[];
 }
 
 export const ActionFeedback = () => {
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const { lastActionReward, clearActionReward } = useGameStore();
 
-  // Clean up old items
+  // Clean up old items (type-specific lifetimes)
   useEffect(() => {
     const cleanup = setInterval(() => {
       const now = Date.now();
-      setFeedbackItems(prev => prev.filter(item => now - item.timestamp < 2000));
+      setFeedbackItems(prev => prev.filter(item => {
+        const ttl = item.type === 'combat' ? 5000 : 2500; // Combat popups last longer
+        return now - item.timestamp < ttl;
+      }));
     }, 100);
 
     return () => clearInterval(cleanup);
@@ -35,12 +41,37 @@ export const ActionFeedback = () => {
       const newItems: FeedbackItem[] = [];
       const timestamp = Date.now();
       
-      // Add combined XP and item feedback
-      if (lastActionReward.xp || lastActionReward.item) {
+      // Combat-specific formatting: single grouped popup with header and items list
+      if (lastActionReward.context === 'combat') {
+        const combatItems = (lastActionReward.items && lastActionReward.items.length > 0)
+          ? lastActionReward.items.map(ri => ({ id: ri.id, name: ri.name, quantity: ri.quantity, icon: getItemById(ri.id)?.icon }))
+          : (lastActionReward.item ? [{ id: lastActionReward.item.id, name: lastActionReward.item.name, quantity: lastActionReward.item.quantity, icon: getItemById(lastActionReward.item.id)?.icon }] : []);
+        newItems.push({
+          id: `combat-group-${timestamp}`,
+          color: 'green.300',
+          timestamp,
+          type: 'combat',
+          monsterName: lastActionReward.monsterName,
+          combatItems
+        });
+      } else if (lastActionReward.items && lastActionReward.items.length > 0) {
+        // Skill/other: Multi-row items: if items array is present, create one row per item
+        lastActionReward.items.forEach((ri, idx) => {
+          const itemData = getItemById(ri.id);
+          newItems.push({
+            id: `reward-item-${timestamp}-${idx}`,
+            itemText: `+${ri.quantity} ${ri.name}`,
+            color: 'blue.300',
+            icon: itemData?.icon,
+            timestamp: timestamp + idx,
+            type: 'reward'
+          });
+        });
+      } else if (lastActionReward.item || lastActionReward.xp) {
+        // Legacy single combined row
         const itemData = lastActionReward.item ? getItemById(lastActionReward.item.id) : null;
         const xpText = lastActionReward.xp ? `+${lastActionReward.xp} XP` : '';
         const itemText = lastActionReward.item ? `+${lastActionReward.item.quantity} ${lastActionReward.item.name}` : '';
-        
         newItems.push({
           id: `reward-${timestamp}`,
           xpText,
@@ -48,6 +79,26 @@ export const ActionFeedback = () => {
           color: 'blue.300',
           icon: itemData?.icon,
           timestamp,
+          type: 'reward'
+        });
+      }
+
+      // Add XP rows at the bottom if exist (after items) and not combat
+      if (lastActionReward.xp && lastActionReward.context !== 'combat') {
+        newItems.push({
+          id: `reward-xp-${timestamp}`,
+          itemText: `+${lastActionReward.xp} ${lastActionReward.skill ? `${lastActionReward.skill} ` : ''}XP`,
+          color: 'blue.300',
+          timestamp: timestamp + 900,
+          type: 'reward'
+        });
+      }
+      if (lastActionReward.hitpointsXp && lastActionReward.hitpointsXp > 0 && lastActionReward.context !== 'combat') {
+        newItems.push({
+          id: `reward-hpxp-${timestamp}`,
+          itemText: `+${lastActionReward.hitpointsXp} Hitpoints XP`,
+          color: 'blue.300',
+          timestamp: timestamp + 901,
           type: 'reward'
         });
       }
@@ -81,6 +132,10 @@ export const ActionFeedback = () => {
       right="20px"
       zIndex={99999}
       pointerEvents="none"
+      display="flex"
+      flexDirection="column"
+      alignItems="flex-end"
+      gap={2}
       maxHeight="80vh"
       overflow="hidden"
     >
@@ -88,70 +143,59 @@ export const ActionFeedback = () => {
         {feedbackItems.map((item) => (
           <motion.div
             key={item.id}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ 
-              opacity: 1, 
-              y: 0,
-              transition: {
-                duration: 0.4,
-                ease: "easeOut"
-              }
-            }}
-            exit={{ 
-              opacity: 0,
-              transition: {
-                delay: 1,
-                duration: 1,
-                ease: "easeOut"
-              }
-            }}
-            style={{
-              marginBottom: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            layout
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            style={{ display: 'flex' }}
           >
             <Box
-              backgroundColor="rgba(0, 0, 0, 0.9)"
+              backgroundColor={item.type === 'combat' ? 'rgba(0,0,0,0.85)' : 'rgba(0, 0, 0, 0.9)'}
               color={item.color}
-              px={4}
-              py={2}
-              borderRadius="full"
+              px={item.type === 'combat' ? 4 : 3}
+              py={item.type === 'combat' ? 3 : 2}
+              borderRadius={item.type === 'combat' ? 'lg' : 'full'}
               fontWeight="bold"
-              boxShadow="0 2px 10px rgba(0,0,0,0.3)"
-              border="2px solid"
-              borderColor="whiteAlpha.200"
+              boxShadow={item.type === 'combat' ? '0 8px 30px rgba(0,0,0,0.5)' : '0 2px 10px rgba(0,0,0,0.3)'}
+              border={item.type === 'combat' ? '1px solid' : '2px solid'}
+              borderColor={item.type === 'combat' ? 'whiteAlpha.300' : 'whiteAlpha.200'}
               display="flex"
-              alignItems="center"
+              alignItems={item.type === 'combat' ? 'flex-start' : 'center'}
               gap={3}
               minW="fit-content"
+              backdropFilter={item.type === 'combat' ? 'blur(6px)' : undefined}
+              style={item.type === 'combat' ? { borderLeft: '4px solid #48BB78' } : undefined}
             >
-              {item.icon && (
+              {item.icon && item.type !== 'combat' && (
                 <Image
                   src={item.icon}
                   alt=""
-                  boxSize="32px"
+                  boxSize="28px"
                   objectFit="contain"
                   fallbackSrc="/assets/items/placeholder.png"
                 />
               )}
-              {item.type === 'reward' ? (
-                <VStack spacing={0} align="flex-start">
-                  {item.itemText && (
-                    <Text fontSize="md" whiteSpace="nowrap">
-                      {item.itemText}
-                    </Text>
-                  )}
-                  {item.xpText && (
-                    <Text fontSize="sm" whiteSpace="nowrap" opacity={0.9}>
-                      {item.xpText}
-                    </Text>
+              {item.type === 'combat' ? (
+                <VStack spacing={1.5} align="flex-start">
+                  <Text fontSize="sm" whiteSpace="nowrap" color="green.300">Monster killed{item.monsterName ? `: ${item.monsterName}` : ''}</Text>
+                  <Text fontSize="xs" whiteSpace="nowrap" color="gray.300" mt={1}>Items gained:</Text>
+                  {item.combatItems && item.combatItems.length > 0 ? (
+                    item.combatItems.map(ci => (
+                      <HStack key={`${item.id}-${ci.id}-${ci.name}`} spacing={2} align="center">
+                        {ci.icon && (
+                          <Image src={ci.icon} alt="" boxSize="20px" objectFit="contain" fallbackSrc="/assets/items/placeholder.png" />
+                        )}
+                        <Text fontSize="sm" whiteSpace="nowrap">- {ci.quantity}x {ci.name}</Text>
+                      </HStack>
+                    ))
+                  ) : (
+                    <Text fontSize="sm" whiteSpace="nowrap">- None</Text>
                   )}
                 </VStack>
               ) : (
-                <Text fontSize="lg" whiteSpace="nowrap">
-                  {item.itemText}
+                <Text fontSize={item.type === 'levelup' ? 'md' : 'sm'} whiteSpace="nowrap">
+                  {item.itemText || item.xpText}
                 </Text>
               )}
             </Box>

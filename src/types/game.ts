@@ -394,6 +394,7 @@ export interface Character {
     location: string;
     target?: string;
     id?: string;
+    auto?: boolean;
   };
   skills: Skills;
   bank: {
@@ -514,6 +515,12 @@ export interface GameState {
   lastActionReward: {
     xp: number;
     item: ItemReward | null;
+    // New: support multiple reward items for proper multi-row popup rendering
+    items?: { id: string; name: string; quantity: number }[];
+    // Source context to tailor UI behavior (e.g., combat vs skill actions)
+    context?: 'combat' | 'skill';
+    // Optional monster name for combat context
+    monsterName?: string;
     levelUp?: {
       skill: string;
       level: number;
@@ -767,13 +774,26 @@ export interface LocationsState {
 }
 
 export interface OfflineRewards {
-  xp: number;
+  type: 'skill' | 'combat';
+  xp: number; // total xp (sum)
   item: {
     id: string;
     name: string;
     quantity: number;
   } | null;
-  skill: SkillName;
+  // Skill context
+  skill?: SkillName;
+  // Combat context
+  monsterId?: string;
+  monsterName?: string;
+  kills?: number;
+  loot?: { id: string; name: string; quantity: number }[];
+  combatStyle?: SkillName; // 'attack' | 'ranged' | 'magic'
+  combatStyleXp?: number;
+  hitpointsXp?: number;
+  foodEaten?: number;
+  died?: boolean;
+  // Common
   timePassed: number;
   actionsCompleted: number;
 } 

@@ -352,6 +352,7 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
       ...action,
       attackStyle: attackStyle,
       activePrayer: activePrayer,
+      auto: autoFight,
     };
     startAction(actionWithStyle);
   };
@@ -1040,7 +1041,7 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
                             <Box key={item.id} textAlign="center">
                               <Image src={item.icon} alt={item.name} boxSize="40px" mx="auto" />
                               <Text fontSize="sm">{item.name}</Text>
-                              <Text fontSize="xs" color="gray.500">x{drop.quantity} ({drop.chance}%)</Text>
+                              <Text fontSize="xs" color="gray.500">x{drop.quantity} ({(drop.chance * 100).toFixed(drop.chance < 0.01 ? 2 : 1)}%)</Text>
                             </Box>
                           ) : null;
                         })

@@ -266,10 +266,35 @@ const ActionButton: React.FC<{
                             onError={e => { (e.target as HTMLImageElement).src = '/assets/items/placeholder.png'; }}
                           />
                         )}
-                        <Text fontSize="xs" color="gray.300">{item ? item.name : loot.id} ({loot.chance}%)</Text>
+                        <Text fontSize="xs" color="gray.300">
+                          {loot.quantity && loot.quantity > 1 ? `${loot.quantity}x ` : ''}
+                          {item ? item.name : loot.id} ({(loot.chance * 100).toFixed(loot.chance < 0.01 ? 2 : 1)}%)
+                        </Text>
                       </HStack>
                     );
                   })}
+                </HStack>
+              </Box>
+            ) : null}
+            
+            {/* Rewards Display */}
+            {action.itemReward && action.itemReward.quantity && action.itemReward.quantity > 0 ? (
+              <Box mt={3} w="100%">
+                <Text fontSize="xs" color="gray.400" fontWeight="bold" mb={1}>Rewards:</Text>
+                <HStack spacing={2} flexWrap="wrap">
+                  <HStack spacing={1} align="center">
+                    {action.itemReward.id && (
+                      <img
+                        src={getItemById(action.itemReward.id)?.icon || '/assets/items/placeholder.png'}
+                        alt={action.itemReward.name}
+                        style={{ width: 20, height: 20, objectFit: 'contain', borderRadius: 3 }}
+                        onError={e => { (e.target as HTMLImageElement).src = '/assets/items/placeholder.png'; }}
+                      />
+                    )}
+                    <Text fontSize="xs" color="gray.300">
+                      {action.itemReward.quantity}x {action.itemReward.name}
+                    </Text>
+                  </HStack>
                 </HStack>
               </Box>
             ) : null}

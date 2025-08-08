@@ -76,8 +76,16 @@ export const FieldsLocation = () => {
   };
 
   const handleHarvest = (patch: FarmingPatch) => {
+    console.log('handleHarvest called with patch:', patch);
+    console.log('Patch status:', patch.status);
+    console.log('Patch plantedCrop:', patch.plantedCrop);
+    
     if (patch.status === 'ready') {
+      console.log('Calling harvestPatch for patch ID:', patch.id);
       harvestPatch(patch.id);
+      console.log('harvestPatch completed');
+    } else {
+      console.log('Patch not ready for harvest, status is:', patch.status);
     }
   };
 
@@ -200,7 +208,7 @@ export const FieldsLocation = () => {
                   {patch.type.charAt(0).toUpperCase() + patch.type.slice(1)} Patch
                 </Text>
                 <Text fontSize="xs" color="gray.400">
-                  #{patch.id.split('_')[1]}
+                  #{patch.id.split('_')[1]} | Status: {patch.status}
                 </Text>
               </VStack>
             </HStack>
@@ -255,20 +263,23 @@ export const FieldsLocation = () => {
                 <Text fontWeight="medium" color="white" fontSize="sm" textAlign="center">
                   {patch.plantedCrop.cropName}
                 </Text>
-                <Badge colorScheme="green" variant="solid">
+                <Badge colorScheme="green" variant="solid" size="lg">
                   Ready to Harvest!
                 </Badge>
                 <Button
-                  size="sm"
+                  size="md"
                   colorScheme="green"
                   leftIcon={<FaHammer />}
                   onClick={(e) => {
                     e.stopPropagation();
+                    console.log('Harvest button clicked for patch:', patch.id, 'status:', patch.status);
                     handleHarvest(patch);
                   }}
                   w="100%"
+                  _hover={{ bg: 'green.600', transform: 'scale(1.05)' }}
+                  _active={{ bg: 'green.700', transform: 'scale(0.95)' }}
                 >
-                  Harvest
+                  🌾 Harvest
                 </Button>
               </VStack>
             )}

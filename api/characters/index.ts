@@ -298,7 +298,7 @@ async function handleCreateCharacter(req: AuthenticatedRequest, res: VercelRespo
       name,
       combatLevel: calculateCombatLevel(initialSkills),
       hitpoints: 10,
-      maxHitpoints: calculateMaxHitpoints(initialSkills['hitpoints'].level),
+      maxHitpoints: 10, // Always 10 for new characters
       prayer: 1,
       maxPrayer: 1,
       specialEnergy: 100,

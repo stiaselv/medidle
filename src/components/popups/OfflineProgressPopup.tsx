@@ -24,13 +24,23 @@ import { useEffect, useState } from 'react';
 import { getItemById } from '../../data/items';
 
 interface OfflineRewards {
+  type: 'skill' | 'combat';
   xp: number;
   item: {
     id: string;
     name: string;
     quantity: number;
   } | null;
-  skill: string;
+  skill?: string;
+  monsterId?: string;
+  monsterName?: string;
+  kills?: number;
+  loot?: { id: string; name: string; quantity: number }[];
+  combatStyle?: string;
+  combatStyleXp?: number;
+  hitpointsXp?: number;
+  foodEaten?: number;
+  died?: boolean;
   timePassed: number;
   actionsCompleted: number;
   consumedItems?: Array<{
@@ -133,47 +143,94 @@ export const OfflineProgressPopup = ({ isOpen, onClose, rewards, timePassed }: O
 
             <Box p={4} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
               <VStack spacing={4}>
-                <Text fontWeight="bold">
-                  While you were gone, you continued {rewards.skill}:
-                </Text>
+                {rewards.type === 'skill' ? (
+                  <Text fontWeight="bold">
+                    While you were gone, you continued {rewards.skill}:
+                  </Text>
+                ) : (
+                  <Text fontWeight="bold">
+                    While you were gone, you fought {rewards.monsterName}:
+                  </Text>
+                )}
 
                 <Stat textAlign="center">
-                  <StatLabel fontSize="lg">Actions Completed</StatLabel>
+                  <StatLabel fontSize="lg">{rewards.type === 'combat' ? 'Monsters Slain' : 'Actions Completed'}</StatLabel>
                   <StatNumber>{rewards.actionsCompleted}</StatNumber>
                 </Stat>
 
                 <Divider />
 
-                <HStack spacing={6} justify="center">
+                <HStack spacing={6} justify="center" wrap="wrap">
                   {/* XP Gained */}
                   <Stat textAlign="center">
                     <StatLabel>XP Gained</StatLabel>
                     <StatNumber>{rewards.xp.toLocaleString()}</StatNumber>
-                    <StatHelpText>{rewards.skill}</StatHelpText>
+                    <StatHelpText>
+                      {rewards.type === 'skill' ? rewards.skill : (
+                        <>
+                          {rewards.combatStyle && rewards.combatStyleXp !== undefined && (
+                            <Text fontSize="xs">{rewards.combatStyle}: +{rewards.combatStyleXp?.toLocaleString()} XP</Text>
+                          )}
+                          {rewards.hitpointsXp !== undefined && (
+                            <Text fontSize="xs">Hitpoints: +{rewards.hitpointsXp?.toLocaleString()} XP</Text>
+                          )}
+                        </>
+                      )}
+                    </StatHelpText>
                   </Stat>
 
                   {/* Items Gained */}
-                  <Stat textAlign="center">
-                    <StatLabel>Items Gained</StatLabel>
-                    <StatNumber>
-                      {rewards.item ? (
-                        <HStack justify="center" spacing={2}>
-                          <Image
-                            src={itemData?.icon}
-                            alt={rewards.item.name}
-                            boxSize="32px"
-                            objectFit="contain"
-                            fallbackSrc="/assets/items/placeholder.png"
-                          />
-                          <Text>{rewards.item.quantity.toLocaleString()}</Text>
-                        </HStack>
-                      ) : (
-                        <Text>No items gained</Text>
-                      )}
-                    </StatNumber>
-                    <StatHelpText>{rewards.item ? rewards.item.name : ''}</StatHelpText>
-                  </Stat>
+                  {rewards.type === 'skill' ? (
+                    <Stat textAlign="center">
+                      <StatLabel>Items Gained</StatLabel>
+                      <StatNumber>
+                        {rewards.item ? (
+                          <HStack justify="center" spacing={2}>
+                            <Image
+                              src={itemData?.icon}
+                              alt={rewards.item.name}
+                              boxSize="32px"
+                              objectFit="contain"
+                              fallbackSrc="/assets/items/placeholder.png"
+                            />
+                            <Text>{rewards.item.quantity.toLocaleString()}</Text>
+                          </HStack>
+                        ) : (
+                          <Text>No items gained</Text>
+                        )}
+                      </StatNumber>
+                      <StatHelpText>{rewards.item ? rewards.item.name : ''}</StatHelpText>
+                    </Stat>
+                  ) : (
+                    <Stat textAlign="center">
+                      <StatLabel>Loot Gained</StatLabel>
+                      <VStack spacing={1}>
+                        {rewards.loot && rewards.loot.length > 0 ? (
+                          rewards.loot.map((l, idx) => (
+                            <HStack key={idx} spacing={2}>
+                              <Image src={getItemById(l.id)?.icon} alt={l.name} boxSize="24px" objectFit="contain" fallbackSrc="/assets/items/placeholder.png" />
+                              <Text>{l.quantity.toLocaleString()}x {l.name}</Text>
+                            </HStack>
+                          ))
+                        ) : (
+                          <Text>No loot</Text>
+                        )}
+                      </VStack>
+                    </Stat>
+                  )}
                 </HStack>
+
+                {rewards.type === 'combat' && (
+                  <>
+                    <Divider />
+                    <HStack justify="center" spacing={6}>
+                      <Stat textAlign="center">
+                        <StatLabel>Food Eaten</StatLabel>
+                        <StatNumber>{(rewards.foodEaten || 0).toLocaleString()}</StatNumber>
+                      </Stat>
+                    </HStack>
+                  </>
+                )}
 
                 {/* Consumed Items */}
                 {rewards.consumedItems && rewards.consumedItems.length > 0 && (

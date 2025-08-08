@@ -145,7 +145,7 @@ router.post('/', withAuth, (req: AuthenticatedRequest, res, next) => {
             name,
             combatLevel: calculateCombatLevel(initialSkills),
             hitpoints: 10,
-            maxHitpoints: calculateMaxHitpoints(initialSkills['hitpoints'].level),
+            maxHitpoints: 10, // Always 10 for new characters
             prayer: 1,
             maxPrayer: 1,
             specialEnergy: 100,

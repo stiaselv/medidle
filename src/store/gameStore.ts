@@ -432,6 +432,16 @@ const createStore = () => create<GameState>()(
       const hitpointsLevel = calculateLevel(rest.skills.hitpoints.experience);
       const maxHitpoints = calculateMaxHitpoints(hitpointsLevel);
       
+      // Debug logging for hitpoints issue
+      if (hitpointsLevel !== 10 && rest.skills.hitpoints.level === 10) {
+        console.warn('Hitpoints mismatch detected:', {
+          storedLevel: rest.skills.hitpoints.level,
+          calculatedLevel: hitpointsLevel,
+          experience: rest.skills.hitpoints.experience,
+          maxHitpoints
+        });
+      }
+      
       // Recalculate combat level for existing characters (in case they were created with old formula)
       const combatLevel = calculateCombatLevel({ ...rest, maxHitpoints });
       
@@ -600,14 +610,15 @@ const createStore = () => create<GameState>()(
       if (state.actionInterval !== null) {
         clearInterval(state.actionInterval as unknown as number);
       }
-      // Update character's last action for offline tracking (only for skill actions)
-      if (state.character && 'skill' in action && action.type !== 'combat') {
+      // Update character's last action for offline tracking
+      if (state.character) {
         const updatedCharacter = {
           ...state.character,
           lastAction: {
             type: action.type as any,
             location: state.currentLocation?.id || '',
-            id: action.id
+            id: action.id,
+            auto: (action as any).auto === true
           },
           lastActionTime: Date.now()
         };
@@ -798,10 +809,13 @@ const createStore = () => create<GameState>()(
               loot: roundResult.loot || []
             },
             lastActionReward: {
-              xp: xpGained,
+              xp: 0, // Do not show XP in popup for combat
               item: rewardItem,
+              items: allLootItems.length > 0 ? allLootItems : undefined,
+              context: 'combat',
+              monsterName: monster.name,
               skill,
-              hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined
+              hitpointsXp: undefined
             }
           });
           const updatedCharacter = get().character;
@@ -1271,6 +1285,10 @@ const createStore = () => create<GameState>()(
       let thievingLootItems: Array<{id: string, name: string, quantity: number}> = [];
       if (state.currentAction.type === 'thieving' && 'possibleLoot' in state.currentAction && state.currentAction.possibleLoot) {
         state.currentAction.possibleLoot.forEach(lootEntry => {
+          // Avoid double-granting guaranteed coins: coins are provided via itemReward
+          if (lootEntry.id === 'coins') {
+            return;
+          }
           if (Math.random() < lootEntry.chance) {
             const item = getItemById(lootEntry.id);
             if (item) {
@@ -1303,25 +1321,17 @@ const createStore = () => create<GameState>()(
       const hasLevelUp = !!levelUp;
       const hasThievingLoot = thievingLootItems.length > 0;
       
-      // For thieving actions with loot, combine the guaranteed reward with the stolen items
+      // For thieving actions with loot, include all items separately for UI stacking
       let rewardItem = state.currentAction.itemReward;
+      let rewardItems: Array<{id: string; name: string; quantity: number}> | undefined = undefined;
       if (state.currentAction.type === 'thieving' && hasThievingLoot) {
-        if (thievingLootItems.length === 1) {
-          // Single loot item - show it
-          rewardItem = { 
-            id: thievingLootItems[0].id, 
-            name: thievingLootItems[0].name, 
-            quantity: thievingLootItems[0].quantity 
-          };
-        } else {
-          // Multiple loot items - create a summary
-          const summary = thievingLootItems.map(item => `${item.name} x${item.quantity}`).join(', ');
-          rewardItem = { 
-            id: 'thieving_loot', 
-            name: summary, 
-            quantity: thievingLootItems.length 
-          };
+        rewardItems = [];
+        // Include the guaranteed itemReward first if present
+        if (rewardItem && rewardItem.id) {
+          rewardItems.push({ id: rewardItem.id, name: rewardItem.name, quantity: rewardItem.quantity || 1 });
         }
+        // Then include each stolen item as its own row
+        thievingLootItems.forEach(li => rewardItems!.push({ id: li.id, name: li.name, quantity: li.quantity }));
       }
       
       if (hasXp || hasItem || hasLevelUp || hasThievingLoot) {
@@ -1329,6 +1339,7 @@ const createStore = () => create<GameState>()(
           lastActionReward: {
             xp: xpGained,
             item: rewardItem,
+            items: rewardItems,
             levelUp,
             skill: skillAwarded,
             hitpointsXp: hitpointsXpGained > 0 ? hitpointsXpGained : undefined
@@ -1914,9 +1925,109 @@ const createStore = () => create<GameState>()(
       // Cap the offline time to maximum
       const cappedTime = Math.min(timeDifference, MAX_OFFLINE_TIME);
       
-      // Check if character has a last action that can be continued offline
-      if (!character.lastAction || character.lastAction.type === 'none' || character.lastAction.type === 'combat') {
-        return null;
+      // If last action is combat and auto-fight was enabled, simulate idleable combat
+      if (character.lastAction && character.lastAction.type === 'combat' && character.lastAction.auto) {
+        // Basic idle simulation: fight the same monster repeatedly while time allows
+        const location = mockLocations.find(loc => loc.id === character.lastAction.location);
+        const action = location?.actions.find(a => a.id === character.lastAction.id);
+        if (!location || !action || action.type !== 'combat') return null;
+        const combatAction = action as CombatAction;
+        const monster = combatAction.monster;
+        
+        // Require auto-fight to have been enabled to idle combat
+        // Cheap check: treat presence of lastAction with combat as eligible
+        // Use the player's weapon speed as fight duration per kill approximation
+        const weaponId = character.equipment?.weapon?.id;
+        const approxFightMs = getWeaponSpeed(weaponId) * 5; // include downtime between fights and kill time
+        let kills = Math.max(0, Math.floor(cappedTime / approxFightMs));
+        if (kills <= 0) return null;
+        
+        // Tally XP and loot estimates per kill
+        let totalXp = 0;
+        let styleXp = 0;
+        let hitpointsXp = 0;
+        let totalFoodHealed = 0;
+        const lootCounts: Record<string, { id: string; name: string; quantity: number }> = {};
+        
+        for (let i = 0; i < kills; i++) {
+          // XP: reuse melee style xp distribution approximation
+          const xpPerKill = 20; // TODO: refine based on monster stats/level
+          const hpXpPerKill = 7; // rough
+          styleXp += xpPerKill;
+          hitpointsXp += hpXpPerKill;
+          totalXp += xpPerKill + hpXpPerKill;
+          
+          // Loot: roll each drop once per kill
+          (monster.drops || []).forEach(drop => {
+            if (Math.random() < (drop.chance || 0)) {
+              const item = getItemById(drop.itemId);
+              if (item) {
+                const q = drop.quantity || 1;
+                if (!lootCounts[item.id]) {
+                  lootCounts[item.id] = { id: item.id, name: item.name, quantity: 0 };
+                }
+                lootCounts[item.id].quantity += q;
+              }
+            }
+          });
+          
+          // Food healed: rough estimate based on auto-eating
+          if (character.autoEating?.enabled && character.autoEating.selectedFood) {
+            const heal = ITEMS[character.autoEating.selectedFood]?.healing || 0;
+            totalFoodHealed += heal;
+          }
+        }
+        
+        const loot = Object.values(lootCounts);
+        
+        // Apply rewards: add loot, consume food, add XP
+        const updated = get().character;
+        if (updated) {
+          // Add loot
+          loot.forEach(l => {
+            const item = getItemById(l.id);
+            if (item) {
+              get().addItemToBank(item, l.quantity);
+            }
+          });
+          // Consume food
+          if (character.autoEating?.enabled && character.autoEating.selectedFood) {
+            const perFoodHeal = ITEMS[character.autoEating.selectedFood]?.healing || 0;
+            const foodsEaten = Math.floor(totalFoodHealed / Math.max(1, perFoodHeal));
+            if (foodsEaten > 0) {
+              get().removeItemFromBank(character.autoEating.selectedFood, foodsEaten);
+            }
+          }
+          // Grant XP
+          if (styleXp > 0) {
+            get().gainExperience('attack', styleXp);
+          }
+          if (hitpointsXp > 0) {
+            get().gainExperience('hitpoints', hitpointsXp);
+          }
+          // Save character after applying offline rewards
+          const postApply = get().character;
+          if (postApply) {
+            get().saveCharacter(postApply);
+          }
+        }
+        
+        return {
+          type: 'combat',
+          xp: totalXp,
+          item: loot.length > 0 ? loot[0] : null,
+          monsterId: monster.id,
+          monsterName: monster.name,
+          kills,
+          loot,
+          combatStyle: 'attack',
+          combatStyleXp: styleXp,
+          hitpointsXp,
+          foodEaten: Math.floor(totalFoodHealed / Math.max(1, (character.autoEating?.selectedFood ? (ITEMS[character.autoEating.selectedFood]?.healing || 1) : 1))),
+          died: false,
+          timePassed: cappedTime,
+          actionsCompleted: kills,
+        };
       }
       
       // Find the last action from mock data
@@ -2124,6 +2235,7 @@ const createStore = () => create<GameState>()(
       
       // Return the rewards for display
       return {
+        type: 'skill',
         xp: totalXp,
         item: {
           id: skillAction.itemReward.id,
