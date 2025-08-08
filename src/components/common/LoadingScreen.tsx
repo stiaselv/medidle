@@ -35,11 +35,11 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
         {/* Game Logo or Icon */}
         <Box>
           <Image
-            src="/vite.svg" // You can replace this with your game logo
+            src="/assets/game_logo.png"
             alt="Game Logo"
-            width="80px"
-            height="80px"
-            fallbackSrc="/vite.svg"
+            width="256px"
+            height="256px"
+            fallbackSrc="/assets/game_logo.png"
           />
         </Box>
 
