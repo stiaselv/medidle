@@ -9,7 +9,7 @@ import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
 import { ItemIcon } from '../ui/ItemIcon';
 import { getItemById } from '../../data/items';
-import quarryBg from '../../assets/BG/quarry.webp';
+// import quarryBg from '../../assets/BG/quarry.webp'; // Using public path instead
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -470,7 +470,7 @@ export const QuarryLocation = () => {
         left={0}
         right={0}
         bottom={0}
-        bgImage={`url(${quarryBg})`}
+        bgImage="url('/assets/BG/quarry.webp?v=2')"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"

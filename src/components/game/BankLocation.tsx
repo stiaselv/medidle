@@ -41,7 +41,7 @@ import { useGameStore } from '../../store/gameStore';
 import type { ItemReward, BankTab } from '../../types/game';
 import { getItemById, isEquippable } from '../../data/items';
 import { ItemIcon } from '../ui/ItemIcon';
-import bankBg from '../../assets/BG/bank.webp';
+// import bankBg from '../../assets/BG/bank.webp'; // Using public path instead
 
 const MotionBox = motion(Box);
 
@@ -720,7 +720,7 @@ export const BankLocation: React.FC = () => {
           left={0}
           right={0}
           bottom={0}
-          bgImage={`url(${bankBg})`}
+          bgImage="url('/assets/BG/bank.webp?v=2')"
           bgSize="cover"
           bgPosition="center"
           bgRepeat="no-repeat"

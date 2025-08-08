@@ -27,7 +27,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ProgressBar } from './ProgressBar';
 import { ItemIcon } from '../ui/ItemIcon';
 import { getItemById } from '../../data/items';
-import forgeBg from '../../assets/BG/forge.webp';
+// import forgeBg from '../../assets/BG/forge.webp'; // Using public path instead
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -522,7 +522,7 @@ export const ForgeLocation = () => {
         left={0}
         right={0}
         bottom={0}
-        bgImage={`url(${forgeBg})`}
+        bgImage="url('/assets/BG/forge.webp?v=2')"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"

@@ -9,7 +9,7 @@ import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
 import { ItemIcon } from '../ui/ItemIcon';
 import { getItemById } from '../../data/items';
-import workbenchBg from '../../assets/BG/workbench.webp';
+// import workbenchBg from '../../assets/BG/workbench.webp'; // Using public path instead
 
 const FLETCHING_TABS = ['Arrows', 'Bows', 'Javelins', 'Bolts'];
 const CRAFTING_TABS = ['Armor', 'Jewelry', 'Staves', 'Gems'];
@@ -390,7 +390,7 @@ export const WorkbenchLocation = () => {
         left={0}
         right={0}
         bottom={0}
-        bgImage={`url(${workbenchBg})`}
+        bgImage="url('/assets/BG/workbench.webp?v=2')"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"

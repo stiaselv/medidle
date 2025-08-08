@@ -631,7 +631,7 @@ export const GeneralStoreLocation = () => {
         left={0}
         right={0}
         bottom={0}
-                    bgImage="url(/assets/BG/general_store.webp)"
+                    bgImage="url(/assets/BG/general_store.webp?v=2)"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"

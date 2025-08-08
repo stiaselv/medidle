@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useGameStore } from '../../store/gameStore';
 import type { CombatSelectionAction, SlayerTask } from '../../types/game';
-import slayerCaveBg from '../../assets/BG/slayer_cave.webp';
+// import slayerCaveBg from '../../assets/BG/slayer_cave.webp'; // Using public path instead
 import { EASY_MONSTERS, MEDIUM_MONSTERS, HARD_MONSTERS, NIGHTMARE_MONSTERS } from '../../data/monsters';
 import { SLAYER_CAVE_LOCATIONS } from '../../data/locations/slayerCaves';
 
@@ -170,7 +170,7 @@ export const SlayerCaveLocation = () => {
         left={0}
         right={0}
         bottom={0}
-        bgImage={`url(${slayerCaveBg})`}
+        bgImage="url('/assets/BG/slayer_cave.webp?v=2')"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"

@@ -735,7 +735,7 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
 
                   {/* Monster Card */}
                   <Box>
-                    {renderCombatantCard(monsterForDisplay, false)}
+                    {monsterForDisplay && renderCombatantCard(monsterForDisplay, false)}
                   </Box>
                 </Grid>
 
@@ -1163,25 +1163,25 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
                   ⚔️ Offensive Stats
                 </Text>
                 <SimpleGrid columns={3} spacing={3} mb={4}>
-                  <Box textAlign="center" p={3} bg="red.50" _dark={{ bg: 'red.900' }} borderRadius="md" border="1px solid" borderColor="red.200" _dark={{ borderColor: 'red.600' }}>
+                  <Box textAlign="center" p={3} bg="red.50" _dark={{ bg: 'red.900', borderColor: 'red.600' }} borderRadius="md" border="1px solid" borderColor="red.200">
                     <Text fontSize="xs" color="red.600" _dark={{ color: 'red.300' }} fontWeight="semibold">STAB</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.attackStab || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="red.50" _dark={{ bg: 'red.900' }} borderRadius="md" border="1px solid" borderColor="red.200" _dark={{ borderColor: 'red.600' }}>
+                  <Box textAlign="center" p={3} bg="red.50" _dark={{ bg: 'red.900', borderColor: 'red.600' }} borderRadius="md" border="1px solid" borderColor="red.200">
                     <Text fontSize="xs" color="red.600" _dark={{ color: 'red.300' }} fontWeight="semibold">SLASH</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.attackSlash || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="red.50" _dark={{ bg: 'red.900' }} borderRadius="md" border="1px solid" borderColor="red.200" _dark={{ borderColor: 'red.600' }}>
+                  <Box textAlign="center" p={3} bg="red.50" _dark={{ bg: 'red.900', borderColor: 'red.600' }} borderRadius="md" border="1px solid" borderColor="red.200">
                     <Text fontSize="xs" color="red.600" _dark={{ color: 'red.300' }} fontWeight="semibold">CRUSH</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.attackCrush || 0}</Text>
                   </Box>
                 </SimpleGrid>
                 <SimpleGrid columns={2} spacing={3}>
-                  <Box textAlign="center" p={3} bg="purple.50" _dark={{ bg: 'purple.900' }} borderRadius="md" border="1px solid" borderColor="purple.200" _dark={{ borderColor: 'purple.600' }}>
+                  <Box textAlign="center" p={3} bg="purple.50" _dark={{ bg: 'purple.900', borderColor: 'purple.600' }} borderRadius="md" border="1px solid" borderColor="purple.200">
                     <Text fontSize="xs" color="purple.600" _dark={{ color: 'purple.300' }} fontWeight="semibold">MAGIC</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.attackMagic || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="green.50" _dark={{ bg: 'green.900' }} borderRadius="md" border="1px solid" borderColor="green.200" _dark={{ borderColor: 'green.600' }}>
+                  <Box textAlign="center" p={3} bg="green.50" _dark={{ bg: 'green.900', borderColor: 'green.600' }} borderRadius="md" border="1px solid" borderColor="green.200">
                     <Text fontSize="xs" color="green.600" _dark={{ color: 'green.300' }} fontWeight="semibold">RANGED</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.attackRanged || 0}</Text>
                   </Box>
@@ -1196,25 +1196,25 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
                   🛡️ Defensive Stats
                 </Text>
                 <SimpleGrid columns={3} spacing={3} mb={4}>
-                  <Box textAlign="center" p={3} bg="blue.50" _dark={{ bg: 'blue.900' }} borderRadius="md" border="1px solid" borderColor="blue.200" _dark={{ borderColor: 'blue.600' }}>
+                  <Box textAlign="center" p={3} bg="blue.50" _dark={{ bg: 'blue.900', borderColor: 'blue.600' }} borderRadius="md" border="1px solid" borderColor="blue.200">
                     <Text fontSize="xs" color="blue.600" _dark={{ color: 'blue.300' }} fontWeight="semibold">STAB</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.defenceStab || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="blue.50" _dark={{ bg: 'blue.900' }} borderRadius="md" border="1px solid" borderColor="blue.200" _dark={{ borderColor: 'blue.600' }}>
+                  <Box textAlign="center" p={3} bg="blue.50" _dark={{ bg: 'blue.900', borderColor: 'blue.600' }} borderRadius="md" border="1px solid" borderColor="blue.200">
                     <Text fontSize="xs" color="blue.600" _dark={{ color: 'blue.300' }} fontWeight="semibold">SLASH</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.defenceSlash || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="blue.50" _dark={{ bg: 'blue.900' }} borderRadius="md" border="1px solid" borderColor="blue.200" _dark={{ borderColor: 'blue.600' }}>
+                  <Box textAlign="center" p={3} bg="blue.50" _dark={{ bg: 'blue.900', borderColor: 'blue.600' }} borderRadius="md" border="1px solid" borderColor="blue.200">
                     <Text fontSize="xs" color="blue.600" _dark={{ color: 'blue.300' }} fontWeight="semibold">CRUSH</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.defenceCrush || 0}</Text>
                   </Box>
                 </SimpleGrid>
                 <SimpleGrid columns={2} spacing={3}>
-                  <Box textAlign="center" p={3} bg="purple.50" _dark={{ bg: 'purple.900' }} borderRadius="md" border="1px solid" borderColor="purple.200" _dark={{ borderColor: 'purple.600' }}>
+                  <Box textAlign="center" p={3} bg="purple.50" _dark={{ bg: 'purple.900', borderColor: 'purple.600' }} borderRadius="md" border="1px solid" borderColor="purple.200">
                     <Text fontSize="xs" color="purple.600" _dark={{ color: 'purple.300' }} fontWeight="semibold">MAGIC</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.defenceMagic || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="green.50" _dark={{ bg: 'green.900' }} borderRadius="md" border="1px solid" borderColor="green.200" _dark={{ borderColor: 'green.600' }}>
+                  <Box textAlign="center" p={3} bg="green.50" _dark={{ bg: 'green.900', borderColor: 'green.600' }} borderRadius="md" border="1px solid" borderColor="green.200">
                     <Text fontSize="xs" color="green.600" _dark={{ color: 'green.300' }} fontWeight="semibold">RANGED</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.defenceRanged || 0}</Text>
                   </Box>
@@ -1229,22 +1229,22 @@ export const CombatLocation: React.FC<CombatLocationProps> = ({ location, monste
                   💪 Strength Bonuses
                 </Text>
                 <SimpleGrid columns={3} spacing={3}>
-                  <Box textAlign="center" p={3} bg="orange.50" _dark={{ bg: 'orange.900' }} borderRadius="md" border="1px solid" borderColor="orange.200" _dark={{ borderColor: 'orange.600' }}>
+                  <Box textAlign="center" p={3} bg="orange.50" _dark={{ bg: 'orange.900', borderColor: 'orange.600' }} borderRadius="md" border="1px solid" borderColor="orange.200">
                     <Text fontSize="xs" color="orange.600" _dark={{ color: 'orange.300' }} fontWeight="semibold">MELEE</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.strengthMelee || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="green.50" _dark={{ bg: 'green.900' }} borderRadius="md" border="1px solid" borderColor="green.200" _dark={{ borderColor: 'green.600' }}>
+                  <Box textAlign="center" p={3} bg="green.50" _dark={{ bg: 'green.900', borderColor: 'green.600' }} borderRadius="md" border="1px solid" borderColor="green.200">
                     <Text fontSize="xs" color="green.600" _dark={{ color: 'green.300' }} fontWeight="semibold">RANGED</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.strengthRanged || 0}</Text>
                   </Box>
-                  <Box textAlign="center" p={3} bg="purple.50" _dark={{ bg: 'purple.900' }} borderRadius="md" border="1px solid" borderColor="purple.200" _dark={{ borderColor: 'purple.600' }}>
+                  <Box textAlign="center" p={3} bg="purple.50" _dark={{ bg: 'purple.900', borderColor: 'purple.600' }} borderRadius="md" border="1px solid" borderColor="purple.200">
                     <Text fontSize="xs" color="purple.600" _dark={{ color: 'purple.300' }} fontWeight="semibold">MAGIC</Text>
                     <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.strengthMagic || 0}</Text>
                   </Box>
                 </SimpleGrid>
                 {(monsterForDisplay.stats?.prayerBonus || 0) !== 0 && (
                   <Box mt={3}>
-                    <Box textAlign="center" p={3} bg="yellow.50" _dark={{ bg: 'yellow.900' }} borderRadius="md" border="1px solid" borderColor="yellow.200" _dark={{ borderColor: 'yellow.600' }} maxW="200px" mx="auto">
+                    <Box textAlign="center" p={3} bg="yellow.50" _dark={{ bg: 'yellow.900', borderColor: 'yellow.600' }} borderRadius="md" border="1px solid" borderColor="yellow.200" maxW="200px" mx="auto">
                       <Text fontSize="xs" color="yellow.600" _dark={{ color: 'yellow.300' }} fontWeight="semibold">PRAYER</Text>
                       <Text fontSize="lg" fontWeight="bold">{monsterForDisplay.stats?.prayerBonus || 0}</Text>
                     </Box>

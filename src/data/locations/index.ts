@@ -11,6 +11,7 @@ export { templeLocation } from './temple';
 export { slayerCaveLocation } from './slayerCave';
 export { SLAYER_CAVE_LOCATIONS } from './slayerCaves';
 export { rooftopThievingLocation } from './rooftopThieving';
+export { fieldsLocation } from './fields';
 
 // Import all locations for easy access
 import { workbenchLocation } from './workbench';
@@ -26,6 +27,7 @@ import { templeLocation } from './temple';
 import { slayerCaveLocation } from './slayerCave';
 import { SLAYER_CAVE_LOCATIONS } from './slayerCaves';
 import { rooftopThievingLocation } from './rooftopThieving';
+import { fieldsLocation } from './fields';
 
 // Export all locations as an array (combat sub-locations are not included here as they're accessed through the combat hub)
 export const locations = [
@@ -38,6 +40,7 @@ export const locations = [
   workbenchLocation,
   alchemyStationLocation,
   rooftopThievingLocation,
+  fieldsLocation,
   combatLocation, // Main combat hub
   templeLocation,
   slayerCaveLocation, // Main slayer hub (sub-locations are accessed through the hub)

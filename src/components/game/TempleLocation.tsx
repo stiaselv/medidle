@@ -7,7 +7,7 @@ import { getExperienceForLevel } from '../../utils/experience';
 import type { SkillAction } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
-import templeBg from '../../assets/BG/temple.webp';
+// import templeBg from '../../assets/BG/temple.webp'; // Using public path instead
 import { useTheme } from '../../contexts/ThemeContext';
 
 const bounce = keyframes`
@@ -409,7 +409,7 @@ export const TempleLocation = () => {
     <Box
       w="100%"
       minH="100vh"
-      bgImage={`url(${templeBg})`}
+      bgImage="url('/assets/BG/temple.webp?v=2')"
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"

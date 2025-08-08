@@ -10,7 +10,7 @@ export const FARMING_CROPS: Record<string, FarmingCrop> = {
     experience: 8,
     harvestTime: 40,
     itemReward: { id: 'potato', name: 'Potato', quantity: 3 },
-    seedRequirement: { itemId: 'potato_seed', quantity: 3 }
+    seedRequirement: { itemId: 'potato_seeds', quantity: 3 }
   },
   onion: {
     id: 'onion',
@@ -80,7 +80,7 @@ export const FARMING_CROPS: Record<string, FarmingCrop> = {
     experience: 82,
     harvestTime: 80,
     itemReward: { id: 'snape_grass', name: 'Snape Grass', quantity: 4 },
-    seedRequirement: { itemId: 'snape_grass_seed', quantity: 1 }
+    seedRequirement: { itemId: 'snapegrass_seed', quantity: 1 }
   },
 
   // Herb crops

@@ -83,7 +83,8 @@ const ActionCard: React.FC<ActionCardProps> = ({
       boxShadow={isActive ? `0 0 20px ${actionColor}.500` : '0 4px 12px rgba(0,0,0,0.3)'}
       cursor={canPerform ? 'pointer' : 'not-allowed'}
       opacity={canPerform ? 1 : 0.6}
-      transition="all 0.3s"
+      transitionDuration="0.3s"
+      transitionProperty="all"
       _hover={canPerform ? {
         transform: 'translateY(-4px)',
         boxShadow: `0 8px 25px ${actionColor}.400`,
@@ -330,7 +331,7 @@ export const AlchemyStationLocation: React.FC = () => {
     <Box
       w="100%"
       minH="100vh"
-      bgImage="url('/assets/BG/alchemy_station.webp')"
+      bgImage="url('/assets/BG/alchemy_station.webp?v=2')"
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"

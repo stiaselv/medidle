@@ -9,7 +9,7 @@ import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
 import { ItemIcon } from '../ui/ItemIcon';
 import { getItemById } from '../../data/items';
-import campBg from '../../assets/BG/camp.webp';
+// import campBg from '../../assets/BG/camp.webp'; // Using public path instead
 import { useTheme } from '../../contexts/ThemeContext';
 
 const bounce = keyframes`
@@ -492,7 +492,7 @@ const CampLocation = () => {
         left={0}
         right={0}
         bottom={0}
-        bgImage={`url(${campBg})`}
+        bgImage="url('/assets/BG/camp.webp?v=2')"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"

@@ -207,6 +207,7 @@ export interface FarmingPatch {
     cropName: string;
     plantedAt: number; // Timestamp when planted
     harvestTime: number; // Growth time in minutes
+    readyAt: number; // Timestamp when crop will be ready for harvest
     experience: number; // XP rewarded on harvest
     itemReward: ItemReward;
   };
@@ -432,6 +433,7 @@ export interface Character {
     tier: number; // 0 = disabled, 1-3 = tier levels
     selectedFood: string | null; // item ID of selected food
   };
+  farmingPatches: FarmingPatch[]; // Store farming patches with character data
 }
 
 import type { CombatStyle } from '../combat/combatTriangle';

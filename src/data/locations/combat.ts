@@ -346,7 +346,6 @@ export const MONSTERS: Record<string, Monster> = {
       prayerBonus: 0
     },
     drops: [
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
       { itemId: 'dragon_bones', quantity: 1, chance: 1.0 },
       { itemId: 'blue_dragonhide', quantity: 1, chance: 1.0 }
     ],
@@ -377,7 +376,6 @@ export const MONSTERS: Record<string, Monster> = {
       prayerBonus: 0
     },
     drops: [
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
       { itemId: 'dragon_bones', quantity: 1, chance: 1.0 },
       { itemId: 'red_dragonhide', quantity: 1, chance: 1.0 }
     ],
@@ -408,7 +406,6 @@ export const MONSTERS: Record<string, Monster> = {
       prayerBonus: 0
     },
     drops: [
-      { itemId: 'bones', quantity: 1, chance: 1.0 },
       { itemId: 'dragon_bones', quantity: 1, chance: 1.0 },
       { itemId: 'black_dragonhide', quantity: 1, chance: 1.0 }
     ],

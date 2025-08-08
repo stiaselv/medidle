@@ -2152,6 +2152,134 @@ export const ITEMS: Record<string, Item> = {
     buyPrice: 120,
     sellPrice: 80
   },
+
+  // === HERB SEEDS ===
+  guam_seed: {
+    id: 'guam_seed',
+    name: 'Guam Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/guam_seed.png',
+    buyPrice: 15,
+    sellPrice: 5
+  },
+  marentill_seed: {
+    id: 'marentill_seed',
+    name: 'Marrentill Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/marrentill_seed.png',
+    buyPrice: 25,
+    sellPrice: 8
+  },
+  tarromin_seed: {
+    id: 'tarromin_seed',
+    name: 'Tarromin Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/tarromin_seed.png',
+    buyPrice: 35,
+    sellPrice: 12
+  },
+  harralander_seed: {
+    id: 'harralander_seed',
+    name: 'Harralander Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/harralander_seed.png',
+    buyPrice: 50,
+    sellPrice: 18
+  },
+  ranarr_seed: {
+    id: 'ranarr_seed',
+    name: 'Ranarr Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/ranarr_seed.png',
+    buyPrice: 80,
+    sellPrice: 30
+  },
+  toadflax_seed: {
+    id: 'toadflax_seed',
+    name: 'Toadflax Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/toadflax_seed.png',
+    buyPrice: 120,
+    sellPrice: 45
+  },
+  irit_seed: {
+    id: 'irit_seed',
+    name: 'Irit Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/irit_seed.png',
+    buyPrice: 160,
+    sellPrice: 60
+  },
+  avantoe_seed: {
+    id: 'avantoe_seed',
+    name: 'Avantoe Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/avantoe_seed.png',
+    buyPrice: 220,
+    sellPrice: 85
+  },
+  kwuarm_seed: {
+    id: 'kwuarm_seed',
+    name: 'Kwuarm Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/kwuarm_seed.png',
+    buyPrice: 300,
+    sellPrice: 120
+  },
+  snapdragon_seed: {
+    id: 'snapdragon_seed',
+    name: 'Snapdragon Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/snapdragon_seed.png',
+    buyPrice: 400,
+    sellPrice: 160
+  },
+  cadantine_seed: {
+    id: 'cadantine_seed',
+    name: 'Cadantine Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/cadantine_seed.png',
+    buyPrice: 550,
+    sellPrice: 220
+  },
+  lantadyme_seed: {
+    id: 'lantadyme_seed',
+    name: 'Lantadyme Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/lantadyme_seed.png',
+    buyPrice: 750,
+    sellPrice: 300
+  },
+  dwarf_weed_seed: {
+    id: 'dwarf_weed_seed',
+    name: 'Dwarf Weed Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/dwarf_weed_seed.png',
+    buyPrice: 1000,
+    sellPrice: 400
+  },
+  torstol_seed: {
+    id: 'torstol_seed',
+    name: 'Torstol Seed',
+    type: 'resource',
+    category: ITEM_CATEGORIES.FARMING,
+    icon: '/assets/ItemThumbnail/Farming/torstol_seed.png',
+    buyPrice: 1500,
+    sellPrice: 600
+  },
   acorn: {
     id: 'acorn',
     name: 'Acorn',

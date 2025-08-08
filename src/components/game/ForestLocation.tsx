@@ -7,7 +7,7 @@ import { getExperienceForLevel } from '../../utils/experience';
 import type { SkillAction, Requirement } from '../../types/game';
 import { ProgressBar } from './ProgressBar';
 import { RequirementStatus } from '../ui/RequirementStatus';
-import forestBg from '../../assets/BG/forest.webp';
+// import forestBg from '../../assets/BG/forest.webp'; // Using public path instead
 import { getItemById } from '../../data/items';
 import React from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -521,7 +521,7 @@ export const ForestLocation = () => {
         left={0}
         right={0}
         bottom={0}
-        bgImage={`url(${forestBg})`}
+        bgImage="url('/assets/BG/forest.webp?v=2')"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"

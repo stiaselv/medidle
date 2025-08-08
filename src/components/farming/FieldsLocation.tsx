@@ -85,9 +85,12 @@ export const FieldsLocation = () => {
     if (patch.status !== 'growing' || !patch.plantedCrop) return '';
     
     const currentTime = Date.now();
-    const growthTime = patch.plantedCrop.harvestTime * 60 * 1000; // Convert to milliseconds
-    const elapsedTime = currentTime - patch.plantedCrop.plantedAt;
-    const remainingTime = growthTime - elapsedTime;
+    
+    // Use readyAt timestamp if available, otherwise calculate from plantedAt
+    const readyTime = patch.plantedCrop.readyAt || 
+      (patch.plantedCrop.plantedAt + (patch.plantedCrop.harvestTime * 60 * 1000));
+    
+    const remainingTime = readyTime - currentTime;
     
     if (remainingTime <= 0) return 'Ready!';
     
@@ -104,10 +107,15 @@ export const FieldsLocation = () => {
     if (patch.status !== 'growing' || !patch.plantedCrop) return 0;
     
     const currentTime = Date.now();
-    const growthTime = patch.plantedCrop.harvestTime * 60 * 1000;
+    
+    // Use readyAt timestamp if available, otherwise calculate from plantedAt
+    const readyTime = patch.plantedCrop.readyAt || 
+      (patch.plantedCrop.plantedAt + (patch.plantedCrop.harvestTime * 60 * 1000));
+    
+    const totalGrowthTime = readyTime - patch.plantedCrop.plantedAt;
     const elapsedTime = currentTime - patch.plantedCrop.plantedAt;
     
-    return Math.min((elapsedTime / growthTime) * 100, 100);
+    return Math.min((elapsedTime / totalGrowthTime) * 100, 100);
   };
 
   const getPatchIcon = (type: PatchType) => {

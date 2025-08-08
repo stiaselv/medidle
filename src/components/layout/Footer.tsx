@@ -22,29 +22,30 @@ const LocationCard = ({ location, isActive, onClick }: { location: Location; isA
   // Map location IDs to background image paths
   const getLocationBackground = (locationId: string): string => {
     const backgroundMap: Record<string, string> = {
-      'forest': '/assets/BG/forest.webp',
-      'quarry': '/assets/BG/quarry.webp',
-      'forge': '/assets/BG/forge.webp',
-      'camp': '/assets/BG/camp.webp',
-      'temple': '/assets/BG/temple.webp',
-      'workbench': '/assets/BG/workbench.webp',
-      'general_store': '/assets/BG/general_store.webp',
-      'rooftop_thieving': '/assets/BG/rooftop_thieving.webp',
-      'fields': '/assets/BG/fields.webp',
-      'farm': '/assets/BG/farm.webp',
-      'construction': '/assets/BG/construction.webp',
-      'ardougne_market_place': '/assets/BG/ardougne_market_place.webp',
-      'slayer_cave': '/assets/BG/slayer_cave.webp',
-      'easy_cave': '/assets/BG/easy_cave.webp',
-      'medium_cave': '/assets/BG/medium_cave.webp',
-      'lumbridge_swamp_cave': '/assets/BG/lumbridge_swamp_cave.webp',
-      'dragons_den': '/assets/BG/dragons_den.webp',
-      'lava_dragon': '/assets/BG/lava_dragon.webp',
-      'wizard_tower': '/assets/BG/wizard_tower.webp',
-      'bank': '/assets/BG/bank.webp'
+      'forest': '/assets/BG/forest.webp?v=2',
+      'quarry': '/assets/BG/quarry.webp?v=2',
+      'forge': '/assets/BG/forge.webp?v=2',
+      'camp': '/assets/BG/camp.webp?v=2',
+      'temple': '/assets/BG/temple.webp?v=2',
+      'workbench': '/assets/BG/workbench.webp?v=2',
+      'general_store': '/assets/BG/general_store.webp?v=2',
+      'rooftop_thieving': '/assets/BG/rooftop_thieving.webp?v=2',
+      'fields': '/assets/BG/fields.webp?v=2',
+      'alchemy_station': '/assets/BG/alchemy_station.webp?v=2',
+      'farm': '/assets/BG/farm.webp?v=2',
+      'construction': '/assets/BG/construction.webp?v=2',
+      'ardougne_market_place': '/assets/BG/ardougne_market_place.webp?v=2',
+      'slayer_cave': '/assets/BG/slayer_cave.webp?v=2',
+      'easy_cave': '/assets/BG/easy_cave.webp?v=2',
+      'medium_cave': '/assets/BG/medium_cave.webp?v=2',
+      'lumbridge_swamp_cave': '/assets/BG/lumbridge_swamp_cave.webp?v=2',
+      'dragons_den': '/assets/BG/dragons_den.webp?v=2',
+      'lava_dragon': '/assets/BG/lava_dragon.webp?v=2',
+      'wizard_tower': '/assets/BG/wizard_tower.webp?v=2',
+      'bank': '/assets/BG/bank.webp?v=2'
     };
     
-    return backgroundMap[locationId] || '/assets/BG/camp.webp'; // Default fallback
+    return backgroundMap[locationId] || '/assets/BG/camp.webp?v=2'; // Default fallback
   };
 
   return (

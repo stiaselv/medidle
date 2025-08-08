@@ -304,7 +304,9 @@ const createStore = () => create<GameState>()(
           enabled: false,
           tier: 0,
           selectedFood: null
-        }
+        },
+        // Ensure farming patches are initialized for existing characters
+        farmingPatches: rest.farmingPatches || []
           };
         });
         set({ characters: charactersWithDates });
@@ -388,10 +390,24 @@ const createStore = () => create<GameState>()(
         activeQuests: rest.activeQuests || [],
         questProgress: rest.questProgress || {},
         achievements: rest.achievements || [],
-        achievementProgress: rest.achievementProgress || {}
+        achievementProgress: rest.achievementProgress || {},
+        // Ensure auto-eating properties are initialized
+        autoEating: rest.autoEating || {
+          enabled: false,
+          tier: 0,
+          selectedFood: null
+        },
+        // Ensure farming patches are initialized
+        farmingPatches: rest.farmingPatches || []
       };
       
-      set({ character: updatedCharacter });
+      // Sync farming patches from character to game state
+      const farmingPatches = updatedCharacter.farmingPatches || [];
+      
+      set({ 
+        character: updatedCharacter,
+        farmingPatches: farmingPatches
+      });
       
       // Save the updated character with new login time
       if (id) {
@@ -2816,39 +2832,57 @@ const createStore = () => create<GameState>()(
 
     // Farming system
     initializeFarmingPatches: () => {
+      const state = get();
+      
+      // Don't initialize if character already has patches
+      if (state.character && state.character.farmingPatches && state.character.farmingPatches.length > 0) {
+        set({ farmingPatches: state.character.farmingPatches });
+        return;
+      }
+      
       const patches: import('../types/game').FarmingPatch[] = [];
       
-      // Create 12 allotment patches
-      for (let i = 1; i <= 12; i++) {
+      // Create 10 allotment patches with random level requirements
+      const allotmentLevels = [1, 3, 7, 12, 18, 25, 33, 42, 52, 63];
+      for (let i = 1; i <= 10; i++) {
         patches.push({
           id: `allotment_${i}`,
           type: 'allotment',
           status: 'empty',
-          levelRequired: i === 1 ? 1 : Math.ceil(i * 3.5) // Progressive unlock
+          levelRequired: allotmentLevels[i - 1]
         });
       }
       
-      // Create 8 herb patches
-      for (let i = 1; i <= 8; i++) {
+      // Create 6 herb patches with random level requirements starting at 5
+      const herbLevels = [5, 9, 16, 24, 35, 48];
+      for (let i = 1; i <= 6; i++) {
         patches.push({
           id: `herbs_${i}`,
           type: 'herbs',
           status: 'empty',
-          levelRequired: i === 1 ? 5 : 5 + Math.ceil(i * 7) // First at level 5, then progressive
+          levelRequired: herbLevels[i - 1]
         });
       }
       
-      // Create 4 tree patches
+      // Create 4 tree patches with specific level requirements
+      const treeLevels = [15, 30, 45, 60];
       for (let i = 1; i <= 4; i++) {
         patches.push({
           id: `trees_${i}`,
           type: 'trees',
           status: 'empty',
-          levelRequired: i === 1 ? 15 : 15 + Math.ceil(i * 15) // First at level 15, then progressive
+          levelRequired: treeLevels[i - 1]
         });
       }
       
       set({ farmingPatches: patches });
+      
+      // Save patches to character data
+      if (state.character) {
+        const updatedCharacter = { ...state.character, farmingPatches: patches };
+        get().setCharacter(updatedCharacter);
+        get().saveCharacter(updatedCharacter);
+      }
     },
 
     plantCrop: (patchId: string, cropId: string): boolean => {
@@ -2882,6 +2916,9 @@ const createStore = () => create<GameState>()(
       }
       
       // Update patch
+      const currentTime = Date.now();
+      const readyAtTime = currentTime + (farmingCrop.harvestTime * 60 * 1000); // Convert minutes to milliseconds
+      
       const newPatches = [...state.farmingPatches];
       newPatches[patchIndex] = {
         ...patch,
@@ -2889,15 +2926,20 @@ const createStore = () => create<GameState>()(
         plantedCrop: {
           cropId: farmingCrop.id,
           cropName: farmingCrop.name,
-          plantedAt: Date.now(),
+          plantedAt: currentTime,
           harvestTime: farmingCrop.harvestTime,
+          readyAt: readyAtTime,
           experience: farmingCrop.experience,
           itemReward: farmingCrop.itemReward
         }
       };
       
-      // Update character
-      const updatedCharacter = { ...state.character, bank: newBank };
+      // Update character with new bank and farming patches
+      const updatedCharacter = { 
+        ...state.character, 
+        bank: newBank,
+        farmingPatches: newPatches 
+      };
       get().setCharacter(updatedCharacter);
       set({ farmingPatches: newPatches });
       
@@ -2915,6 +2957,9 @@ const createStore = () => create<GameState>()(
         }
         updatedCharacter.stats.farmingCropsPlanted[cropId]++;
       }
+      
+      // Save character data with updated farming patches
+      get().saveCharacter(updatedCharacter);
       
       return true;
     },
@@ -2946,38 +2991,63 @@ const createStore = () => create<GameState>()(
         plantedCrop: undefined
       };
       
+      // Update character with new farming patches
+      const updatedCharacter = { 
+        ...state.character, 
+        farmingPatches: newPatches 
+      };
+      get().setCharacter(updatedCharacter);
       set({ farmingPatches: newPatches });
       
       // Track farming stats
       get().incrementStat('cropsHarvested', 1);
       
       // Track specific crop harvested
-      if (state.character && state.character.stats && patch.plantedCrop) {
+      if (updatedCharacter.stats && patch.plantedCrop) {
         const cropId = patch.plantedCrop.cropId;
-        if (!state.character.stats.farmingHarvests[cropId]) {
-          state.character.stats.farmingHarvests[cropId] = 0;
+        if (!updatedCharacter.stats.farmingHarvests[cropId]) {
+          updatedCharacter.stats.farmingHarvests[cropId] = 0;
         }
-        state.character.stats.farmingHarvests[cropId]++;
+        updatedCharacter.stats.farmingHarvests[cropId]++;
       }
+      
+      // Save character data with updated farming patches
+      get().saveCharacter(updatedCharacter);
     },
 
     updatePatchStatuses: () => {
       const state = get();
+      if (!state.character) return;
+      
       const currentTime = Date.now();
+      let hasChanges = false;
       
       const updatedPatches = state.farmingPatches.map(patch => {
         if (patch.status === 'growing' && patch.plantedCrop) {
-          const growthTime = patch.plantedCrop.harvestTime * 60 * 1000; // Convert minutes to milliseconds
-          const elapsedTime = currentTime - patch.plantedCrop.plantedAt;
+          // Use readyAt timestamp if available, otherwise calculate from plantedAt
+          const readyTime = patch.plantedCrop.readyAt || 
+            (patch.plantedCrop.plantedAt + (patch.plantedCrop.harvestTime * 60 * 1000));
           
-          if (elapsedTime >= growthTime) {
+          if (currentTime >= readyTime) {
+            hasChanges = true;
             return { ...patch, status: 'ready' as const };
           }
         }
         return patch;
       });
       
-      set({ farmingPatches: updatedPatches });
+      if (hasChanges) {
+        // Update character with new farming patches
+        const updatedCharacter = { 
+          ...state.character, 
+          farmingPatches: updatedPatches 
+        };
+        get().setCharacter(updatedCharacter);
+        set({ farmingPatches: updatedPatches });
+        
+        // Save character data with updated farming patches
+        get().saveCharacter(updatedCharacter);
+      }
     },
 
     register: async (username: string, password: string) => {

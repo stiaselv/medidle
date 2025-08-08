@@ -296,7 +296,7 @@ export const FarmingLocation = () => {
     <Box
       w="100%"
       minH="100vh"
-      bgImage="url(/assets/BG/fields.webp)"
+      bgImage="url(/assets/BG/fields.webp?v=2)"
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"

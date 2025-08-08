@@ -1,5 +1,5 @@
 import { Box, Flex, Heading, VStack, useBreakpointValue, Text, SimpleGrid } from '@chakra-ui/react';
-import agilityBg from '../../assets/BG/rooftop_thieving.webp';
+// import agilityBg from '../../assets/BG/rooftop_thieving.webp'; // Using public path instead
 import { useGameStore } from '../../store/gameStore';
 import { mockLocations } from '../../data/mockData';
 import { ActionSection } from './ForestLocation';
@@ -31,7 +31,7 @@ const AgilityThievingLocation = () => {
     <Box
       w="100vw"
       minH="100vh"
-      bgImage={`url(${agilityBg})`}
+      bgImage="url('/assets/BG/rooftop_thieving.webp?v=2')"
       bgSize="cover"
       bgPosition="center"
       display="flex"
